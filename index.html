@@ -1,0 +1,605 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Furniture Planner</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font:14px system-ui,Arial;background:#f1f4f8;color:#243247}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:9px 12px;color:#243247}
+button:hover{background:#e8efff}
+button:active{background:#d7e5ff}
+button.primary{background:#2563eb;color:white;border-color:#2563eb}
+input,select,textarea{width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:7px;background:white}
+header{background:white;padding:15px 20px;border-bottom:1px solid #dbe3ef;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:20px;margin:0}
+h2{font-size:15px;margin:0 0 12px}
+small,.muted{color:#64748b;font-size:12px}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:12px;padding:12px;max-width:1600px;margin:auto}
+.panel{background:white;border:1px solid #dbe3ef;border-radius:12px;padding:14px;min-width:0}
+.row{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.group{margin-bottom:16px}
+.group:last-child{margin-bottom:0}
+label{display:block;color:#64748b;font-size:12px;margin-bottom:5px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#viewport{height:68vh;min-height:350px;overflow:auto;border:1px solid #d1dbe7;border-radius:10px;background:#e5eaf1;position:relative}
+#canvas{width:1300px;height:1000px;position:relative;transform-origin:top left;background-color:#fff;background-image:linear-gradient(#e5eaf0 1px,transparent 1px),linear-gradient(90deg,#e5eaf0 1px,transparent 1px);background-size:25px 25px}
+.obj{position:absolute;display:flex;align-items:center;justify-content:center;flex-direction:column;box-sizing:border-box;touch-action:none;user-select:none;cursor:grab;text-align:center;font-weight:600;font-size:12px;color:#334155;overflow:hidden}
+.obj.room{background:#dceafb99;border:3px solid #7295c2;z-index:1}
+.obj.zone{background:#fce9c744;border:2px dashed #d6a347;z-index:2}
+.obj.furniture{background:#b7c5d9cc;border:2px solid #7185a4;border-radius:5px;z-index:4}
+.obj.door{background:#d1a377;border:1px solid #8d5b32;z-index:6}
+.obj.window{background:#7dd3fc;border:1px solid #0284c7;z-index:6}
+.obj.plug{background:#f5c76e;border:1px solid #a76b20;border-radius:50%;z-index:7}
+.obj.selected{outline:3px solid #2563eb;outline-offset:2px;z-index:15}
+#dpad{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,44px);gap:5px;justify-content:center}
+#dpad button{font-size:22px;padding:4px}
+#dpad .center{display:flex;align-items:center;justify-content:center;font-size:11px;color:#64748b}
+textarea{height:145px;font:11px monospace;resize:vertical}
+.status{font-size:12px;color:#64748b;margin-top:10px}
+details{margin-top:12px}
+summary{cursor:pointer;font-weight:600}
+@media(max-width:850px){
+.app{grid-template-columns:1fr}
+#viewport{height:58vh}
+header{padding:12px}
+.panel{padding:12px}
+}
+</style>
+</head>
+<body>
+
+<header>
+<div>
+<h1>My Furniture Planner</h1>
+<small>Interactive apartment layout editor</small>
+</div>
+<div class="row">
+<span id="saveStatus" class="muted">Ready</span>
+<button onclick="save()">Save</button>
+<button onclick="saveCheckpoint()">+ Checkpoint</button>
+</div>
+</header>
+
+<div class="app">
+<main class="panel">
+<div class="group">
+<div class="row">
+<button onclick="zoomBy(-.15)">−</button>
+<strong id="zoomText">100%</strong>
+<button onclick="zoomBy(.15)">+</button>
+<button onclick="setZoom(1)">100%</button>
+<button onclick="fitView()">Fit</button>
+<select id="labels" style="width:auto" onchange="draw()">
+<option value="short">Short labels</option>
+<option value="rooms">Rooms only</option>
+<option value="none">Hide labels</option>
+</select>
+</div>
+</div>
+
+<div id="viewport">
+<div id="canvas"></div>
+</div>
+
+<div class="group" style="margin-top:12px">
+<div class="row">
+<button onclick="add('room')">+ Room</button>
+<button onclick="add('door')">+ Door</button>
+<button onclick="add('window')">+ Window</button>
+<button onclick="add('plug')">+ Plug</button>
+<button onclick="add('furniture')">+ Furniture</button>
+</div>
+</div>
+<small>Drag objects with your mouse or finger. Scroll to explore the canvas. Select an object for precise controls.</small>
+</main>
+
+<aside class="panel">
+<div class="group">
+<h2>Edit selected object</h2>
+<label>Object</label>
+<select id="itemSelect" onchange="selectItem(this.value)"></select>
+</div>
+
+<div class="group">
+<label>Name</label>
+<input id="nameInput" onchange="updateField('name',this.value)">
+</div>
+
+<div class="group fields">
+<div><label>Width (cm)</label><input id="widthInput" type="number" step=".1" onchange="updateField('w',Number(this.value)/100)"></div>
+<div><label>Depth (cm)</label><input id="depthInput" type="number" step=".1" onchange="updateField('h',Number(this.value)/100)"></div>
+<div><label>X (metres)</label><input id="xInput" type="number" step=".01" onchange="updateField('x',Number(this.value))"></div>
+<div><label>Y (metres)</label><input id="yInput" type="number" step=".01" onchange="updateField('y',Number(this.value))"></div>
+</div>
+
+<div class="group">
+<label>Move per tap</label>
+<select id="step">
+<option value=".01">1 cm</option>
+<option value=".05">5 cm</option>
+<option value=".1" selected>10 cm</option>
+<option value=".5">50 cm</option>
+</select>
+</div>
+
+<div class="group">
+<div id="dpad">
+<span></span><button onclick="move(0,-1)">↑</button><span></span>
+<button onclick="move(-1,0)">←</button><span class="center">MOVE</span><button onclick="move(1,0)">→</button>
+<span></span><button onclick="move(0,1)">↓</button><span></span>
+</div>
+</div>
+
+<div class="group">
+<label>Rotation: <span id="angle">0°</span></label>
+<div class="row">
+<button onclick="rotate(-90)">↶ 90°</button>
+<button onclick="rotate(90)">90° ↷</button>
+</div>
+</div>
+
+<div class="group" id="tableControls" style="display:none">
+<label>Dining table size</label>
+<select id="tableMode" onchange="setTableMode(this.value)">
+<option value="open">Fully open — 152 cm</option>
+<option value="half">Half open — 89 cm</option>
+<option value="folded">Folded — 26 cm</option>
+</select>
+</div>
+
+<div class="group row">
+<button onclick="duplicate()">Duplicate</button>
+<button onclick="removeItem()">Delete</button>
+</div>
+
+<hr style="border:0;border-top:1px solid #e2e8f0;margin:18px 0">
+
+<div class="group">
+<h2>Saved checkpoints</h2>
+<label>Restore a saved arrangement</label>
+<select id="checkpointSelect"></select>
+<div class="row" style="margin-top:8px">
+<button onclick="restoreCheckpoint()">Restore</button>
+<button onclick="deleteCheckpoint()">Delete checkpoint</button>
+</div>
+</div>
+
+<div class="group">
+<h2>Default layout</h2>
+<div class="row">
+<button onclick="setDefault()">Set as default</button>
+<button onclick="restoreDefault()">Restore default</button>
+</div>
+</div>
+
+<div class="group">
+<h2>Transfer between computers</h2>
+<p class="muted">Copy JSON on one computer and paste it into this box on another.</p>
+<textarea id="jsonBox" placeholder="Your JSON layout will appear here"></textarea>
+<div class="row" style="margin-top:9px">
+<button class="primary" onclick="exportJSON()">Generate JSON</button>
+<button onclick="copyJSON()">Copy JSON</button>
+<button onclick="importJSON()">Load pasted JSON</button>
+</div>
+</div>
+
+<div class="group">
+<button onclick="resetAll()">Reset starter layout</button>
+</div>
+
+<div id="message" class="status"></div>
+</aside>
+</div>
+
+<script>
+const SCALE=50;
+const KEY="furniture-planner-v8";
+const DEFAULTKEY="furniture-planner-default-v8";
+const CHECKKEY="furniture-planner-checkpoints-v8";
+
+function starter(){
+return [
+{id:"guest",type:"room",name:"Guest bedroom",x:.4,y:.4,w:3.8,h:2.8,rot:0},
+{id:"master",type:"room",name:"Master bedroom",x:4.7,y:.4,w:4,h:2.8,rot:0},
+{id:"living",type:"room",name:"Living room",x:.4,y:4,w:2.7,h:6.5,rot:0},
+{id:"zone",type:"zone",name:"Dining zone",x:9,y:10,w:3.12,h:2.4,rot:0},
+{id:"table",type:"furniture",name:"Dining table",x:9.4,y:10.5,w:1.52,h:.8,rot:0,mode:"open"},
+{id:"chair1",type:"furniture",name:"Chair 1",x:9,y:8,w:.46,h:.51,rot:0},
+{id:"chair2",type:"furniture",name:"Chair 2",x:9.8,y:8,w:.46,h:.51,rot:0},
+{id:"stool1",type:"furniture",name:"Stool 1",x:10.6,y:8,w:.42,h:.48,rot:0},
+{id:"stool2",type:"furniture",name:"Stool 2",x:11.4,y:8,w:.42,h:.48,rot:0},
+{id:"sofa",type:"furniture",name:"L-sofa",x:4,y:10,w:2.1,h:1.55,rot:0},
+{id:"king",type:"furniture",name:"King bed",x:4,y:5,w:1.886,h:2.09,rot:0},
+{id:"queen",type:"furniture",name:"Queen bed",x:6.4,y:5,w:1.56,h:2.07,rot:0},
+{id:"desk",type:"furniture",name:"Desk",x:8.4,y:5,w:1.2,h:.8,rot:0},
+{id:"tv",type:"furniture",name:"TV",x:4,y:8,w:1.233,h:.274,rot:0},
+{id:"console",type:"furniture",name:"TV console",x:6,y:8,w:1.4,h:.4,rot:0}
+];
+}
+
+function read(key,fallback){
+try{
+let v=JSON.parse(localStorage.getItem(key));
+return v===null?fallback:v;
+}catch(e){return fallback}
+}
+
+let objects=read(KEY,starter());
+let checkpoints=read(CHECKKEY,[]);
+let selected=objects[0]?.id||null;
+let zoom=1;
+let drag=null;
+
+const $=id=>document.getElementById(id);
+const round=n=>Math.round(n*10000)/10000;
+const current=()=>objects.find(o=>o.id===selected);
+const uid=()=>Math.random().toString(36).slice(2,11);
+
+function message(text){
+$("message").textContent=text;
+}
+
+function save(){
+try{
+localStorage.setItem(KEY,JSON.stringify(objects));
+localStorage.setItem(CHECKKEY,JSON.stringify(checkpoints));
+$("saveStatus").textContent="✓ Saved on this device";
+}catch(e){
+$("saveStatus").textContent="Browser storage unavailable";
+}
+}
+
+function dimensions(o){
+return o.rot%180?[o.h,o.w]:[o.w,o.h];
+}
+
+function setZoom(n){
+zoom=Math.max(.3,Math.min(3,n));
+$("canvas").style.transform=`scale(${zoom})`;
+$("zoomText").textContent=Math.round(zoom*100)+"%";
+const viewport=$("viewport");
+$("canvas").parentElement.style.minWidth="0";
+$("canvas").style.marginBottom=
+(1000*(zoom-1))+"px";
+$("canvas").style.marginRight=
+(1300*(zoom-1))+"px";
+}
+
+function zoomBy(n){
+setZoom(zoom+n);
+}
+
+function fitView(){
+const width=$("viewport").clientWidth-25;
+setZoom(Math.min(1,width/1300));
+$("viewport").scrollTop=0;
+$("viewport").scrollLeft=0;
+}
+
+function selectItem(id){
+selected=id;
+draw();
+}
+
+function refreshForm(){
+const select=$("itemSelect");
+select.replaceChildren();
+for(const o of objects){
+const option=document.createElement("option");
+option.value=o.id;
+option.textContent=o.name;
+select.appendChild(option);
+}
+const o=current();
+if(!o)return;
+select.value=o.id;
+$("nameInput").value=o.name;
+$("widthInput").value=round(o.w*100);
+$("depthInput").value=round(o.h*100);
+$("xInput").value=o.x;
+$("yInput").value=o.y;
+$("angle").textContent=o.rot+"°";
+$("tableControls").style.display=
+o.id==="table"?"block":"none";
+if(o.id==="table"){
+$("tableMode").value=o.mode||"open";
+}
+}
+
+function draw(){
+const canvas=$("canvas");
+canvas.replaceChildren();
+const mode=$("labels").value;
+
+for(const o of objects){
+const e=document.createElement("div");
+const [w,h]=dimensions(o);
+e.className="obj "+o.type+
+(o.id===selected?" selected":"");
+Object.assign(e.style,{
+left:(o.x*SCALE)+"px",
+top:(o.y*SCALE)+"px",
+width:Math.max(10,w*SCALE)+"px",
+height:Math.max(10,h*SCALE)+"px"
+});
+
+if(mode!=="none" &&
+(mode==="short" || o.type==="room")){
+const label=document.createElement("span");
+label.textContent=o.type==="plug"?"⚡":o.name;
+if(w*SCALE>45&&h*SCALE>20){
+e.appendChild(label);
+}
+}
+
+e.title=o.name+" — "+round(o.w*100)+
+" × "+round(o.h*100)+" cm";
+
+e.addEventListener("pointerdown",event=>{
+if(event.button!==0)return;
+event.preventDefault();
+event.stopPropagation();
+selected=o.id;
+drag={
+id:o.id,
+pointer:event.pointerId,
+x:o.x,y:o.y,
+cx:event.clientX,
+cy:event.clientY
+};
+e.setPointerCapture(event.pointerId);
+canvas.querySelectorAll(".obj").forEach(
+x=>x.classList.remove("selected"));
+e.classList.add("selected");
+refreshForm();
+});
+
+e.addEventListener("pointermove",event=>{
+if(!drag||drag.id!==o.id||
+drag.pointer!==event.pointerId)return;
+o.x=round(drag.x+
+(event.clientX-drag.cx)/(SCALE*zoom));
+o.y=round(drag.y+
+(event.clientY-drag.cy)/(SCALE*zoom));
+e.style.left=o.x*SCALE+"px";
+e.style.top=o.y*SCALE+"px";
+$("xInput").value=o.x;
+$("yInput").value=o.y;
+});
+
+function finish(){
+if(drag&&drag.id===o.id){
+drag=null;
+save();
+}
+}
+e.addEventListener("pointerup",finish);
+e.addEventListener("pointercancel",finish);
+canvas.appendChild(e);
+}
+refreshForm();
+}
+
+function updateField(key,value){
+const o=current();
+if(!o)return;
+if(key==="w"||key==="h"){
+if(!Number.isFinite(value)||value<.05)return;
+}
+if(["x","y"].includes(key)&&
+!Number.isFinite(value))return;
+o[key]=value;
+draw();
+save();
+}
+
+function move(dx,dy){
+const o=current();
+if(!o)return;
+const step=Number($("step").value);
+o.x=round(o.x+dx*step);
+o.y=round(o.y+dy*step);
+draw();
+save();
+}
+
+function rotate(deg){
+const o=current();
+if(!o)return;
+o.rot=(o.rot+deg+360)%360;
+draw();
+save();
+}
+
+function setTableMode(mode){
+const o=current();
+if(!o||o.id!=="table")return;
+o.mode=mode;
+o.w={open:1.52,half:.89,folded:.26}[mode];
+o.h=.8;
+draw();
+save();
+}
+
+function add(type){
+const defs={
+room:["New room",3,3],
+door:["Door",.9,.12],
+window:["Window",1.2,.12],
+plug:["Plug",.22,.22],
+furniture:["Furniture",1.2,.8]
+};
+const [name,w,h]=defs[type];
+const o={
+id:uid(),type,name,w,h,
+x:3.5,y:3.5,rot:0
+};
+objects.push(o);
+selected=o.id;
+draw();
+save();
+}
+
+function duplicate(){
+const o=current();
+if(!o)return;
+const n={...o,id:uid(),
+name:o.name+" copy",
+x:round(o.x+.3),
+y:round(o.y+.3)};
+objects.push(n);
+selected=n.id;
+draw();
+save();
+}
+
+function removeItem(){
+objects=objects.filter(o=>o.id!==selected);
+selected=objects[0]?.id||null;
+draw();
+save();
+}
+
+function saveCheckpoint(){
+const name=prompt("Name this layout checkpoint:");
+if(!name)return;
+checkpoints.push({
+id:uid(),
+name,
+date:new Date().toISOString(),
+objects:JSON.parse(JSON.stringify(objects))
+});
+save();
+refreshCheckpoints();
+message("Checkpoint saved: "+name);
+}
+
+function refreshCheckpoints(){
+const select=$("checkpointSelect");
+select.replaceChildren();
+for(const c of checkpoints){
+const o=document.createElement("option");
+o.value=c.id;
+o.textContent=c.name;
+select.appendChild(o);
+}
+}
+
+function restoreCheckpoint(){
+const c=checkpoints.find(
+c=>c.id===$("checkpointSelect").value);
+if(!c)return;
+objects=JSON.parse(JSON.stringify(c.objects));
+selected=objects[0]?.id||null;
+draw();save();
+message("Checkpoint restored: "+c.name);
+}
+
+function deleteCheckpoint(){
+const id=$("checkpointSelect").value;
+checkpoints=checkpoints.filter(c=>c.id!==id);
+save();
+refreshCheckpoints();
+}
+
+function setDefault(){
+try{
+localStorage.setItem(DEFAULTKEY,JSON.stringify(objects));
+message("Custom default saved.");
+}catch(e){message("Unable to save default.");}
+}
+
+function restoreDefault(){
+const saved=read(DEFAULTKEY,null);
+if(!saved){
+message("No custom default saved yet.");
+return;
+}
+objects=saved;
+selected=objects[0]?.id||null;
+draw();save();
+message("Default layout restored.");
+}
+
+function exportJSON(){
+const payload={
+version:8,
+exportedAt:new Date().toISOString(),
+objects,
+checkpoints,
+defaultLayout:read(DEFAULTKEY,null),
+zoom,
+labels:$("labels").value
+};
+$("jsonBox").value=JSON.stringify(payload,null,2);
+message("JSON generated. Copy it for your other device.");
+}
+
+async function copyJSON(){
+exportJSON();
+const text=$("jsonBox").value;
+try{
+await navigator.clipboard.writeText(text);
+message("JSON copied to clipboard.");
+}catch(e){
+$("jsonBox").focus();
+$("jsonBox").select();
+message("Clipboard blocked. Use Ctrl+C to copy the selected JSON.");
+}
+}
+
+function importJSON(){
+let data;
+try{
+data=JSON.parse($("jsonBox").value);
+}catch(e){
+message("Invalid JSON. Check your pasted text.");
+return;
+}
+if(!Array.isArray(data.objects)){
+message("JSON does not contain a valid layout.");
+return;
+}
+if(!confirm("Replace your current layout with this JSON?"))return;
+objects=data.objects;
+checkpoints=Array.isArray(data.checkpoints)?
+data.checkpoints:[];
+selected=objects[0]?.id||null;
+if(Array.isArray(data.defaultLayout)){
+localStorage.setItem(
+DEFAULTKEY,
+JSON.stringify(data.defaultLayout));
+}
+if(data.labels)$("labels").value=data.labels;
+draw();
+if(data.zoom)setZoom(data.zoom);
+refreshCheckpoints();
+save();
+message("JSON imported successfully.");
+}
+
+function resetAll(){
+if(!confirm("Reset layout to original measurements?"))return;
+objects=starter();
+selected=objects[0].id;
+draw();save();
+message("Starter layout restored.");
+}
+
+$("viewport").addEventListener("wheel",e=>{
+if(e.ctrlKey){
+e.preventDefault();
+zoomBy(e.deltaY>0?-.1:.1);
+}
+},{passive:false});
+
+draw();
+refreshCheckpoints();
+setZoom(1);
+</script>
+</body>
+</html>
