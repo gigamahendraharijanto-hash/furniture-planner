@@ -1,605 +1,128 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>My Furniture Planner</title>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Furniture Planner · Precision Edition</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font:14px system-ui,Arial;background:#f1f4f8;color:#243247}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer;background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:9px 12px;color:#243247}
-button:hover{background:#e8efff}
-button:active{background:#d7e5ff}
-button.primary{background:#2563eb;color:white;border-color:#2563eb}
-input,select,textarea{width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:7px;background:white}
-header{background:white;padding:15px 20px;border-bottom:1px solid #dbe3ef;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-size:20px;margin:0}
-h2{font-size:15px;margin:0 0 12px}
-small,.muted{color:#64748b;font-size:12px}
-.app{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:12px;padding:12px;max-width:1600px;margin:auto}
-.panel{background:white;border:1px solid #dbe3ef;border-radius:12px;padding:14px;min-width:0}
-.row{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
-.group{margin-bottom:16px}
-.group:last-child{margin-bottom:0}
-label{display:block;color:#64748b;font-size:12px;margin-bottom:5px}
-.fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-#viewport{height:68vh;min-height:350px;overflow:auto;border:1px solid #d1dbe7;border-radius:10px;background:#e5eaf1;position:relative}
-#canvas{width:1300px;height:1000px;position:relative;transform-origin:top left;background-color:#fff;background-image:linear-gradient(#e5eaf0 1px,transparent 1px),linear-gradient(90deg,#e5eaf0 1px,transparent 1px);background-size:25px 25px}
-.obj{position:absolute;display:flex;align-items:center;justify-content:center;flex-direction:column;box-sizing:border-box;touch-action:none;user-select:none;cursor:grab;text-align:center;font-weight:600;font-size:12px;color:#334155;overflow:hidden}
-.obj.room{background:#dceafb99;border:3px solid #7295c2;z-index:1}
-.obj.zone{background:#fce9c744;border:2px dashed #d6a347;z-index:2}
-.obj.furniture{background:#b7c5d9cc;border:2px solid #7185a4;border-radius:5px;z-index:4}
-.obj.door{background:#d1a377;border:1px solid #8d5b32;z-index:6}
-.obj.window{background:#7dd3fc;border:1px solid #0284c7;z-index:6}
-.obj.plug{background:#f5c76e;border:1px solid #a76b20;border-radius:50%;z-index:7}
-.obj.selected{outline:3px solid #2563eb;outline-offset:2px;z-index:15}
-#dpad{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,44px);gap:5px;justify-content:center}
-#dpad button{font-size:22px;padding:4px}
-#dpad .center{display:flex;align-items:center;justify-content:center;font-size:11px;color:#64748b}
-textarea{height:145px;font:11px monospace;resize:vertical}
-.status{font-size:12px;color:#64748b;margin-top:10px}
-details{margin-top:12px}
-summary{cursor:pointer;font-weight:600}
-@media(max-width:850px){
-.app{grid-template-columns:1fr}
-#viewport{height:58vh}
-header{padding:12px}
-.panel{padding:12px}
-}
-</style>
-</head>
+:root{font:14px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;color:#223047;background:#edf1f6}*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid #c7d3e2;background:#fff;color:#223047;padding:8px 10px;border-radius:8px;font-weight:600}button:hover{background:#eaf1fd}button:disabled{opacity:.45;cursor:not-allowed}.primary{color:white;background:#2458ba;border-color:#2458ba}.primary:hover{background:#194b9f}.active{background:#dce9ff!important;border-color:#2458ba!important}input,select,textarea{width:100%;min-width:0;border:1px solid #c9d4e3;border-radius:7px;padding:7px;background:white;color:#1f3048}label{display:block;font-size:12px;color:#56677e;margin-bottom:4px}h1{font-size:18px;margin:0}h2{font-size:14px;margin:0 0 9px}header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #dce3ed;padding:12px 16px}.top,.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.app{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:12px;padding:12px;max-width:1800px;margin:auto}.panel{background:white;border:1px solid #d9e2ed;border-radius:12px;min-width:0;overflow:hidden}.tools{display:flex;gap:6px;flex-wrap:wrap;padding:10px;border-bottom:1px solid #e4eaf2;align-items:center}.tools .sep{width:1px;height:25px;background:#dbe3ed;margin:0 3px}.workspace{height:calc(100vh - 215px);min-height:400px;overflow:auto;background:#e7edf5;overscroll-behavior:contain;touch-action:pan-x pan-y}.scaled{position:relative;margin:20px}.board{position:absolute;left:0;top:0;transform-origin:top left;touch-action:none;background-color:#fcfdff;background-image:linear-gradient(#e4eaf2 1px,transparent 1px),linear-gradient(90deg,#e4eaf2 1px,transparent 1px);background-size:25px 25px;border:1px solid #96adc9;box-shadow:0 5px 20px #1c41601f}.obj{position:absolute;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;font-weight:650;border:2px solid #678bad;background:#c9dcf0a0;color:#254566;overflow:hidden;cursor:grab}.obj.room{border-width:3px;background:#dbeaf6aa;z-index:1}.obj.zone{border:2px dashed #c89d42;background:#f4dfb53b;z-index:2}.obj.furniture{background:#b6c7e2dd;border-color:#657da7;z-index:4;border-radius:3px}.obj.door{background:#d4ac81;border-color:#956431;z-index:7}.obj.window{background:#92d8f2;border-color:#1584b7;z-index:7}.obj.plug{background:#f6cd71;border-color:#bb8720;border-radius:50%;z-index:8}.obj.selected{outline:3px solid #1259d7;outline-offset:2px;z-index:15}.obj.locked{border-style:dashed;cursor:not-allowed}.obj.locked::after{content:'🔒';position:absolute;right:2px;top:1px;font-size:11px;line-height:1}.obj .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:95%;pointer-events:none}.obj.tiny .name{display:none}.obj.selected.tiny .name{display:none}.marquee{position:absolute;z-index:30;pointer-events:none;border:1px dashed #2563eb;background:#2563eb22}.side{padding:13px;max-height:calc(100vh - 105px);overflow:auto}.section{border-bottom:1px solid #e1e7f0;padding-bottom:14px;margin-bottom:14px}.section:last-child{border:none}.fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}.muted{font-size:12px;color:#68788d}.msg{font-size:12px;color:#246142;min-height:18px}.dpad{display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,40px);gap:4px;justify-content:center}.dpad button{font-size:21px;padding:0}.dpad .middle{display:grid;place-items:center;color:#8a97a9;font-size:11px}.tabs{display:flex;gap:4px}.tabs button{flex:1}.batch{min-height:95px;font:12px/1.4 ui-monospace,monospace}.json{min-height:170px;font:11px/1.5 ui-monospace,monospace}.badge{font-size:11px;border-radius:20px;background:#eaf1fb;padding:5px 9px;color:#3d5a7e}.info{font-size:11px;color:#63738b}.colorblue{color:#2563eb}.hide{display:none!important}#zoom{width:115px}.item-list{max-height:130px;overflow:auto;border:1px solid #d8e2ec;border-radius:7px;padding:5px}.item-list label{display:flex;align-items:center;gap:6px;padding:3px 5px;margin:0;cursor:pointer}.item-list input{width:auto}.item-list label:hover{background:#edf4ff}.text-small{font-size:11px}.stack{display:grid;gap:7px}.space{margin-top:8px}.tleft{margin-left:auto}
+@media(max-width:900px){.app{display:flex;flex-direction:column;padding:7px;gap:8px}.workspace{height:52vh;min-height:330px}.side{max-height:none;overflow:visible}.tools{padding:8px}header{padding:10px}.tools button{font-size:12px;padding:8px}.top button{font-size:12px}.scaled{margin:12px}}
+</style></head>
 <body>
-
-<header>
-<div>
-<h1>My Furniture Planner</h1>
-<small>Interactive apartment layout editor</small>
+<header><div><h1>▦ Furniture Planner <span class="badge">Precision edition</span></h1><div class="muted">Snap · Multi-select · Group · Lock · Save · JSON transfer</div></div><div class="top"><span id="saveStatus" class="muted">Ready</span><button id="saveBtn">Save</button><button id="checkpointBtn">+ Checkpoint</button><button id="copyBtn" class="primary">Copy JSON</button><button id="pasteBtn">Paste JSON</button></div></header>
+<div class="app"><main class="panel">
+<div class="tools">
+ <button id="selectAllBtn">Select all</button><button id="clearBtn">Clear</button><button id="multiBtn">Multi-select: Off</button><button id="groupBtn">Group</button><button id="ungroupBtn">Ungroup</button><button id="lockBtn">🔒 Lock selected</button><button id="unlockBtn">Unlock selected</button>
 </div>
-<div class="row">
-<span id="saveStatus" class="muted">Ready</span>
-<button onclick="save()">Save</button>
-<button onclick="saveCheckpoint()">+ Checkpoint</button>
+<div class="tools"><button id="zoomOut">−</button><input id="zoom" type="range" min="25" max="250" step="5" value="100"><strong id="zoomValue" style="min-width:45px;text-align:center">100%</strong><button id="zoomIn">+</button><button id="fitBtn">Fit</button><span class="sep"></span><label style="margin:0"><input id="gridSnap" type="checkbox" checked style="width:auto"> Grid snap</label><select id="gridSize" style="width:auto"><option value=".01">1 cm</option><option value=".05" selected>5 cm</option><option value=".1">10 cm</option><option value=".2">20 cm</option><option value=".5">50 cm</option></select><label style="margin:0"><input id="magnet" type="checkbox" checked style="width:auto"> Magnetic align</label><select id="labels" style="width:auto"><option value="short">Short labels</option><option value="rooms">Rooms only</option><option value="none">No labels</option></select></div>
+<div class="workspace" id="viewport"><div class="scaled" id="scaled"><div class="board" id="board"></div></div></div>
+<div class="tools"><span class="muted">Add:</span><button data-add="room">Room</button><button data-add="door">Door</button><button data-add="window">Window</button><button data-add="plug">Plug</button><button data-add="furniture">Furniture</button><button data-add="zone">Zone</button><span id="selectionCount" class="badge tleft">0 selected</span></div>
+<div class="tools"><span class="info">Desktop: drag items; Shift-click to multi-select; drag empty canvas to box-select; Ctrl/Cmd+A to select all. Mobile: turn on Multi-select, then tap items.</span></div>
+</main><aside class="panel side">
+<div class="section stack"><h2>Selection & precise movement</h2><div class="row"><span id="selectionSummary" class="badge">No selection</span><button id="selectUnlocked">Select unlocked</button></div><div class="item-list" id="itemList"></div>
+<div class="fields"><div><label>Move by</label><select id="moveStep"><option value=".01">1 cm</option><option value=".05">5 cm</option><option value=".1" selected>10 cm</option><option value=".5">50 cm</option></select></div><div><label>Rotate</label><div class="row"><button id="ccw">↶ 90°</button><button id="cw">90° ↷</button></div></div></div>
+<div class="dpad"><span></span><button data-move="0,-1">↑</button><span></span><button data-move="-1,0">←</button><span class="middle">MOVE</span><button data-move="1,0">→</button><span></span><button data-move="0,1">↓</button><span></span></div>
+<div class="row"><button id="duplicateBtn">Duplicate</button><button id="deleteBtn">Delete unlocked</button></div>
 </div>
-</header>
-
-<div class="app">
-<main class="panel">
-<div class="group">
-<div class="row">
-<button onclick="zoomBy(-.15)">−</button>
-<strong id="zoomText">100%</strong>
-<button onclick="zoomBy(.15)">+</button>
-<button onclick="setZoom(1)">100%</button>
-<button onclick="fitView()">Fit</button>
-<select id="labels" style="width:auto" onchange="draw()">
-<option value="short">Short labels</option>
-<option value="rooms">Rooms only</option>
-<option value="none">Hide labels</option>
-</select>
-</div>
-</div>
-
-<div id="viewport">
-<div id="canvas"></div>
-</div>
-
-<div class="group" style="margin-top:12px">
-<div class="row">
-<button onclick="add('room')">+ Room</button>
-<button onclick="add('door')">+ Door</button>
-<button onclick="add('window')">+ Window</button>
-<button onclick="add('plug')">+ Plug</button>
-<button onclick="add('furniture')">+ Furniture</button>
-</div>
-</div>
-<small>Drag objects with your mouse or finger. Scroll to explore the canvas. Select an object for precise controls.</small>
-</main>
-
-<aside class="panel">
-<div class="group">
-<h2>Edit selected object</h2>
-<label>Object</label>
-<select id="itemSelect" onchange="selectItem(this.value)"></select>
-</div>
-
-<div class="group">
-<label>Name</label>
-<input id="nameInput" onchange="updateField('name',this.value)">
-</div>
-
-<div class="group fields">
-<div><label>Width (cm)</label><input id="widthInput" type="number" step=".1" onchange="updateField('w',Number(this.value)/100)"></div>
-<div><label>Depth (cm)</label><input id="depthInput" type="number" step=".1" onchange="updateField('h',Number(this.value)/100)"></div>
-<div><label>X (metres)</label><input id="xInput" type="number" step=".01" onchange="updateField('x',Number(this.value))"></div>
-<div><label>Y (metres)</label><input id="yInput" type="number" step=".01" onchange="updateField('y',Number(this.value))"></div>
-</div>
-
-<div class="group">
-<label>Move per tap</label>
-<select id="step">
-<option value=".01">1 cm</option>
-<option value=".05">5 cm</option>
-<option value=".1" selected>10 cm</option>
-<option value=".5">50 cm</option>
-</select>
-</div>
-
-<div class="group">
-<div id="dpad">
-<span></span><button onclick="move(0,-1)">↑</button><span></span>
-<button onclick="move(-1,0)">←</button><span class="center">MOVE</span><button onclick="move(1,0)">→</button>
-<span></span><button onclick="move(0,1)">↓</button><span></span>
-</div>
-</div>
-
-<div class="group">
-<label>Rotation: <span id="angle">0°</span></label>
-<div class="row">
-<button onclick="rotate(-90)">↶ 90°</button>
-<button onclick="rotate(90)">90° ↷</button>
-</div>
-</div>
-
-<div class="group" id="tableControls" style="display:none">
-<label>Dining table size</label>
-<select id="tableMode" onchange="setTableMode(this.value)">
-<option value="open">Fully open — 152 cm</option>
-<option value="half">Half open — 89 cm</option>
-<option value="folded">Folded — 26 cm</option>
-</select>
-</div>
-
-<div class="group row">
-<button onclick="duplicate()">Duplicate</button>
-<button onclick="removeItem()">Delete</button>
-</div>
-
-<hr style="border:0;border-top:1px solid #e2e8f0;margin:18px 0">
-
-<div class="group">
-<h2>Saved checkpoints</h2>
-<label>Restore a saved arrangement</label>
-<select id="checkpointSelect"></select>
-<div class="row" style="margin-top:8px">
-<button onclick="restoreCheckpoint()">Restore</button>
-<button onclick="deleteCheckpoint()">Delete checkpoint</button>
-</div>
-</div>
-
-<div class="group">
-<h2>Default layout</h2>
-<div class="row">
-<button onclick="setDefault()">Set as default</button>
-<button onclick="restoreDefault()">Restore default</button>
-</div>
-</div>
-
-<div class="group">
-<h2>Transfer between computers</h2>
-<p class="muted">Copy JSON on one computer and paste it into this box on another.</p>
-<textarea id="jsonBox" placeholder="Your JSON layout will appear here"></textarea>
-<div class="row" style="margin-top:9px">
-<button class="primary" onclick="exportJSON()">Generate JSON</button>
-<button onclick="copyJSON()">Copy JSON</button>
-<button onclick="importJSON()">Load pasted JSON</button>
-</div>
-</div>
-
-<div class="group">
-<button onclick="resetAll()">Reset starter layout</button>
-</div>
-
-<div id="message" class="status"></div>
-</aside>
-</div>
-
+<div class="section stack"><h2>Align selected items</h2><div class="row"><button data-align="left">Left</button><button data-align="centerX">Center ↕</button><button data-align="right">Right</button><button data-align="top">Top</button><button data-align="centerY">Middle ↔</button><button data-align="bottom">Bottom</button></div><div class="muted">Aligns multiple selected, unlocked objects. Locked objects stay in place and can serve as alignment references.</div></div>
+<div class="section stack"><h2>Item details</h2><div><label>Name</label><input id="name" placeholder="Select one item"></div><div class="fields"><div><label>Width (cm)</label><input id="width" type="number" min="5" step=".1"></div><div><label>Depth (cm)</label><input id="depth" type="number" min="5" step=".1"></div><div><label>X (metres)</label><input id="x" type="number" step=".01"></div><div><label>Y (metres)</label><input id="y" type="number" step=".01"></div></div><div id="tableWrap"><label>Table configuration</label><select id="tableMode"><option value="open">Open (152 × 80 cm)</option><option value="half">Half (89 × 80 cm)</option><option value="folded">Folded (26 × 80 cm)</option></select></div><div class="muted" id="lockedNotice"></div></div>
+<div class="section stack"><h2>Add furniture by dimensions</h2><div><label>Furniture name</label><input id="newName" placeholder="e.g. Bookshelf"></div><div class="fields"><div><label>Width (cm)</label><input id="newW" type="number" value="120" min="5" step=".1"></div><div><label>Depth (cm)</label><input id="newD" type="number" value="40" min="5" step=".1"></div><div><label>Quantity</label><input id="newQ" type="number" value="1" min="1" max="100" step="1"></div><div style="display:flex;align-items:end"><button id="addCustomBtn" class="primary" style="width:100%">Add furniture</button></div></div>
+<h2 style="margin-top:8px">Batch add furniture</h2><div class="muted">One per line: <code>Name, Width cm, Depth cm, Quantity</code></div><textarea id="batchText" class="batch" placeholder="Bookshelf, 90, 35, 2&#10;Side table, 45, 45, 1"></textarea><button id="batchBtn">Add batch</button></div>
+<div class="section stack"><h2>Layouts & checkpoints</h2><label>Saved checkpoints</label><select id="checkpoints"></select><div class="row"><button id="restoreCheckpoint">Restore</button><button id="deleteCheckpoint">Delete checkpoint</button><button id="setDefault">Set as default</button><button id="restoreDefault">Restore default</button></div><button id="resetBtn">Reset starter layout</button><div class="muted">Changes autosave on this browser. On library PCs, copy your JSON before ending the session.</div></div>
+<div class="section stack"><h2>Transfer JSON between devices</h2><textarea id="jsonText" class="json" placeholder="Click Generate JSON, or paste a JSON save here"></textarea><div class="row"><button id="generateBtn">Generate JSON</button><button id="selectTextBtn">Select text</button><button id="loadBtn" class="primary">Load pasted JSON</button></div></div>
+<div id="message" class="msg" role="status"></div>
+</aside></div>
 <script>
-const SCALE=50;
-const KEY="furniture-planner-v8";
-const DEFAULTKEY="furniture-planner-default-v8";
-const CHECKKEY="furniture-planner-checkpoints-v8";
-
-function starter(){
-return [
-{id:"guest",type:"room",name:"Guest bedroom",x:.4,y:.4,w:3.8,h:2.8,rot:0},
-{id:"master",type:"room",name:"Master bedroom",x:4.7,y:.4,w:4,h:2.8,rot:0},
-{id:"living",type:"room",name:"Living room",x:.4,y:4,w:2.7,h:6.5,rot:0},
-{id:"zone",type:"zone",name:"Dining zone",x:9,y:10,w:3.12,h:2.4,rot:0},
-{id:"table",type:"furniture",name:"Dining table",x:9.4,y:10.5,w:1.52,h:.8,rot:0,mode:"open"},
-{id:"chair1",type:"furniture",name:"Chair 1",x:9,y:8,w:.46,h:.51,rot:0},
-{id:"chair2",type:"furniture",name:"Chair 2",x:9.8,y:8,w:.46,h:.51,rot:0},
-{id:"stool1",type:"furniture",name:"Stool 1",x:10.6,y:8,w:.42,h:.48,rot:0},
-{id:"stool2",type:"furniture",name:"Stool 2",x:11.4,y:8,w:.42,h:.48,rot:0},
-{id:"sofa",type:"furniture",name:"L-sofa",x:4,y:10,w:2.1,h:1.55,rot:0},
-{id:"king",type:"furniture",name:"King bed",x:4,y:5,w:1.886,h:2.09,rot:0},
-{id:"queen",type:"furniture",name:"Queen bed",x:6.4,y:5,w:1.56,h:2.07,rot:0},
-{id:"desk",type:"furniture",name:"Desk",x:8.4,y:5,w:1.2,h:.8,rot:0},
-{id:"tv",type:"furniture",name:"TV",x:4,y:8,w:1.233,h:.274,rot:0},
-{id:"console",type:"furniture",name:"TV console",x:6,y:8,w:1.4,h:.4,rot:0}
-];
-}
-
-function read(key,fallback){
-try{
-let v=JSON.parse(localStorage.getItem(key));
-return v===null?fallback:v;
-}catch(e){return fallback}
-}
-
-let objects=read(KEY,starter());
-let checkpoints=read(CHECKKEY,[]);
-let selected=objects[0]?.id||null;
-let zoom=1;
-let drag=null;
-
-const $=id=>document.getElementById(id);
-const round=n=>Math.round(n*10000)/10000;
-const current=()=>objects.find(o=>o.id===selected);
-const uid=()=>Math.random().toString(36).slice(2,11);
-
-function message(text){
-$("message").textContent=text;
-}
-
-function save(){
-try{
-localStorage.setItem(KEY,JSON.stringify(objects));
-localStorage.setItem(CHECKKEY,JSON.stringify(checkpoints));
-$("saveStatus").textContent="✓ Saved on this device";
-}catch(e){
-$("saveStatus").textContent="Browser storage unavailable";
-}
-}
-
-function dimensions(o){
-return o.rot%180?[o.h,o.w]:[o.w,o.h];
-}
-
-function setZoom(n){
-zoom=Math.max(.3,Math.min(3,n));
-$("canvas").style.transform=`scale(${zoom})`;
-$("zoomText").textContent=Math.round(zoom*100)+"%";
-const viewport=$("viewport");
-$("canvas").parentElement.style.minWidth="0";
-$("canvas").style.marginBottom=
-(1000*(zoom-1))+"px";
-$("canvas").style.marginRight=
-(1300*(zoom-1))+"px";
-}
-
-function zoomBy(n){
-setZoom(zoom+n);
-}
-
-function fitView(){
-const width=$("viewport").clientWidth-25;
-setZoom(Math.min(1,width/1300));
-$("viewport").scrollTop=0;
-$("viewport").scrollLeft=0;
-}
-
-function selectItem(id){
-selected=id;
-draw();
-}
-
-function refreshForm(){
-const select=$("itemSelect");
-select.replaceChildren();
-for(const o of objects){
-const option=document.createElement("option");
-option.value=o.id;
-option.textContent=o.name;
-select.appendChild(option);
-}
-const o=current();
-if(!o)return;
-select.value=o.id;
-$("nameInput").value=o.name;
-$("widthInput").value=round(o.w*100);
-$("depthInput").value=round(o.h*100);
-$("xInput").value=o.x;
-$("yInput").value=o.y;
-$("angle").textContent=o.rot+"°";
-$("tableControls").style.display=
-o.id==="table"?"block":"none";
-if(o.id==="table"){
-$("tableMode").value=o.mode||"open";
-}
-}
-
-function draw(){
-const canvas=$("canvas");
-canvas.replaceChildren();
-const mode=$("labels").value;
-
-for(const o of objects){
-const e=document.createElement("div");
-const [w,h]=dimensions(o);
-e.className="obj "+o.type+
-(o.id===selected?" selected":"");
-Object.assign(e.style,{
-left:(o.x*SCALE)+"px",
-top:(o.y*SCALE)+"px",
-width:Math.max(10,w*SCALE)+"px",
-height:Math.max(10,h*SCALE)+"px"
-});
-
-if(mode!=="none" &&
-(mode==="short" || o.type==="room")){
-const label=document.createElement("span");
-label.textContent=o.type==="plug"?"⚡":o.name;
-if(w*SCALE>45&&h*SCALE>20){
-e.appendChild(label);
-}
-}
-
-e.title=o.name+" — "+round(o.w*100)+
-" × "+round(o.h*100)+" cm";
-
-e.addEventListener("pointerdown",event=>{
-if(event.button!==0)return;
-event.preventDefault();
-event.stopPropagation();
-selected=o.id;
-drag={
-id:o.id,
-pointer:event.pointerId,
-x:o.x,y:o.y,
-cx:event.clientX,
-cy:event.clientY
-};
-e.setPointerCapture(event.pointerId);
-canvas.querySelectorAll(".obj").forEach(
-x=>x.classList.remove("selected"));
-e.classList.add("selected");
-refreshForm();
-});
-
-e.addEventListener("pointermove",event=>{
-if(!drag||drag.id!==o.id||
-drag.pointer!==event.pointerId)return;
-o.x=round(drag.x+
-(event.clientX-drag.cx)/(SCALE*zoom));
-o.y=round(drag.y+
-(event.clientY-drag.cy)/(SCALE*zoom));
-e.style.left=o.x*SCALE+"px";
-e.style.top=o.y*SCALE+"px";
-$("xInput").value=o.x;
-$("yInput").value=o.y;
-});
-
-function finish(){
-if(drag&&drag.id===o.id){
-drag=null;
-save();
-}
-}
-e.addEventListener("pointerup",finish);
-e.addEventListener("pointercancel",finish);
-canvas.appendChild(e);
-}
-refreshForm();
-}
-
-function updateField(key,value){
-const o=current();
-if(!o)return;
-if(key==="w"||key==="h"){
-if(!Number.isFinite(value)||value<.05)return;
-}
-if(["x","y"].includes(key)&&
-!Number.isFinite(value))return;
-o[key]=value;
-draw();
-save();
-}
-
-function move(dx,dy){
-const o=current();
-if(!o)return;
-const step=Number($("step").value);
-o.x=round(o.x+dx*step);
-o.y=round(o.y+dy*step);
-draw();
-save();
-}
-
-function rotate(deg){
-const o=current();
-if(!o)return;
-o.rot=(o.rot+deg+360)%360;
-draw();
-save();
-}
-
-function setTableMode(mode){
-const o=current();
-if(!o||o.id!=="table")return;
-o.mode=mode;
-o.w={open:1.52,half:.89,folded:.26}[mode];
-o.h=.8;
-draw();
-save();
-}
-
-function add(type){
-const defs={
-room:["New room",3,3],
-door:["Door",.9,.12],
-window:["Window",1.2,.12],
-plug:["Plug",.22,.22],
-furniture:["Furniture",1.2,.8]
-};
-const [name,w,h]=defs[type];
-const o={
-id:uid(),type,name,w,h,
-x:3.5,y:3.5,rot:0
-};
-objects.push(o);
-selected=o.id;
-draw();
-save();
-}
-
-function duplicate(){
-const o=current();
-if(!o)return;
-const n={...o,id:uid(),
-name:o.name+" copy",
-x:round(o.x+.3),
-y:round(o.y+.3)};
-objects.push(n);
-selected=n.id;
-draw();
-save();
-}
-
-function removeItem(){
-objects=objects.filter(o=>o.id!==selected);
-selected=objects[0]?.id||null;
-draw();
-save();
-}
-
-function saveCheckpoint(){
-const name=prompt("Name this layout checkpoint:");
-if(!name)return;
-checkpoints.push({
-id:uid(),
-name,
-date:new Date().toISOString(),
-objects:JSON.parse(JSON.stringify(objects))
-});
-save();
-refreshCheckpoints();
-message("Checkpoint saved: "+name);
-}
-
-function refreshCheckpoints(){
-const select=$("checkpointSelect");
-select.replaceChildren();
-for(const c of checkpoints){
-const o=document.createElement("option");
-o.value=c.id;
-o.textContent=c.name;
-select.appendChild(o);
-}
-}
-
-function restoreCheckpoint(){
-const c=checkpoints.find(
-c=>c.id===$("checkpointSelect").value);
-if(!c)return;
-objects=JSON.parse(JSON.stringify(c.objects));
-selected=objects[0]?.id||null;
-draw();save();
-message("Checkpoint restored: "+c.name);
-}
-
-function deleteCheckpoint(){
-const id=$("checkpointSelect").value;
-checkpoints=checkpoints.filter(c=>c.id!==id);
-save();
-refreshCheckpoints();
-}
-
-function setDefault(){
-try{
-localStorage.setItem(DEFAULTKEY,JSON.stringify(objects));
-message("Custom default saved.");
-}catch(e){message("Unable to save default.");}
-}
-
-function restoreDefault(){
-const saved=read(DEFAULTKEY,null);
-if(!saved){
-message("No custom default saved yet.");
-return;
-}
-objects=saved;
-selected=objects[0]?.id||null;
-draw();save();
-message("Default layout restored.");
-}
-
-function exportJSON(){
-const payload={
-version:8,
-exportedAt:new Date().toISOString(),
-objects,
-checkpoints,
-defaultLayout:read(DEFAULTKEY,null),
-zoom,
-labels:$("labels").value
-};
-$("jsonBox").value=JSON.stringify(payload,null,2);
-message("JSON generated. Copy it for your other device.");
-}
-
-async function copyJSON(){
-exportJSON();
-const text=$("jsonBox").value;
-try{
-await navigator.clipboard.writeText(text);
-message("JSON copied to clipboard.");
-}catch(e){
-$("jsonBox").focus();
-$("jsonBox").select();
-message("Clipboard blocked. Use Ctrl+C to copy the selected JSON.");
-}
-}
-
-function importJSON(){
-let data;
-try{
-data=JSON.parse($("jsonBox").value);
-}catch(e){
-message("Invalid JSON. Check your pasted text.");
-return;
-}
-if(!Array.isArray(data.objects)){
-message("JSON does not contain a valid layout.");
-return;
-}
-if(!confirm("Replace your current layout with this JSON?"))return;
-objects=data.objects;
-checkpoints=Array.isArray(data.checkpoints)?
-data.checkpoints:[];
-selected=objects[0]?.id||null;
-if(Array.isArray(data.defaultLayout)){
-localStorage.setItem(
-DEFAULTKEY,
-JSON.stringify(data.defaultLayout));
-}
-if(data.labels)$("labels").value=data.labels;
-draw();
-if(data.zoom)setZoom(data.zoom);
-refreshCheckpoints();
-save();
-message("JSON imported successfully.");
-}
-
-function resetAll(){
-if(!confirm("Reset layout to original measurements?"))return;
-objects=starter();
-selected=objects[0].id;
-draw();save();
-message("Starter layout restored.");
-}
-
-$("viewport").addEventListener("wheel",e=>{
-if(e.ctrlKey){
-e.preventDefault();
-zoomBy(e.deltaY>0?-.1:.1);
-}
-},{passive:false});
-
-draw();
-refreshCheckpoints();
-setZoom(1);
-</script>
-</body>
-</html>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),S=50,BW=1500,BH=1100,KEY='furniture-planner-v9',OLD='furniture-planner-v8';
+const clone=x=>JSON.parse(JSON.stringify(x)),round=n=>Math.round(n*10000)/10000,uid=()=>Math.random().toString(36).slice(2,11)+Date.now().toString(36);
+function defaults(){return [
+{id:'guest',type:'room',name:'Guest bedroom',x:.4,y:.4,w:3.8,h:2.8,rot:0},
+{id:'master',type:'room',name:'Master bedroom',x:4.7,y:.4,w:4,h:2.8,rot:0},
+{id:'living',type:'room',name:'Living room',x:.4,y:4,w:2.7,h:6.5,rot:0},
+{id:'zone',type:'zone',name:'Dining zone',x:9,y:10,w:3.12,h:2.4,rot:0},
+{id:'table',type:'furniture',name:'Dining table',x:9.4,y:10.5,w:1.52,h:.8,rot:0,mode:'open'},
+{id:'chair1',type:'furniture',name:'Chair 1',x:9,y:8,w:.46,h:.51,rot:0},
+{id:'chair2',type:'furniture',name:'Chair 2',x:9.8,y:8,w:.46,h:.51,rot:0},
+{id:'stool1',type:'furniture',name:'Stool 1',x:10.6,y:8,w:.42,h:.48,rot:0},
+{id:'stool2',type:'furniture',name:'Stool 2',x:11.4,y:8,w:.42,h:.48,rot:0},
+{id:'sofa',type:'furniture',name:'L-sofa',x:4,y:10,w:2.1,h:1.55,rot:0},
+{id:'king',type:'furniture',name:'King bed',x:4,y:5,w:1.886,h:2.09,rot:0},
+{id:'queen',type:'furniture',name:'Queen bed',x:6.4,y:5,w:1.56,h:2.07,rot:0},
+{id:'desk',type:'furniture',name:'Desk',x:8.4,y:5,w:1.2,h:.8,rot:0},
+{id:'tv',type:'furniture',name:'TV',x:4,y:8,w:1.233,h:.274,rot:0},
+{id:'console',type:'furniture',name:'TV console',x:6,y:8,w:1.4,h:.4,rot:0}
+].map(o=>({...o,locked:false,groupId:null}))}
+function getStore(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+function validObjects(a){return Array.isArray(a)&&a.length<5000&&a.every(o=>o&&typeof o.id==='string'&&typeof o.name==='string'&&typeof o.type==='string'&&['x','y','w','h','rot'].every(k=>Number.isFinite(o[k]))&&o.w>0&&o.h>0)}
+const prev=getStore(KEY),legacy=getStore(OLD);let state={objects:defaults(),selected:[],multi:false,zoom:.75,grid:true,gridSize:.05,magnet:true,labels:'short',checkpoints:[],defaultLayout:null};
+if(prev&&validObjects(prev.objects)){state={...state,...prev,objects:prev.objects.map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null}))}}
+else if(legacy&&validObjects(legacy.objects)){state.objects=legacy.objects.map(o=>({...o,locked:!!o.locked,groupId:null}));if(Array.isArray(legacy.checkpoints))state.checkpoints=legacy.checkpoints}
+state.selected=[];let pointer=null,marquee=null,rendering=false;
+function msg(s){$('message').textContent=s}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({...state,selected:[]}));$('saveStatus').textContent='✓ Saved on this browser'}catch(e){$('saveStatus').textContent='⚠ Storage unavailable';msg('Use Copy JSON to preserve your layout.')}}
+function geom(o){let [w,h]=o.rot%180?[o.h,o.w]:[o.w,o.h];return {x:o.x,y:o.y,w,h,right:o.x+w,bottom:o.y+h,cx:o.x+w/2,cy:o.y+h/2}}
+function lookup(id){return state.objects.find(o=>o.id===id)}
+function expandGroup(ids){let all=new Set(ids),groups=new Set(state.objects.filter(o=>all.has(o.id)&&o.groupId).map(o=>o.groupId));for(const o of state.objects)if(groups.has(o.groupId)&&o.groupId)all.add(o.id);return [...all]}
+function idsUnlocked(){return expandGroup(state.selected).filter(id=>!lookup(id)?.locked)}
+function bounds(arr){const g=arr.map(geom);return {x:Math.min(...g.map(t=>t.x)),y:Math.min(...g.map(t=>t.y)),right:Math.max(...g.map(t=>t.right)),bottom:Math.max(...g.map(t=>t.bottom))}}
+function toCanvas(e){let r=$('board').getBoundingClientRect();return {x:(e.clientX-r.left)/(S*state.zoom),y:(e.clientY-r.top)/(S*state.zoom)}}
+function closestSnap(value,others,threshold){let best=null,dist=threshold;for(const c of others){let d=Math.abs(value-c);if(d<dist){dist=d;best=c}}return best}
+function snappedMove(positions,dx,dy,ids){const moving=positions.map(p=>({ ...lookup(p.id),x:p.x+dx,y:p.y+dy })),b=bounds(moving),skip=new Set(ids),targets=state.objects.filter(o=>!skip.has(o.id));
+let mx=0,my=0;
+if(state.magnet&&targets.length){const threshold=10/(S*state.zoom),gx=[],gy=[];for(const t of targets){let g=geom(t);gx.push(g.x,g.right,g.cx);gy.push(g.y,g.bottom,g.cy)}
+const xOptions=[b.x,(b.x+b.right)/2,b.right],yOptions=[b.y,(b.y+b.bottom)/2,b.bottom];let bestX={delta:0,dist:threshold},bestY={delta:0,dist:threshold};for(const x of xOptions){const near=closestSnap(x,gx,threshold);if(near!==null&&Math.abs(near-x)<bestX.dist)bestX={delta:near-x,dist:Math.abs(near-x)}}for(const y of yOptions){const near=closestSnap(y,gy,threshold);if(near!==null&&Math.abs(near-y)<bestY.dist)bestY={delta:near-y,dist:Math.abs(near-y)}}mx=bestX.delta;my=bestY.delta}
+if(state.grid){const step=state.gridSize;const gridDx=Math.round((b.x+mx)/step)*step-(b.x+mx),gridDy=Math.round((b.y+my)/step)*step-(b.y+my);if(mx===0)mx+=gridDx;if(my===0)my+=gridDy}
+return {dx:dx+mx,dy:dy+my}}
+function setSelection(ids){state.selected=[...new Set(expandGroup(ids))].filter(id=>lookup(id));paintSelection();refreshControls()}
+function toggleSelection(id){let ids=new Set(state.selected),members=expandGroup([id]),add=!ids.has(id);for(const m of members)add?ids.add(m):ids.delete(m);setSelection([...ids])}
+function paintSelection(){$('board').querySelectorAll('.obj').forEach(el=>el.classList.toggle('selected',state.selected.includes(el.dataset.id)));$('selectionCount').textContent=state.selected.length+' selected'}
+function render(){if(rendering)return;rendering=true;const board=$('board');board.replaceChildren();for(const o of state.objects){const g=geom(o),el=document.createElement('div');el.className='obj '+o.type+(o.locked?' locked':'')+(state.selected.includes(o.id)?' selected':'');el.dataset.id=o.id;Object.assign(el.style,{left:g.x*S+'px',top:g.y*S+'px',width:Math.max(10,g.w*S)+'px',height:Math.max(10,g.h*S)+'px'});
+let show=state.labels==='short'||(state.labels==='rooms'&&o.type==='room');if(show&&g.w*S>48&&g.h*S>20){let t=document.createElement('span');t.className='name';t.textContent=o.type==='plug'?'⚡':o.name;el.append(t)}
+el.title=o.name+' · '+round(o.w*100)+' × '+round(o.h*100)+' cm'+(o.locked?' · LOCKED':'')+(o.groupId?' · Grouped':'');
+el.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();if(e.shiftKey||state.multi){toggleSelection(o.id);return}if(!state.selected.includes(o.id))setSelection([o.id]);const ids=idsUnlocked();if(o.locked||!ids.length){msg('This item is locked. Unlock it to move.');return}const p=toCanvas(e);pointer={kind:'drag',id:o.id,pointerId:e.pointerId,start:p,positions:ids.map(id=>({id,x:lookup(id).x,y:lookup(id).y})),ids};el.setPointerCapture(e.pointerId)});
+el.addEventListener('pointermove',e=>{if(!pointer||pointer.kind!=='drag'||pointer.pointerId!==e.pointerId)return;const p=toCanvas(e);const d=snappedMove(pointer.positions,p.x-pointer.start.x,p.y-pointer.start.y,pointer.ids);for(const pos of pointer.positions){const obj=lookup(pos.id);obj.x=round(pos.x+d.dx);obj.y=round(pos.y+d.dy);const node=board.querySelector('[data-id="'+CSS.escape(pos.id)+'"]');if(node){node.style.left=(obj.x*S)+'px';node.style.top=(obj.y*S)+'px'}}});
+const release=e=>{if(pointer?.kind==='drag'&&pointer.pointerId===e.pointerId){pointer=null;refreshControls();save()}};el.addEventListener('pointerup',release);el.addEventListener('pointercancel',release);board.append(el)}
+updateZoom();paintSelection();refreshControls();rendering=false}
+function refreshControls(){const sel=state.selected.map(lookup).filter(Boolean),single=sel.length===1?sel[0]:null,editable=single&&!single.locked;$('selectionSummary').textContent=sel.length?sel.length===1?single.name:sel.length+' objects selected':'No selection';$('multiBtn').textContent='Multi-select: '+(state.multi?'On':'Off');$('multiBtn').classList.toggle('active',state.multi);
+for(const [field,k,transform] of [['name','name',v=>v],['width','w',v=>round(v*100)],['depth','h',v=>round(v*100)],['x','x',v=>v],['y','y',v=>v]]){const input=$(field);input.disabled=!editable;input.value=single?transform(single[k]):''}
+$('tableWrap').classList.toggle('hide',single?.id!=='table');if(single?.id==='table')$('tableMode').value=single.mode||'open';$('tableMode').disabled=!editable;
+$('lockedNotice').textContent=single?.locked?'🔒 Locked: unlock before editing this item.':'';
+$('lockBtn').disabled=!sel.some(o=>!o.locked);$('unlockBtn').disabled=!sel.some(o=>o.locked);$('duplicateBtn').disabled=!sel.some(o=>!o.locked);$('deleteBtn').disabled=!sel.some(o=>!o.locked);
+$('groupBtn').disabled=sel.length<2;$('ungroupBtn').disabled=!sel.some(o=>o.groupId);
+let list=$('itemList');list.replaceChildren();for(const o of state.objects){let l=document.createElement('label'),check=document.createElement('input');check.type='checkbox';check.checked=state.selected.includes(o.id);check.addEventListener('change',()=>{let next=new Set(state.selected);if(check.checked)next.add(o.id);else next.delete(o.id);setSelection([...next])});let txt=document.createElement('span');txt.textContent=(o.locked?'🔒 ':'')+o.name+(o.groupId?' [group]':'');l.append(check,txt);list.append(l)}}
+function updateZoom(){let zoom=state.zoom,board=$('board');board.style.width=BW+'px';board.style.height=BH+'px';board.style.transform=`scale(${zoom})`;$('scaled').style.width=BW*zoom+'px';$('scaled').style.height=BH*zoom+'px';$('zoom').value=String(Math.round(zoom*100/5)*5);$('zoomValue').textContent=Math.round(zoom*100)+'%'}
+function changeZoom(v){state.zoom=Math.max(.25,Math.min(2.5,v));updateZoom();save()}
+function applyDelta(dx,dy){const ids=idsUnlocked();if(!ids.length){msg('Select unlocked items to move.');return}const ps=ids.map(id=>({id,x:lookup(id).x,y:lookup(id).y}));const d=snappedMove(ps,dx,dy,ids);for(const p of ps){let o=lookup(p.id);o.x=round(p.x+d.dx);o.y=round(p.y+d.dy)}render();save()}
+function addObj(type,name,w,h,count=1){if(!name||!Number.isFinite(w)||!Number.isFinite(h)||w<.05||h<.05||w>20||h>20||count<1||count>100)throw Error('Enter a name and valid dimensions (5–2000 cm) and quantity (1–100).');let ids=[];for(let i=0;i<count;i++){let obj={id:uid(),type,name:count>1?name+' '+(i+1):name,w,h,x:round(3.3+(i%6)*(Math.max(.6,w)+.2)),y:round(3.1+Math.floor(i/6)*(Math.max(.6,h)+.2)),rot:0,groupId:null,locked:false};state.objects.push(obj);ids.push(obj.id)}setSelection(ids);render();save();return ids}
+$('board').addEventListener('pointerdown',e=>{if(e.target!==$('board')||e.button!==0)return;const p=toCanvas(e);if(!e.shiftKey&&!state.multi)setSelection([]);marquee=document.createElement('div');marquee.className='marquee';$('board').append(marquee);pointer={kind:'box',pointerId:e.pointerId,start:p,append:e.shiftKey||state.multi,original:[...state.selected]};$('board').setPointerCapture(e.pointerId)});
+$('board').addEventListener('pointermove',e=>{if(pointer?.kind!=='box'||pointer.pointerId!==e.pointerId)return;const p=toCanvas(e),a=pointer.start,x=Math.min(a.x,p.x),y=Math.min(a.y,p.y),w=Math.abs(p.x-a.x),h=Math.abs(p.y-a.y);Object.assign(marquee.style,{left:x*S+'px',top:y*S+'px',width:w*S+'px',height:h*S+'px'});const ids=state.objects.filter(o=>{let g=geom(o);return g.x<x+w&&g.right>x&&g.y<y+h&&g.bottom>y}).map(o=>o.id);setSelection(pointer.append?[...pointer.original,...ids]:ids)});
+function finishBox(e){if(pointer?.kind==='box'&&pointer.pointerId===e.pointerId){marquee?.remove();marquee=null;pointer=null;refreshControls()}}
+$('board').addEventListener('pointerup',finishBox);$('board').addEventListener('pointercancel',finishBox);
+$('zoomOut').onclick=()=>changeZoom(state.zoom-.1);$('zoomIn').onclick=()=>changeZoom(state.zoom+.1);$('zoom').oninput=e=>changeZoom(Number(e.target.value)/100);$('fitBtn').onclick=()=>{const el=$('viewport');changeZoom(Math.min(1,(el.clientWidth-35)/BW,(el.clientHeight-35)/BH));el.scrollTo(0,0)};
+$('gridSnap').checked=state.grid;$('gridSnap').onchange=e=>{state.grid=e.target.checked;save()};$('gridSize').value=String(state.gridSize);$('gridSize').onchange=e=>{state.gridSize=Number(e.target.value);save()};$('magnet').checked=state.magnet;$('magnet').onchange=e=>{state.magnet=e.target.checked;save()};$('labels').value=state.labels;$('labels').onchange=e=>{state.labels=e.target.value;render();save()};
+$('selectAllBtn').onclick=()=>setSelection(state.objects.map(o=>o.id));$('selectUnlocked').onclick=()=>setSelection(state.objects.filter(o=>!o.locked).map(o=>o.id));$('clearBtn').onclick=()=>setSelection([]);$('multiBtn').onclick=()=>{state.multi=!state.multi;refreshControls()};
+$('groupBtn').onclick=()=>{const id='g'+uid();for(const o of state.objects)if(state.selected.includes(o.id))o.groupId=id;render();save();msg('Grouped '+state.selected.length+' objects. Moving one selects the group.')};$('ungroupBtn').onclick=()=>{for(const o of state.objects)if(state.selected.includes(o.id))o.groupId=null;render();save()};
+$('lockBtn').onclick=()=>{for(const o of state.objects)if(state.selected.includes(o.id))o.locked=true;render();save()};$('unlockBtn').onclick=()=>{for(const o of state.objects)if(state.selected.includes(o.id))o.locked=false;render();save()};
+rootAdd();function rootAdd(){document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{let defs={room:['Room',3,3],door:['Door',.9,.12],window:['Window',1.2,.12],plug:['Plug',.22,.22],furniture:['Furniture',1.2,.8],zone:['Zone',3,2]};let [name,w,h]=defs[b.dataset.add];addObj(b.dataset.add,name,w,h)})}
+document.querySelectorAll('[data-move]').forEach(b=>b.onclick=()=>{const [dx,dy]=b.dataset.move.split(',').map(Number);let v=Number($('moveStep').value);applyDelta(dx*v,dy*v)});
+function rotate(deg){let ids=idsUnlocked();if(!ids.length)return;for(const id of ids){let o=lookup(id),g=geom(o),cx=g.cx,cy=g.cy;o.rot=(o.rot+deg+360)%360;let updated=geom(o);o.x=round(cx-updated.w/2);o.y=round(cy-updated.h/2)}render();save()}
+$('cw').onclick=()=>rotate(90);$('ccw').onclick=()=>rotate(-90);
+document.querySelectorAll('[data-align]').forEach(b=>b.onclick=()=>{let ids=idsUnlocked();if(ids.length<2){msg('Select at least two unlocked items.');return}const all=state.selected.map(lookup).filter(Boolean),bs=bounds(all);const mode=b.dataset.align;for(let id of ids){let o=lookup(id),g=geom(o);if(mode==='left')o.x=bs.x;if(mode==='centerX')o.x=(bs.x+bs.right-g.w)/2;if(mode==='right')o.x=bs.right-g.w;if(mode==='top')o.y=bs.y;if(mode==='centerY')o.y=(bs.y+bs.bottom-g.h)/2;if(mode==='bottom')o.y=bs.bottom-g.h;o.x=round(o.x);o.y=round(o.y)}render();save()});
+for(const [id,key,div] of [['name','name',1],['width','w',100],['depth','h',100],['x','x',1],['y','y',1]])$(id).addEventListener('change',e=>{if(state.selected.length!==1)return;let o=lookup(state.selected[0]);if(!o||o.locked)return;let v=key==='name'?e.target.value.trim():Number(e.target.value)/div;if(key==='name'&&!v)return;if(key!=='name'&&(!Number.isFinite(v)||(div===100&&(v<.05||v>20))))return;o[key]=typeof v==='number'?round(v):v;render();save()});
+$('tableMode').onchange=e=>{const o=lookup('table');if(!o||o.locked)return;o.mode=e.target.value;o.w={open:1.52,half:.89,folded:.26}[o.mode];o.h=.8;render();save()};
+$('duplicateBtn').onclick=()=>{const ids=idsUnlocked();if(!ids.length)return;let groupMap=new Map(),newIds=[];for(const id of ids){let o=lookup(id),gid=o.groupId;if(gid&&!groupMap.has(gid))groupMap.set(gid,'g'+uid());let c={...o,id:uid(),name:o.name+' copy',groupId:gid?groupMap.get(gid):null,x:round(o.x+.25),y:round(o.y+.25)};state.objects.push(c);newIds.push(c.id)}setSelection(newIds);render();save()};
+$('deleteBtn').onclick=()=>{const ids=new Set(idsUnlocked());if(!ids.size)return;if(!confirm('Delete '+ids.size+' unlocked selected item(s)? Locked items will remain.'))return;state.objects=state.objects.filter(o=>!ids.has(o.id));setSelection(state.selected.filter(id=>!ids.has(id)));render();save()};
+$('addCustomBtn').onclick=()=>{try{let name=$('newName').value.trim(),w=Number($('newW').value)/100,h=Number($('newD').value)/100,q=Number($('newQ').value);addObj('furniture',name,w,h,q);msg('Added '+q+' item(s).')}catch(e){msg(e.message)}};
+$('batchBtn').onclick=()=>{let rows=$('batchText').value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean),items=[];try{for(let line of rows){const p=line.split(',').map(s=>s.trim());if(p.length<3||p.length>4)throw Error('Use Name, width, depth, quantity per line.');let name=p[0],w=Number(p[1])/100,h=Number(p[2])/100,q=p[3]===''||p[3]===undefined?1:Number(p[3]);if(!name||![w,h,q].every(Number.isFinite)||w<.05||h<.05||w>20||h>20||!Number.isInteger(q)||q<1||q>100)throw Error('Invalid batch row: '+line);items.push({name,w,h,q})}if(items.reduce((s,a)=>s+a.q,0)>200)throw Error('Maximum 200 pieces per batch.');let ids=[];for(const a of items)ids.push(...addObj('furniture',a.name,a.w,a.h,a.q));setSelection(ids);render();save();msg('Added '+ids.length+' furniture pieces.')}catch(e){msg(e.message)}};
+function refreshCheckpoints(){let list=$('checkpoints'),prior=list.value;list.replaceChildren();for(const c of state.checkpoints){let opt=document.createElement('option');opt.value=c.id;opt.textContent=c.name+' · '+new Date(c.date).toLocaleDateString();list.append(opt)}if(state.checkpoints.some(c=>c.id===prior))list.value=prior}
+$('checkpointBtn').onclick=()=>{let name=prompt('Checkpoint name (e.g. Sofa layout A):');if(!name?.trim())return;let c={id:uid(),name:name.trim(),date:new Date().toISOString(),objects:clone(state.objects)};state.checkpoints.push(c);refreshCheckpoints();$('checkpoints').value=c.id;save();msg('Checkpoint saved: '+name)};
+$('restoreCheckpoint').onclick=()=>{let c=state.checkpoints.find(c=>c.id===$('checkpoints').value);if(!c||!confirm('Restore '+c.name+'?'))return;state.objects=clone(c.objects).map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null}));setSelection([]);render();save();msg('Restored '+c.name)};
+$('deleteCheckpoint').onclick=()=>{state.checkpoints=state.checkpoints.filter(c=>c.id!==$('checkpoints').value);refreshCheckpoints();save()};
+$('setDefault').onclick=()=>{state.defaultLayout=clone(state.objects);save();msg('Current layout saved as default.')};$('restoreDefault').onclick=()=>{if(!state.defaultLayout||!confirm('Restore your saved default layout?'))return;state.objects=clone(state.defaultLayout);setSelection([]);render();save()};
+$('resetBtn').onclick=()=>{if(!confirm('Reset to original rooms and furniture?'))return;state.objects=defaults();setSelection([]);render();save()};$('saveBtn').onclick=()=>{save();msg('Saved on this browser. Copy JSON before leaving a library PC.')};
+function transfer(){return {version:9,exportedAt:new Date().toISOString(),objects:state.objects,checkpoints:state.checkpoints,defaultLayout:state.defaultLayout,zoom:state.zoom,grid:state.grid,gridSize:state.gridSize,magnet:state.magnet,labels:state.labels}}
+$('generateBtn').onclick=()=>{$('jsonText').value=JSON.stringify(transfer(),null,2);$('jsonText').focus();$('jsonText').select();msg('JSON generated. Press Ctrl+C / Cmd+C to copy.')};
+$('copyBtn').onclick=async()=>{$('generateBtn').click();try{await navigator.clipboard.writeText($('jsonText').value);msg('JSON copied!')}catch(e){msg('JSON selected. Press Ctrl+C / Cmd+C.')}};
+$('pasteBtn').onclick=()=>{$('jsonText').scrollIntoView({behavior:'smooth',block:'center'});$('jsonText').focus();msg('Paste your JSON code, then press Load pasted JSON.')};$('selectTextBtn').onclick=()=>{$('jsonText').focus();$('jsonText').select()};
+$('loadBtn').onclick=()=>{try{let parsed=JSON.parse($('jsonText').value);if(!validObjects(parsed.objects))throw Error('JSON must contain a valid objects array.');if(!confirm('Replace your active layout with this JSON?'))return;state.objects=parsed.objects.map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null}));state.checkpoints=Array.isArray(parsed.checkpoints)?parsed.checkpoints.filter(c=>c&&validObjects(c.objects)):[];state.defaultLayout=validObjects(parsed.defaultLayout)?parsed.defaultLayout:null;state.zoom=Number.isFinite(parsed.zoom)?Math.max(.25,Math.min(2.5,parsed.zoom)):.75;state.grid=typeof parsed.grid==='boolean'?parsed.grid:true;state.magnet=typeof parsed.magnet==='boolean'?parsed.magnet:true;state.gridSize=[.01,.05,.1,.2,.5].includes(parsed.gridSize)?parsed.gridSize:.05;state.labels=['short','rooms','none'].includes(parsed.labels)?parsed.labels:'short';$('gridSnap').checked=state.grid;$('magnet').checked=state.magnet;$('gridSize').value=state.gridSize;$('labels').value=state.labels;setSelection([]);render();refreshCheckpoints();save();msg('Layout loaded — locks, groups, positions and checkpoints restored.')}catch(e){msg('Import failed: '+e.message)}};
+document.addEventListener('keydown',e=>{let target=e.target;if(['INPUT','TEXTAREA','SELECT'].includes(target.tagName)||target.isContentEditable)return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'){e.preventDefault();setSelection(state.objects.map(o=>o.id));return}if(e.key==='Escape'){setSelection([]);return}if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();$('deleteBtn').click();return}const dirs={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};if(dirs[e.key]){e.preventDefault();const [dx,dy]=dirs[e.key],s=Number($('moveStep').value);applyDelta(dx*s,dy*s)}});
+window.addEventListener('pagehide',save);refreshCheckpoints();render();save();
+})();
+</script></body></html>
