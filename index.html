@@ -5,14 +5,16 @@
 @media(max-width:900px){.app{display:flex;flex-direction:column;padding:7px;gap:8px}.workspace{height:52vh;min-height:330px}.side{max-height:none;overflow:visible}.tools{padding:8px}header{padding:10px}.tools button{font-size:12px;padding:8px}.top button{font-size:12px}.scaled{margin:12px}}
 </style></head>
 <body>
-<header><div><h1>▦ Furniture Planner <span class="badge">Precision edition</span></h1><div class="muted">Snap · Multi-select · Group · Lock · Save · JSON transfer</div></div><div class="top"><span id="saveStatus" class="muted">Ready</span><button id="saveBtn">Save</button><button id="checkpointBtn">+ Checkpoint</button><button id="copyBtn" class="primary">Copy JSON</button><button id="pasteBtn">Paste JSON</button></div></header>
+<header><div><h1>▦ Furniture Planner <span class="badge">Cloud + History edition</span></h1><div class="muted">Snap · Group · Lock · Undo/Redo · Cloud save</div></div><div class="top"><span id="saveStatus" class="muted">Ready</span><button id="undoBtn" title="Undo (Ctrl/Cmd+Z)">↶ Undo</button><button id="redoBtn" title="Redo (Ctrl/Cmd+Shift+Z)">↷ Redo</button><button id="saveBtn">Save</button><button id="checkpointBtn">+ Checkpoint</button><button id="copyBtn" class="primary">Copy JSON</button><button id="pasteBtn">Paste JSON</button></div></header>
 <div class="app"><main class="panel">
+<div class="tools" id="addToolbar"><strong style="font-size:12px">+ Add elements</strong><button data-add="room">Room</button><button data-add="door">Door</button><button data-add="window">Window</button><button data-add="plug">Plug</button><button data-add="furniture">Furniture</button><button data-add="zone">Zone</button><button id="goCustomBtn">Custom / batch…</button><span id="selectionCount" class="badge tleft">0 selected</span></div>
+
 <div class="tools">
  <button id="selectAllBtn">Select all</button><button id="clearBtn">Clear</button><button id="multiBtn">Multi-select: Off</button><button id="groupBtn">Group</button><button id="ungroupBtn">Ungroup</button><button id="lockBtn">🔒 Lock selected</button><button id="unlockBtn">Unlock selected</button>
 </div>
 <div class="tools"><button id="zoomOut">−</button><input id="zoom" type="range" min="25" max="250" step="5" value="100"><strong id="zoomValue" style="min-width:45px;text-align:center">100%</strong><button id="zoomIn">+</button><button id="fitBtn">Fit</button><span class="sep"></span><label style="margin:0"><input id="gridSnap" type="checkbox" checked style="width:auto"> Grid snap</label><select id="gridSize" style="width:auto"><option value=".01">1 cm</option><option value=".05" selected>5 cm</option><option value=".1">10 cm</option><option value=".2">20 cm</option><option value=".5">50 cm</option></select><label style="margin:0"><input id="magnet" type="checkbox" checked style="width:auto"> Magnetic align</label><select id="labels" style="width:auto"><option value="short">Short labels</option><option value="rooms">Rooms only</option><option value="none">No labels</option></select></div>
 <div class="workspace" id="viewport"><div class="scaled" id="scaled"><div class="board" id="board"></div></div></div>
-<div class="tools"><span class="muted">Add:</span><button data-add="room">Room</button><button data-add="door">Door</button><button data-add="window">Window</button><button data-add="plug">Plug</button><button data-add="furniture">Furniture</button><button data-add="zone">Zone</button><span id="selectionCount" class="badge tleft">0 selected</span></div>
+
 <div class="tools"><span class="info">Desktop: drag items; Shift-click to multi-select; drag empty canvas to box-select; Ctrl/Cmd+A to select all. Mobile: turn on Multi-select, then tap items.</span></div>
 </main><aside class="panel side">
 <div class="section stack"><h2>Selection & precise movement</h2><div class="row"><span id="selectionSummary" class="badge">No selection</span><button id="selectUnlocked">Select unlocked</button></div><div class="item-list" id="itemList"></div>
@@ -21,42 +23,73 @@
 <div class="row"><button id="duplicateBtn">Duplicate</button><button id="deleteBtn">Delete unlocked</button></div>
 </div>
 <div class="section stack"><h2>Align selected items</h2><div class="row"><button data-align="left">Left</button><button data-align="centerX">Center ↕</button><button data-align="right">Right</button><button data-align="top">Top</button><button data-align="centerY">Middle ↔</button><button data-align="bottom">Bottom</button></div><div class="muted">Aligns multiple selected, unlocked objects. Locked objects stay in place and can serve as alignment references.</div></div>
-<div class="section stack"><h2>Item details</h2><div><label>Name</label><input id="name" placeholder="Select one item"></div><div class="fields"><div><label>Width (cm)</label><input id="width" type="number" min="5" step=".1"></div><div><label>Depth (cm)</label><input id="depth" type="number" min="5" step=".1"></div><div><label>X (metres)</label><input id="x" type="number" step=".01"></div><div><label>Y (metres)</label><input id="y" type="number" step=".01"></div></div><div id="tableWrap"><label>Table configuration</label><select id="tableMode"><option value="open">Open (152 × 80 cm)</option><option value="half">Half (89 × 80 cm)</option><option value="folded">Folded (26 × 80 cm)</option></select></div><div class="muted" id="lockedNotice"></div></div>
-<div class="section stack"><h2>Add furniture by dimensions</h2><div><label>Furniture name</label><input id="newName" placeholder="e.g. Bookshelf"></div><div class="fields"><div><label>Width (cm)</label><input id="newW" type="number" value="120" min="5" step=".1"></div><div><label>Depth (cm)</label><input id="newD" type="number" value="40" min="5" step=".1"></div><div><label>Quantity</label><input id="newQ" type="number" value="1" min="1" max="100" step="1"></div><div style="display:flex;align-items:end"><button id="addCustomBtn" class="primary" style="width:100%">Add furniture</button></div></div>
+<div class="section stack"><h2>Item details</h2><div><label>Name</label><input id="name" placeholder="Select one item"></div><div class="fields"><div><label>Width (cm)</label><input id="width" type="number" min="5" step=".1"></div><div><label>Depth (cm)</label><input id="depth" type="number" min="5" step=".1"></div><div><label>X (metres)</label><input id="x" type="number" step=".01"></div><div><label>Y (metres)</label><input id="y" type="number" step=".01"></div></div><div id="tableWrap"><label>Table configuration</label><select id="tableMode"><option value="open">Open (152 × 80 cm)</option><option value="half">Half (89 × 80 cm)</option><option value="folded">Folded (26 × 80 cm)</option></select></div><div class="muted" id="lockedNotice"></div><div class="row"><button id="deleteDetailsBtn" style="border-color:#d99393;color:#a52727">🗑 Delete selected item(s)</button><button id="lockDetailsBtn">🔒 Lock</button><button id="unlockDetailsBtn">Unlock</button></div></div>
+<div class="section stack" id="customFurnitureSection"><h2>Add furniture by dimensions</h2><div><label>Furniture name</label><input id="newName" placeholder="e.g. Bookshelf"></div><div class="fields"><div><label>Width (cm)</label><input id="newW" type="number" value="120" min="5" step=".1"></div><div><label>Depth (cm)</label><input id="newD" type="number" value="40" min="5" step=".1"></div><div><label>Quantity</label><input id="newQ" type="number" value="1" min="1" max="100" step="1"></div><div style="display:flex;align-items:end"><button id="addCustomBtn" class="primary" style="width:100%">Add furniture</button></div></div>
 <h2 style="margin-top:8px">Batch add furniture</h2><div class="muted">One per line: <code>Name, Width cm, Depth cm, Quantity</code></div><textarea id="batchText" class="batch" placeholder="Bookshelf, 90, 35, 2&#10;Side table, 45, 45, 1"></textarea><button id="batchBtn">Add batch</button></div>
+<div class="section stack" id="cloudSection"><h2>☁ Cloud sync across computers</h2><div class="muted">Configure Supabase once in your GitHub HTML, then sign in with the same email on every device. This is optional; browser autosave works without it.</div>
+<div class="muted" id="cloudStatus">Cloud not configured — local saves only</div>
+<div id="cloudLogin"><label>Email address</label><input id="cloudEmail" type="email" autocomplete="email" placeholder="you@example.com"><div class="row"><button id="cloudSignInBtn" class="primary">Email me a sign-in link</button></div></div>
+<div class="row"><button id="cloudLoadBtn">Load cloud layout</button><button id="cloudSaveBtn">Save to cloud now</button><button id="cloudSignOutBtn">Sign out</button></div>
+<div class="muted">Library PC: always sign out when finished. Autosync requires an internet connection and completed configuration.</div></div>
 <div class="section stack"><h2>Layouts & checkpoints</h2><label>Saved checkpoints</label><select id="checkpoints"></select><div class="row"><button id="restoreCheckpoint">Restore</button><button id="deleteCheckpoint">Delete checkpoint</button><button id="setDefault">Set as default</button><button id="restoreDefault">Restore default</button></div><button id="resetBtn">Reset starter layout</button><div class="muted">Changes autosave on this browser. On library PCs, copy your JSON before ending the session.</div></div>
 <div class="section stack"><h2>Transfer JSON between devices</h2><textarea id="jsonText" class="json" placeholder="Click Generate JSON, or paste a JSON save here"></textarea><div class="row"><button id="generateBtn">Generate JSON</button><button id="selectTextBtn">Select text</button><button id="loadBtn" class="primary">Load pasted JSON</button></div></div>
 <div id="message" class="msg" role="status"></div>
 </aside></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 (()=>{'use strict';
+const CLOUD_URL='https://axilmmwwmqglopxftmft.supabase.co'; // Enter Supabase Project URL once in GitHub
+const CLOUD_ANON_KEY='sb_publishable_2tJVmXMkok7iXOO7htMRCg_AJME9Pd-'; // Enter Supabase publishable/anon key (NEVER service_role key)
 const $=id=>document.getElementById(id),S=50,BW=1500,BH=1100,KEY='furniture-planner-v9',OLD='furniture-planner-v8';
 const clone=x=>JSON.parse(JSON.stringify(x)),round=n=>Math.round(n*10000)/10000,uid=()=>Math.random().toString(36).slice(2,11)+Date.now().toString(36);
 function defaults(){return [
-{id:'guest',type:'room',name:'Guest bedroom',x:.4,y:.4,w:3.8,h:2.8,rot:0},
-{id:'master',type:'room',name:'Master bedroom',x:4.7,y:.4,w:4,h:2.8,rot:0},
-{id:'living',type:'room',name:'Living room',x:.4,y:4,w:2.7,h:6.5,rot:0},
-{id:'zone',type:'zone',name:'Dining zone',x:9,y:10,w:3.12,h:2.4,rot:0},
-{id:'table',type:'furniture',name:'Dining table',x:9.4,y:10.5,w:1.52,h:.8,rot:0,mode:'open'},
-{id:'chair1',type:'furniture',name:'Chair 1',x:9,y:8,w:.46,h:.51,rot:0},
-{id:'chair2',type:'furniture',name:'Chair 2',x:9.8,y:8,w:.46,h:.51,rot:0},
-{id:'stool1',type:'furniture',name:'Stool 1',x:10.6,y:8,w:.42,h:.48,rot:0},
-{id:'stool2',type:'furniture',name:'Stool 2',x:11.4,y:8,w:.42,h:.48,rot:0},
-{id:'sofa',type:'furniture',name:'L-sofa',x:4,y:10,w:2.1,h:1.55,rot:0},
-{id:'king',type:'furniture',name:'King bed',x:4,y:5,w:1.886,h:2.09,rot:0},
-{id:'queen',type:'furniture',name:'Queen bed',x:6.4,y:5,w:1.56,h:2.07,rot:0},
-{id:'desk',type:'furniture',name:'Desk',x:8.4,y:5,w:1.2,h:.8,rot:0},
-{id:'tv',type:'furniture',name:'TV',x:4,y:8,w:1.233,h:.274,rot:0},
-{id:'console',type:'furniture',name:'TV console',x:6,y:8,w:1.4,h:.4,rot:0}
-].map(o=>({...o,locked:false,groupId:null}))}
+{id:'guest',type:'room',name:'Guest bedroom',x:8.95,y:4.9,w:3.8,h:2.8,rot:270,locked:true},
+{id:'master',type:'room',name:'Master bedroom',x:8.95,y:.95,w:4,h:2.8,rot:270,locked:true},
+{id:'living',type:'room',name:'Living room',x:6.25,y:3.242,w:2.7,h:6.5,rot:0,locked:true},
+{id:'zone',type:'zone',name:'Dining zone',x:9.66,y:11,w:3.12,h:2.4,rot:0},
+{id:'table',type:'furniture',name:'Dining table',x:6.28,y:4.38,w:1.52,h:.8,rot:0,mode:'open',groupId:'dining-group'},
+{id:'chair1',type:'furniture',name:'Chair 1',x:7.16,y:3.865,w:.46,h:.51,rot:0,groupId:'dining-group'},
+{id:'chair2',type:'furniture',name:'Chair 2',x:6.43,y:3.865,w:.46,h:.51,rot:0,groupId:'dining-group'},
+{id:'stool1',type:'furniture',name:'Stool 1',x:6.43,y:5.18,w:.42,h:.48,rot:0,groupId:'dining-group'},
+{id:'stool2',type:'furniture',name:'Stool 2',x:7.18,y:5.18,w:.42,h:.48,rot:0,groupId:'dining-group'},
+{id:'sofa',type:'furniture',name:'L-sofa',x:6.25,y:6.18,w:2.1,h:1.55,rot:270},
+{id:'king',type:'furniture',name:'King bed',x:9.64,y:1.83,w:1.886,h:2.09,rot:270},
+{id:'queen',type:'furniture',name:'Queen bed',x:9.66,y:7.08,w:1.56,h:2.07,rot:270},
+{id:'desk',type:'furniture',name:'Desk',x:9.66,y:4.95,w:1.2,h:.8,rot:0},
+{id:'tv',type:'furniture',name:'TV',x:11.4735,y:11.3,w:1.233,h:.274,rot:0},
+{id:'console',type:'furniture',name:'TV console',x:8.55,y:6.38,w:1.4,h:.4,rot:270},
+{id:'door1',type:'door',name:'Door',x:8.95,y:3.98,w:.9,h:.12,rot:270,locked:true},
+{id:'door2',type:'door',name:'Door',x:8.95,y:4.98,w:.9,h:.12,rot:270,locked:true},
+{id:'door3',type:'door',name:'Door',x:8.75,y:8.68,w:.9,h:.12,rot:270,locked:true},
+{id:'window1',type:'window',name:'Window',x:10.53,y:.95,w:1.2,h:.12,rot:0},
+{id:'window2',type:'window',name:'Window',x:10.53,y:8.4,w:1.2,h:.12,rot:0},
+{id:'window3',type:'window',name:'Window',x:6.29,y:9.52,w:1.2,h:.12,rot:0},
+{id:'plug1',type:'plug',name:'Plug',x:8.96,y:3.716,w:.22,h:.22,rot:0,locked:true},
+{id:'plug2',type:'plug',name:'Plug',x:8.96,y:5.95,w:.22,h:.22,rot:0,locked:true},
+{id:'plug3',type:'plug',name:'Plug',x:6.28,y:5.88,w:.22,h:.22,rot:0,locked:true}
+].map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null}))}
 function getStore(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
 function validObjects(a){return Array.isArray(a)&&a.length<5000&&a.every(o=>o&&typeof o.id==='string'&&typeof o.name==='string'&&typeof o.type==='string'&&['x','y','w','h','rot'].every(k=>Number.isFinite(o[k]))&&o.w>0&&o.h>0)}
-const prev=getStore(KEY),legacy=getStore(OLD);let state={objects:defaults(),selected:[],multi:false,zoom:.75,grid:true,gridSize:.05,magnet:true,labels:'short',checkpoints:[],defaultLayout:null};
+const prev=getStore(KEY),legacy=getStore(OLD);let state={objects:defaults(),selected:[],multi:false,zoom:2.5,grid:true,gridSize:.05,magnet:true,labels:'short',checkpoints:[],defaultLayout:null};
 if(prev&&validObjects(prev.objects)){state={...state,...prev,objects:prev.objects.map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null}))}}
 else if(legacy&&validObjects(legacy.objects)){state.objects=legacy.objects.map(o=>({...o,locked:!!o.locked,groupId:null}));if(Array.isArray(legacy.checkpoints))state.checkpoints=legacy.checkpoints}
 state.selected=[];let pointer=null,marquee=null,rendering=false;
+let undoStack=[],redoStack=[],lastHistory=JSON.stringify(state.objects),historySuspended=false;
+function updateHistoryButtons(){$('undoBtn').disabled=!undoStack.length;$('redoBtn').disabled=!redoStack.length}
+function undo(){if(!undoStack.length)return;redoStack.push(clone(state.objects));state.objects=undoStack.pop();lastHistory=JSON.stringify(state.objects);setSelection([]);render();save();updateHistoryButtons()}
+function redo(){if(!redoStack.length)return;undoStack.push(clone(state.objects));state.objects=redoStack.pop();lastHistory=JSON.stringify(state.objects);setSelection([]);render();save();updateHistoryButtons()}
+$('undoBtn').onclick=undo;$('redoBtn').onclick=redo;
+$('deleteDetailsBtn').onclick=()=>$('deleteBtn').click();$('lockDetailsBtn').onclick=()=>$('lockBtn').click();$('unlockDetailsBtn').onclick=()=>$('unlockBtn').click();
+$('goCustomBtn').onclick=()=>{$('customFurnitureSection').scrollIntoView({behavior:'smooth',block:'start'});$('newName').focus()};
+
 function msg(s){$('message').textContent=s}
-function save(){try{localStorage.setItem(KEY,JSON.stringify({...state,selected:[]}));$('saveStatus').textContent='✓ Saved on this browser'}catch(e){$('saveStatus').textContent='⚠ Storage unavailable';msg('Use Copy JSON to preserve your layout.')}}
+function save(){
+ const signature=JSON.stringify(state.objects);
+ if(!historySuspended&&signature!==lastHistory){undoStack.push(JSON.parse(lastHistory));if(undoStack.length>70)undoStack.shift();redoStack=[];lastHistory=signature}
+ updateHistoryButtons();
+ try{localStorage.setItem(KEY,JSON.stringify({...state,selected:[]}));$('saveStatus').textContent='✓ Saved on this browser'}catch(e){$('saveStatus').textContent='⚠ Storage unavailable';msg('Use Copy JSON to preserve your layout.')}
+ queueCloudSave();
+} 
 function geom(o){let [w,h]=o.rot%180?[o.h,o.w]:[o.w,o.h];return {x:o.x,y:o.y,w,h,right:o.x+w,bottom:o.y+h,cx:o.x+w/2,cy:o.y+h/2}}
 function lookup(id){return state.objects.find(o=>o.id===id)}
 function expandGroup(ids){let all=new Set(ids),groups=new Set(state.objects.filter(o=>all.has(o.id)&&o.groupId).map(o=>o.groupId));for(const o of state.objects)if(groups.has(o.groupId)&&o.groupId)all.add(o.id);return [...all]}
@@ -117,12 +150,56 @@ $('restoreCheckpoint').onclick=()=>{let c=state.checkpoints.find(c=>c.id===$('ch
 $('deleteCheckpoint').onclick=()=>{state.checkpoints=state.checkpoints.filter(c=>c.id!==$('checkpoints').value);refreshCheckpoints();save()};
 $('setDefault').onclick=()=>{state.defaultLayout=clone(state.objects);save();msg('Current layout saved as default.')};$('restoreDefault').onclick=()=>{if(!state.defaultLayout||!confirm('Restore your saved default layout?'))return;state.objects=clone(state.defaultLayout);setSelection([]);render();save()};
 $('resetBtn').onclick=()=>{if(!confirm('Reset to original rooms and furniture?'))return;state.objects=defaults();setSelection([]);render();save()};$('saveBtn').onclick=()=>{save();msg('Saved on this browser. Copy JSON before leaving a library PC.')};
-function transfer(){return {version:9,exportedAt:new Date().toISOString(),objects:state.objects,checkpoints:state.checkpoints,defaultLayout:state.defaultLayout,zoom:state.zoom,grid:state.grid,gridSize:state.gridSize,magnet:state.magnet,labels:state.labels}}
+function transfer(){return {version:10,exportedAt:new Date().toISOString(),objects:state.objects,checkpoints:state.checkpoints,defaultLayout:state.defaultLayout,zoom:state.zoom,grid:state.grid,gridSize:state.gridSize,magnet:state.magnet,labels:state.labels}}
 $('generateBtn').onclick=()=>{$('jsonText').value=JSON.stringify(transfer(),null,2);$('jsonText').focus();$('jsonText').select();msg('JSON generated. Press Ctrl+C / Cmd+C to copy.')};
 $('copyBtn').onclick=async()=>{$('generateBtn').click();try{await navigator.clipboard.writeText($('jsonText').value);msg('JSON copied!')}catch(e){msg('JSON selected. Press Ctrl+C / Cmd+C.')}};
 $('pasteBtn').onclick=()=>{$('jsonText').scrollIntoView({behavior:'smooth',block:'center'});$('jsonText').focus();msg('Paste your JSON code, then press Load pasted JSON.')};$('selectTextBtn').onclick=()=>{$('jsonText').focus();$('jsonText').select()};
 $('loadBtn').onclick=()=>{try{let parsed=JSON.parse($('jsonText').value);if(!validObjects(parsed.objects))throw Error('JSON must contain a valid objects array.');if(!confirm('Replace your active layout with this JSON?'))return;state.objects=parsed.objects.map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null}));state.checkpoints=Array.isArray(parsed.checkpoints)?parsed.checkpoints.filter(c=>c&&validObjects(c.objects)):[];state.defaultLayout=validObjects(parsed.defaultLayout)?parsed.defaultLayout:null;state.zoom=Number.isFinite(parsed.zoom)?Math.max(.25,Math.min(2.5,parsed.zoom)):.75;state.grid=typeof parsed.grid==='boolean'?parsed.grid:true;state.magnet=typeof parsed.magnet==='boolean'?parsed.magnet:true;state.gridSize=[.01,.05,.1,.2,.5].includes(parsed.gridSize)?parsed.gridSize:.05;state.labels=['short','rooms','none'].includes(parsed.labels)?parsed.labels:'short';$('gridSnap').checked=state.grid;$('magnet').checked=state.magnet;$('gridSize').value=state.gridSize;$('labels').value=state.labels;setSelection([]);render();refreshCheckpoints();save();msg('Layout loaded — locks, groups, positions and checkpoints restored.')}catch(e){msg('Import failed: '+e.message)}};
-document.addEventListener('keydown',e=>{let target=e.target;if(['INPUT','TEXTAREA','SELECT'].includes(target.tagName)||target.isContentEditable)return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'){e.preventDefault();setSelection(state.objects.map(o=>o.id));return}if(e.key==='Escape'){setSelection([]);return}if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();$('deleteBtn').click();return}const dirs={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};if(dirs[e.key]){e.preventDefault();const [dx,dy]=dirs[e.key],s=Number($('moveStep').value);applyDelta(dx*s,dy*s)}});
-window.addEventListener('pagehide',save);refreshCheckpoints();render();save();
+document.addEventListener('keydown',e=>{let target=e.target;if(['INPUT','TEXTAREA','SELECT'].includes(target.tagName)||target.isContentEditable)return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'){e.preventDefault();setSelection(state.objects.map(o=>o.id));return}if(e.key==='Escape'){setSelection([]);return}if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();$('deleteBtn').click();return}const dirs={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};if(dirs[e.key]){e.preventDefault();const [dx,dy]=dirs[e.key],s=Number($('moveStep').value);applyDelta(dx*s,dy*s)}});
+
+// Optional account-based cloud sync. Requires Supabase project configuration and RLS SQL.
+let cloud=null,cloudUser=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false;
+const cloudEnabled=!!(CLOUD_URL&&CLOUD_ANON_KEY);
+function cloudStatus(s){$('cloudStatus').textContent=s}
+function cloudPayload(){return {version:10,objects:clone(state.objects),checkpoints:clone(state.checkpoints),defaultLayout:clone(state.defaultLayout),zoom:state.zoom,grid:state.grid,gridSize:state.gridSize,magnet:state.magnet,labels:state.labels}}
+function queueCloudSave(){if(!cloudReady||!cloudUser)return;cloudDirty=true;clearTimeout(cloudTimer);cloudStatus('Unsynced changes — saving soon…');cloudTimer=setTimeout(flushCloud,1200)}
+async function flushCloud(){
+ if(!cloudReady||!cloudUser||cloudBusy)return;
+ if(!cloudDirty)return;
+ cloudBusy=true;cloudDirty=false;
+ const snapshot=cloudPayload();const who=cloudUser.id;
+ cloudStatus('Saving to cloud…');
+ try{const {error}=await cloud.from('floor_planner_saves').upsert({user_id:who,layout:snapshot,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)throw error;cloudStatus(cloudDirty?'Saving newer changes…':'✓ Cloud saved');}
+ catch(e){cloudDirty=true;cloudStatus('⚠ Cloud save failed: '+e.message);}
+ finally{cloudBusy=false;if(cloudDirty){clearTimeout(cloudTimer);cloudTimer=setTimeout(flushCloud,3500)}}
+}
+async function cloudLoad(ask=true){
+ if(!cloudUser)return cloudStatus('Sign in first');
+ cloudStatus('Loading cloud layout…');
+ try{const {data,error}=await cloud.from('floor_planner_saves').select('layout,updated_at').eq('user_id',cloudUser.id).maybeSingle();if(error)throw error;
+ if(!data){cloudReady=true;cloudDirty=true;await flushCloud();return cloudStatus('First layout uploaded to cloud ✓')}
+ if(!validObjects(data.layout?.objects))throw Error('Cloud layout is invalid');
+ if(ask&&!confirm('Load cloud save from '+new Date(data.updated_at).toLocaleString()+'? This replaces the current local layout.')){cloudReady=false;cloudStatus('Cloud load cancelled. Choose Load cloud layout or Save to cloud now.');return}
+ let p=data.layout;historySuspended=true;state.objects=p.objects.map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null}));state.checkpoints=Array.isArray(p.checkpoints)?p.checkpoints:[];state.defaultLayout=validObjects(p.defaultLayout)?p.defaultLayout:null;state.zoom=Number.isFinite(p.zoom)?p.zoom:state.zoom;state.grid=!!p.grid;state.magnet=!!p.magnet;state.gridSize=p.gridSize||.05;state.labels=p.labels||'short';$('gridSnap').checked=state.grid;$('gridSize').value=String(state.gridSize);$('magnet').checked=state.magnet;$('labels').value=state.labels;undoStack=[];redoStack=[];lastHistory=JSON.stringify(state.objects);setSelection([]);render();refreshCheckpoints();save();historySuspended=false;cloudReady=true;cloudDirty=false;cloudStatus('✓ Cloud loaded — autosync enabled');
+ }catch(e){historySuspended=false;cloudReady=false;cloudStatus('⚠ Cloud load failed: '+e.message)}
+}
+function refreshCloudAuth(){const signed=!!cloudUser;$('cloudLogin').style.display=signed?'none':'';$('cloudLoadBtn').disabled=!signed;$('cloudSaveBtn').disabled=!signed;$('cloudSignOutBtn').disabled=!signed;if(signed)cloudStatus('Signed in: '+cloudUser.email+' — '+(cloudReady?'sync enabled':'choose cloud or local version'))}
+async function startCloud(){
+ if(!cloudEnabled){cloudStatus('Cloud not configured. See CLOUD_SETUP.md in the package.');refreshCloudAuth();return}
+ try{
+  if(!window.supabase?.createClient)throw Error('Cloud library unavailable. Check network access.');
+  cloud=window.supabase.createClient(CLOUD_URL,CLOUD_ANON_KEY);
+  const {data:{session}}=await cloud.auth.getSession();cloudUser=session?.user||null;refreshCloudAuth();
+  cloud.auth.onAuthStateChange((event,session)=>{const id=session?.user?.id;if(!id){cloudUser=null;cloudReady=false;refreshCloudAuth();return}if(cloudUser?.id!==id){cloudUser=session.user;cloudReady=false;refreshCloudAuth();setTimeout(()=>cloudLoad(true),100)}});
+  if(cloudUser)await cloudLoad(true);
+ }catch(e){cloudStatus('Cloud setup error: '+e.message)}
+}
+$('cloudSignInBtn').onclick=async()=>{if(!cloud)return cloudStatus('Configure cloud first');const email=$('cloudEmail').value.trim();if(!email.includes('@'))return cloudStatus('Enter your email address');cloudStatus('Sending sign-in email…');const {error}=await cloud.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});cloudStatus(error?'⚠ '+error.message:'Check your email for the sign-in link. Open it on this device.')};
+$('cloudLoadBtn').onclick=()=>cloudLoad(true);
+$('cloudSaveBtn').onclick=async()=>{if(!cloudUser)return; if(!cloudReady&&!confirm('Overwrite the cloud copy with this browser layout?'))return;cloudReady=true;cloudDirty=true;await flushCloud()};
+$('cloudSignOutBtn').onclick=async()=>{clearTimeout(cloudTimer);if(cloudDirty)await flushCloud();cloudReady=false;await cloud?.auth.signOut();cloudUser=null;refreshCloudAuth();cloudStatus('Signed out. On a public PC, close this tab when finished.')};
+startCloud();
+
+window.addEventListener('pagehide',save);refreshCheckpoints();render();save();updateHistoryButtons();
 })();
 </script></body></html>
