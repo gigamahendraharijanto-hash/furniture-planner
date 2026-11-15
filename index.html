@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Furniture Planner · Precision Edition</title>
 <style>
-:root{font:14px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;color:#223047;background:#edf1f6}*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid #c7d3e2;background:#fff;color:#223047;padding:8px 10px;border-radius:8px;font-weight:600}button:hover{background:#eaf1fd}button:disabled{opacity:.45;cursor:not-allowed}.primary{color:white;background:#2458ba;border-color:#2458ba}.primary:hover{background:#194b9f}.active{background:#dce9ff!important;border-color:#2458ba!important}input,select,textarea{width:100%;min-width:0;border:1px solid #c9d4e3;border-radius:7px;padding:7px;background:white;color:#1f3048}label{display:block;font-size:12px;color:#56677e;margin-bottom:4px}h1{font-size:18px;margin:0}h2{font-size:14px;margin:0 0 9px}header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #dce3ed;padding:12px 16px}.top,.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.app{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:12px;padding:12px;max-width:1800px;margin:auto}.panel{background:white;border:1px solid #d9e2ed;border-radius:12px;min-width:0;overflow:hidden}.tools{display:flex;gap:6px;flex-wrap:wrap;padding:10px;border-bottom:1px solid #e4eaf2;align-items:center}.tools .sep{width:1px;height:25px;background:#dbe3ed;margin:0 3px}.workspace{height:calc(100vh - 215px);min-height:400px;overflow:auto;background:#e7edf5;overscroll-behavior:contain;touch-action:pan-x pan-y}.scaled{position:relative;margin:20px}.board{position:absolute;left:0;top:0;transform-origin:top left;touch-action:none;background-color:#fcfdff;background-image:linear-gradient(#e4eaf2 1px,transparent 1px),linear-gradient(90deg,#e4eaf2 1px,transparent 1px);background-size:25px 25px;border:1px solid #96adc9;box-shadow:0 5px 20px #1c41601f}.obj{position:absolute;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;font-weight:650;border:2px solid #678bad;background:#c9dcf0a0;color:#254566;overflow:hidden;cursor:grab}.obj.room{border-width:3px;background:#dbeaf6aa;z-index:1}.obj.zone{border:2px dashed #c89d42;background:#f4dfb53b;z-index:2}.obj.furniture{background:#b6c7e2dd;border-color:#657da7;z-index:4;border-radius:3px}.obj.door{background:#d4ac81;border-color:#956431;z-index:7}.obj.window{background:#92d8f2;border-color:#1584b7;z-index:7}.obj.plug{background:#f6cd71;border-color:#bb8720;border-radius:50%;z-index:8}.obj.selected{outline:3px solid #1259d7;outline-offset:2px;z-index:15}.obj.locked{border-style:dashed;cursor:not-allowed}.obj.locked::after{content:'🔒';position:absolute;right:2px;top:1px;font-size:11px;line-height:1}.obj .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:95%;pointer-events:none}.obj.tiny .name{display:none}.obj.selected.tiny .name{display:none}.marquee{position:absolute;z-index:30;pointer-events:none;border:1px dashed #2563eb;background:#2563eb22}.side{padding:13px;max-height:calc(100vh - 105px);overflow:auto}.section{border-bottom:1px solid #e1e7f0;padding-bottom:14px;margin-bottom:14px}.section:last-child{border:none}.fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}.muted{font-size:12px;color:#68788d}.msg{font-size:12px;color:#246142;min-height:18px}.dpad{display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,40px);gap:4px;justify-content:center}.dpad button{font-size:21px;padding:0}.dpad .middle{display:grid;place-items:center;color:#8a97a9;font-size:11px}.tabs{display:flex;gap:4px}.tabs button{flex:1}.batch{min-height:95px;font:12px/1.4 ui-monospace,monospace}.json{min-height:170px;font:11px/1.5 ui-monospace,monospace}.badge{font-size:11px;border-radius:20px;background:#eaf1fb;padding:5px 9px;color:#3d5a7e}.info{font-size:11px;color:#63738b}.colorblue{color:#2563eb}.hide{display:none!important}#zoom{width:115px}.item-list{max-height:130px;overflow:auto;border:1px solid #d8e2ec;border-radius:7px;padding:5px}.item-list label{display:flex;align-items:center;gap:6px;padding:3px 5px;margin:0;cursor:pointer}.item-list input{width:auto}.item-list label:hover{background:#edf4ff}.text-small{font-size:11px}.stack{display:grid;gap:7px}.space{margin-top:8px}.tleft{margin-left:auto}
+:root{font:14px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;color:#223047;background:#edf1f6}*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid #c7d3e2;background:#fff;color:#223047;padding:8px 10px;border-radius:8px;font-weight:600}button:hover{background:#eaf1fd}button:disabled{opacity:.45;cursor:not-allowed}.primary{color:white;background:#2458ba;border-color:#2458ba}.primary:hover{background:#194b9f}.active{background:#dce9ff!important;border-color:#2458ba!important}input,select,textarea{width:100%;min-width:0;border:1px solid #c9d4e3;border-radius:7px;padding:7px;background:white;color:#1f3048}label{display:block;font-size:12px;color:#56677e;margin-bottom:4px}h1{font-size:18px;margin:0}h2{font-size:14px;margin:0 0 9px}header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #dce3ed;padding:12px 16px}.top,.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.app{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:12px;padding:12px;max-width:1800px;margin:auto}.panel{background:white;border:1px solid #d9e2ed;border-radius:12px;min-width:0;overflow:hidden}.tools{display:flex;gap:6px;flex-wrap:wrap;padding:10px;border-bottom:1px solid #e4eaf2;align-items:center}.tools .sep{width:1px;height:25px;background:#dbe3ed;margin:0 3px}.workspace{height:calc(100vh - 215px);min-height:400px;overflow:auto;background:#e7edf5;overscroll-behavior:contain;touch-action:pan-x pan-y}.scaled{position:relative;margin:20px}.board{position:absolute;left:0;top:0;transform-origin:top left;touch-action:none;background-color:#fcfdff;background-image:linear-gradient(#e4eaf2 1px,transparent 1px),linear-gradient(90deg,#e4eaf2 1px,transparent 1px);background-size:25px 25px;border:1px solid #96adc9;box-shadow:0 5px 20px #1c41601f}.obj{position:absolute;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;font-weight:650;border:2px solid #678bad;background:#c9dcf0a0;color:#254566;overflow:hidden;cursor:grab}.obj.room{border-width:3px;background:#dbeaf6aa;z-index:1}.obj.furniture{background:#b6c7e2dd;border-color:#657da7;z-index:4;border-radius:3px}.obj.door{background:#d4ac81;border-color:#956431;z-index:7}.obj.window{background:#92d8f2;border-color:#1584b7;z-index:7}.obj.plug{background:#f6cd71;border-color:#bb8720;border-radius:50%;z-index:8}.obj.selected{outline:3px solid #1259d7;outline-offset:2px;z-index:15}.obj.locked{border-style:dashed;cursor:not-allowed}.obj.locked::after{content:'🔒';position:absolute;right:2px;top:1px;font-size:11px;line-height:1}.obj .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:95%;pointer-events:none}.obj.tiny .name{display:none}.obj.selected.tiny .name{display:none}.marquee{position:absolute;z-index:30;pointer-events:none;border:1px dashed #2563eb;background:#2563eb22}.side{padding:13px;max-height:calc(100vh - 105px);overflow:auto}.section{border-bottom:1px solid #e1e7f0;padding-bottom:14px;margin-bottom:14px}.section:last-child{border:none}.fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}.muted{font-size:12px;color:#68788d}.msg{font-size:12px;color:#246142;min-height:18px}.dpad{display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,40px);gap:4px;justify-content:center}.dpad button{font-size:21px;padding:0}.dpad .middle{display:grid;place-items:center;color:#8a97a9;font-size:11px}.tabs{display:flex;gap:4px}.tabs button{flex:1}.batch{min-height:95px;font:12px/1.4 ui-monospace,monospace}.json{min-height:170px;font:11px/1.5 ui-monospace,monospace}.badge{font-size:11px;border-radius:20px;background:#eaf1fb;padding:5px 9px;color:#3d5a7e}.info{font-size:11px;color:#63738b}.colorblue{color:#2563eb}.hide{display:none!important}#zoom{width:115px}.item-list{max-height:130px;overflow:auto;border:1px solid #d8e2ec;border-radius:7px;padding:5px}.item-list label{display:flex;align-items:center;gap:6px;padding:3px 5px;margin:0;cursor:pointer}.item-list input{width:auto}.item-list label:hover{background:#edf4ff}.text-small{font-size:11px}.stack{display:grid;gap:7px}.space{margin-top:8px}.tleft{margin-left:auto}
 @media(max-width:900px){.app{display:flex;flex-direction:column;padding:7px;gap:8px}.workspace{height:52vh;min-height:330px}.side{max-height:none;overflow:visible}.tools{padding:8px}header{padding:10px}.tools button{font-size:12px;padding:8px}.top button{font-size:12px}.scaled{margin:12px}}
 header h1{font-size:20px;letter-spacing:-.02em}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #2458ba;outline-offset:2px}
@@ -10,7 +10,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .obj.plug,.plug-marker{background:#f6cd71;border-color:#8c5a00;border-radius:50%}
 .obj.plug-new,.plug-marker.plug-new{background:#b6ede2;border-color:#006b5e;border-radius:2px}
 .obj.plug.locked::after{display:none}
-.obj.room.selected{z-index:1}.obj.zone.selected{z-index:2}
+.obj.room.selected{z-index:1}
+.obj.unplaced{outline:2px dashed #a34215;outline-offset:2px}
+#placementNotice{color:#913d18}
+.tools[hidden]{display:none}
 .plug-legend{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .plug-legend>span{display:inline-flex;align-items:center;gap:5px}
 .plug-marker{display:inline-block;flex:none;width:11px;height:11px;border-width:2px;border-style:solid}
@@ -18,21 +21,23 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .plug-status{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .furniture-tooltip{position:fixed;z-index:50;pointer-events:none;max-width:min(280px,calc(100vw - 16px));padding:9px 12px;border-radius:8px;background:#17283e;color:white;box-shadow:0 4px 16px #17283e33;overflow-wrap:anywhere}
 .furniture-tooltip strong{display:block;font-size:13px}.furniture-tooltip div{color:#e1eaf7;font-size:12px;margin-top:3px}
+dialog{max-width:min(580px,90vw);max-height:80vh;overflow:auto;border:1px solid #c9d4e3;border-radius:12px;padding:18px;color:#223047}
+dialog::backdrop{background:#152d4470}
 </style></head>
 <body>
-<header><div><h1>▦ Furniture Planner</h1></div><div class="top"><span id="saveStatus" class="muted">Ready</span><button id="undoBtn" title="Undo (Ctrl/Cmd+Z)">↶ Undo</button><button id="redoBtn" title="Redo (Ctrl/Cmd+Shift+Z)">↷ Redo</button><button id="saveBtn">Save</button><button id="checkpointBtn">+ Checkpoint</button><button id="copyBtn" class="primary">Copy JSON</button><button id="pasteBtn">Paste JSON</button></div></header>
+<header><div><h1>▦ Furniture Planner</h1></div><div class="top"><span id="saveStatus" class="muted">Ready</span><button id="undoBtn" title="Undo (Ctrl/Cmd+Z)">↶ Undo</button><button id="redoBtn" title="Redo (Ctrl/Cmd+Shift+Z)">↷ Redo</button><button id="saveBtn">Save</button><button id="reportBtn" class="primary">Download PNG report</button><button id="checkpointBtn">+ Checkpoint</button><button id="copyBtn">Copy JSON</button><button id="pasteBtn">Paste JSON</button></div></header>
 <div class="app"><main class="panel">
-<div class="tools" id="addToolbar"><strong style="font-size:12px">+ Add elements</strong><button data-add="room">Room</button><button data-add="door">Door</button><button data-add="window">Window</button><button data-add="plug" title="Place a new plug">Plug</button><button data-add="furniture">Furniture</button><button data-add="zone">Zone</button><button id="goCustomBtn">Custom / batch…</button><span id="selectionCount" class="badge tleft">0 selected</span></div>
+<div class="tools" id="addToolbar"><strong style="font-size:12px">+ Add elements</strong><button data-add="room">Room</button><button data-add="door">Door</button><button data-add="window">Window</button><button data-add="plug" data-plug-status="builtIn">Built-in plug</button><button data-add="plug" data-plug-status="new">New plug</button><button data-add="furniture">Furniture</button><button id="goCustomBtn">Custom / batch…</button><span id="actionStatus" class="info" role="status"></span><span id="selectionCount" class="badge tleft">0 selected</span></div>
 
 <div class="tools">
  <button id="selectAllBtn">Select all</button><button id="clearBtn">Clear</button><button id="multiBtn">Multi-select: Off</button><button id="groupBtn">Group</button><button id="ungroupBtn">Ungroup</button><button id="lockBtn">🔒 Lock selected</button><button id="unlockBtn">Unlock selected</button>
 </div>
-<div class="tools viewTools"><button id="zoomOut" aria-label="Zoom out">−</button><input id="zoom" aria-label="Zoom" type="range" min="25" max="250" step="5" value="100"><strong id="zoomValue" style="min-width:45px;text-align:center">100%</strong><button id="zoomIn" aria-label="Zoom in">+</button><button id="fitBtn">Fit</button><span class="sep"></span><label style="margin:0"><input id="gridSnap" type="checkbox" checked style="width:auto"> Grid snap</label><select id="gridSize" aria-label="Grid spacing" style="width:auto"><option value=".01">1 cm</option><option value=".05" selected>5 cm</option><option value=".1">10 cm</option><option value=".2">20 cm</option><option value=".5">50 cm</option></select><label style="margin:0"><input id="magnet" type="checkbox" checked style="width:auto"> Magnetic align</label><label for="labels">Labels</label><select id="labels" style="width:auto"><option value="short">All labels</option><option value="rooms">Room names only</option><option value="noRooms">Hide room names</option><option value="none">No labels</option></select></div>
-<div class="workspace" id="viewport"><div class="scaled" id="scaled"><div class="board" id="board"></div></div></div>
+<div class="tools viewTools"><button id="zoomOut" aria-label="Zoom out">−</button><input id="zoom" aria-label="Zoom" type="range" min="10" max="250" step="5" value="100"><strong id="zoomValue" style="min-width:45px;text-align:center">100%</strong><button id="zoomIn" aria-label="Zoom in">+</button><button id="fitBtn">Fit</button><span class="sep"></span><label style="margin:0"><input id="gridSnap" type="checkbox" checked style="width:auto"> Grid snap</label><select id="gridSize" aria-label="Grid spacing" style="width:auto"><option value=".01">1 cm</option><option value=".05" selected>5 cm</option><option value=".1">10 cm</option><option value=".2">20 cm</option><option value=".5">50 cm</option></select><label style="margin:0"><input id="magnet" type="checkbox" checked style="width:auto"> Magnetic align</label><label for="labels">Labels</label><select id="labels" style="width:auto"><option value="short">All labels</option><option value="rooms">Room names only</option><option value="noRooms">Hide room names</option><option value="none">No labels</option></select></div>
+<div class="workspace" id="viewport" tabindex="0" aria-label="Floor plan"><div class="scaled" id="scaled"><div class="board" id="board"></div></div></div>
 
 <div class="tools"><div class="plug-legend muted" aria-label="Plug indicators"><span><i class="plug-marker" aria-hidden="true"></i>Built-in plug</span><span><i class="plug-marker plug-new" aria-hidden="true"></i>New plug</span></div>
-<span class="info tleft">Hover over furniture for details. Shift-click or turn on Multi-select to select several items.</span></div>
-<div id="furnitureTooltip" class="furniture-tooltip" role="tooltip" hidden><strong></strong><div></div></div>
+<span class="info tleft">Hover for details. Use Ctrl/Cmd+C and Ctrl/Cmd+V to copy and paste selected items.</span></div>
+<div class="tools" id="placementNoticeWrap" hidden><span id="placementNotice" class="info"></span></div><div id="furnitureTooltip" class="furniture-tooltip" role="tooltip" hidden><strong></strong><div></div></div>
 </main><aside class="panel side">
 <div class="section stack"><h2>Selection & precise movement</h2><div class="row"><span id="selectionSummary" class="badge">No selection</span><button id="selectUnlocked">Select unlocked</button></div><div class="item-list" id="itemList"></div>
 <div class="fields"><div><label>Move by</label><select id="moveStep"><option value=".01">1 cm</option><option value=".05">5 cm</option><option value=".1" selected>10 cm</option><option value=".5">50 cm</option></select></div><div><label>Rotate</label><div class="row"><button id="ccw">↶ 90°</button><button id="cw">90° ↷</button></div></div></div>
@@ -40,7 +45,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <div class="row"><button id="duplicateBtn">Duplicate</button><button id="deleteBtn">Delete unlocked</button></div>
 </div>
 <div class="section stack"><h2>Align selected items</h2><div class="row"><button data-align="left">Left</button><button data-align="centerX">Center ↕</button><button data-align="right">Right</button><button data-align="top">Top</button><button data-align="centerY">Middle ↔</button><button data-align="bottom">Bottom</button></div><div class="muted">Aligns multiple selected, unlocked objects. Locked objects stay in place and can serve as alignment references.</div></div>
-<div class="section stack"><h2>Item details</h2><div><label>Name</label><input id="name" placeholder="Select one item"></div><div class="fields"><div><label>Width (cm)</label><input id="width" type="number" min="5" step=".1"></div><div><label>Depth (cm)</label><input id="depth" type="number" min="5" step=".1"></div><div><label>X (metres)</label><input id="x" type="number" step=".01"></div><div><label>Y (metres)</label><input id="y" type="number" step=".01"></div></div><div id="plugStatusWrap" class="hide"><label for="plugStatus">Plug status</label><select id="plugStatus"><option value="builtIn">Built-in</option><option value="new">New</option></select></div><div id="tableWrap"><label>Table configuration</label><select id="tableMode"><option value="open">Open (152 × 80 cm)</option><option value="half">Half (89 × 80 cm)</option><option value="folded">Folded (26 × 80 cm)</option></select></div><div class="muted" id="lockedNotice"></div><div class="row"><button id="deleteDetailsBtn" style="border-color:#d99393;color:#a52727">🗑 Delete selected item(s)</button><button id="lockDetailsBtn">🔒 Lock</button><button id="unlockDetailsBtn">Unlock</button></div></div>
+<div class="section stack"><h2>Item details</h2><div><label>Name</label><input id="name" placeholder="Select one item"></div><div class="fields"><div><label>Width (cm)</label><input id="width" type="number" min="5" step=".1"></div><div><label>Depth (cm)</label><input id="depth" type="number" min="5" step=".1"></div><div><label>X (metres)</label><input id="x" type="number" step=".01"></div><div><label>Y (metres)</label><input id="y" type="number" step=".01"></div></div><div id="placementWrap" class="hide"><label for="itemRoom">Room</label><select id="itemRoom"></select><div id="wallWrap"><label for="itemWall">Wall</label><select id="itemWall"><option value="top">Top</option><option value="right">Right</option><option value="bottom">Bottom</option><option value="left">Left</option></select></div></div><div id="plugStatusWrap" class="hide"><label for="plugStatus">Plug status</label><select id="plugStatus"><option value="builtIn">Built-in</option><option value="new">New</option></select></div><div id="tableWrap"><label>Table configuration</label><select id="tableMode"><option value="open">Open (152 × 80 cm)</option><option value="half">Half (89 × 80 cm)</option><option value="folded">Folded (26 × 80 cm)</option></select></div><div class="muted" id="lockedNotice"></div><div class="row"><button id="deleteDetailsBtn" style="border-color:#d99393;color:#a52727">🗑 Delete selected item(s)</button><button id="lockDetailsBtn">🔒 Lock</button><button id="unlockDetailsBtn">Unlock</button></div></div>
 <div class="section stack" id="customFurnitureSection"><h2>Add furniture by dimensions</h2><div><label>Furniture name</label><input id="newName" placeholder="e.g. Bookshelf"></div><div class="fields"><div><label>Width (cm)</label><input id="newW" type="number" value="120" min="5" step=".1"></div><div><label>Depth (cm)</label><input id="newD" type="number" value="40" min="5" step=".1"></div><div><label>Quantity</label><input id="newQ" type="number" value="1" min="1" max="100" step="1"></div><div style="display:flex;align-items:end"><button id="addCustomBtn" class="primary" style="width:100%">Add furniture</button></div></div>
 <h2 style="margin-top:8px">Batch add furniture</h2><div class="muted">One per line: <code>Name, Width cm, Depth cm, Quantity</code></div><textarea id="batchText" class="batch" placeholder="Bookshelf, 90, 35, 2&#10;Side table, 45, 45, 1"></textarea><button id="batchBtn">Add batch</button></div>
 <div class="section stack" id="cloudSection"><h2>☁ Cloud sync across computers</h2><div class="muted">Configure Supabase once in your GitHub HTML, then sign in with the same email on every device. This is optional; browser autosave works without it.</div>
@@ -50,8 +55,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <div class="muted">Library PC: always sign out when finished. Autosync requires an internet connection and completed configuration.</div></div>
 <div class="section stack"><h2>Layouts & checkpoints</h2><label>Saved checkpoints</label><select id="checkpoints"></select><div class="row"><button id="restoreCheckpoint">Restore</button><button id="deleteCheckpoint">Delete checkpoint</button><button id="setDefault">Set as default</button><button id="restoreDefault">Restore default</button></div><button id="resetBtn">Reset starter layout</button><div class="muted">Changes autosave on this browser. On library PCs, copy your JSON before ending the session.</div></div>
 <div class="section stack"><h2>Transfer JSON between devices</h2><textarea id="jsonText" class="json" placeholder="Click Generate JSON, or paste a JSON save here"></textarea><div class="row"><button id="generateBtn">Generate JSON</button><button id="selectTextBtn">Select text</button><button id="loadBtn" class="primary">Load pasted JSON</button></div></div>
-<div id="message" class="msg" role="status"></div>
+<div id="message" class="msg"></div>
 </aside></div>
+<dialog id="reportDialog" aria-labelledby="reportTitle"><h2 id="reportTitle">Download report pages</h2><p class="muted">Each PNG includes the floor plan and its portion of the placement schedule.</p><div id="reportPages" class="row"></div><form method="dialog" class="space"><button>Close</button></form></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 (()=>{'use strict';
@@ -59,11 +65,14 @@ const CLOUD_URL='https://axilmmwwmqglopxftmft.supabase.co'; // Enter Supabase Pr
 const CLOUD_ANON_KEY='sb_publishable_2tJVmXMkok7iXOO7htMRCg_AJME9Pd-'; // Enter Supabase publishable/anon key (NEVER service_role key)
 const $=id=>document.getElementById(id),S=50,BW=1500,BH=1100,KEY='furniture-planner-v9',OLD='furniture-planner-v8';
 const clone=x=>JSON.parse(JSON.stringify(x)),round=n=>Math.round(n*10000)/10000,uid=()=>Math.random().toString(36).slice(2,11)+Date.now().toString(36);
+const fixtureTypes=new Set(['door','window','plug']);
+const wallSides=['top','right','bottom','left'];
+const clamp=(value,min,max)=>Math.max(min,Math.min(Math.max(min,max),value));
+const titleCase=value=>value.charAt(0).toUpperCase()+value.slice(1);
 function defaults(){return [
 {id:'guest',type:'room',name:'Guest bedroom',x:8.95,y:4.9,w:3.8,h:2.8,rot:270,locked:true},
 {id:'master',type:'room',name:'Master bedroom',x:8.95,y:.95,w:4,h:2.8,rot:270,locked:true},
 {id:'living',type:'room',name:'Living room',x:6.25,y:3.242,w:2.7,h:6.5,rot:0,locked:true},
-{id:'zone',type:'zone',name:'Dining zone',x:9.66,y:11,w:3.12,h:2.4,rot:0},
 {id:'table',type:'furniture',name:'Dining table',x:6.28,y:4.38,w:1.52,h:.8,rot:0,mode:'open',groupId:'dining-group'},
 {id:'chair1',type:'furniture',name:'Chair 1',x:7.16,y:3.865,w:.46,h:.51,rot:0,groupId:'dining-group'},
 {id:'chair2',type:'furniture',name:'Chair 2',x:6.43,y:3.865,w:.46,h:.51,rot:0,groupId:'dining-group'},
@@ -93,12 +102,17 @@ function plugStatus(o){
 function plugStatusLabel(o){return plugStatus(o)==='builtIn'?'Built-in':'New'}
 const labelModes=['short','rooms','noRooms','none'];
 function getStore(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
-function validObjects(a){return Array.isArray(a)&&a.length<5000&&a.every(o=>o&&typeof o.id==='string'&&typeof o.name==='string'&&typeof o.type==='string'&&['x','y','w','h','rot'].every(k=>Number.isFinite(o[k]))&&o.w>0&&o.h>0)}
+function validObjects(a){return Array.isArray(a)&&a.length<5000&&a.every(o=>o&&typeof o.id==='string'&&typeof o.name==='string'&&typeof o.type==='string'&&['x','y','w','h','rot'].every(k=>Number.isFinite(o[k]))&&o.w>0&&o.h>0)&&new Set(a.map(o=>o.id)).size===a.length}
 const prev=getStore(KEY),legacy=getStore(OLD);let state={objects:defaults(),selected:[],multi:false,zoom:2.5,grid:true,gridSize:.05,magnet:true,labels:'short',checkpoints:[],defaultLayout:null};
 if(prev&&validObjects(prev.objects)){state={...state,...prev,objects:prev.objects.map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null}))}}
 else if(legacy&&validObjects(legacy.objects)){state.objects=legacy.objects.map(o=>({...o,locked:!!o.locked,groupId:null}));if(Array.isArray(legacy.checkpoints))state.checkpoints=legacy.checkpoints}
 if(!labelModes.includes(state.labels))state.labels='short';
-state.selected=[];let pointer=null,marquee=null,rendering=false;
+const initialLayout=normalizeLayout(state.objects);
+state.objects=initialLayout.objects;
+state.checkpoints=checkpointsWithoutZones(state.checkpoints);
+state.defaultLayout=layoutWithoutZones(state.defaultLayout);
+state.zoom=Number.isFinite(state.zoom)?clamp(state.zoom,.1,2.5):1;
+state.selected=[];let pointer=null,marquee=null,rendering=false,boardOrigin={x:0,y:0};
 let undoStack=[],redoStack=[],lastHistory=JSON.stringify(state.objects),historySuspended=false;
 function updateHistoryButtons(){$('undoBtn').disabled=!undoStack.length;$('redoBtn').disabled=!redoStack.length}
 function undo(){if(!undoStack.length)return;redoStack.push(clone(state.objects));state.objects=undoStack.pop();lastHistory=JSON.stringify(state.objects);setSelection([]);render();save();updateHistoryButtons()}
@@ -107,7 +121,7 @@ $('undoBtn').onclick=undo;$('redoBtn').onclick=redo;
 $('deleteDetailsBtn').onclick=()=>$('deleteBtn').click();$('lockDetailsBtn').onclick=()=>$('lockBtn').click();$('unlockDetailsBtn').onclick=()=>$('unlockBtn').click();
 $('goCustomBtn').onclick=()=>{$('customFurnitureSection').scrollIntoView({behavior:'smooth',block:'start'});$('newName').focus()};
 
-function msg(s){$('message').textContent=s}
+function msg(s){$('message').textContent=s;$('actionStatus').textContent=s}
 function save(){
  const signature=JSON.stringify(state.objects);
  if(!historySuspended&&signature!==lastHistory){undoStack.push(JSON.parse(lastHistory));if(undoStack.length>70)undoStack.shift();redoStack=[];lastHistory=signature}
@@ -116,13 +130,155 @@ function save(){
  queueCloudSave();
 } 
 function geom(o){let [w,h]=o.rot%180?[o.h,o.w]:[o.w,o.h];return {x:o.x,y:o.y,w,h,right:o.x+w,bottom:o.y+h,cx:o.x+w/2,cy:o.y+h/2}}
+
+function roomRects(objects){return objects.filter(o=>o.type==='room').map(o=>({...geom(o),id:o.id,name:o.name}))}
+function fitFurniture(item,room){
+ const g=geom(item);
+ if(g.w>room.w+1e-8||g.h>room.h+1e-8)return null;
+ return {...item,roomId:room.id,x:round(clamp(g.x,room.x,room.right-g.w)),y:round(clamp(g.y,room.y,room.bottom-g.h))};
+}
+
+function fitFixture(item,room,side){
+ const horizontal=side==='top'||side==='bottom';
+ if(item.w>(horizontal?room.w:room.h)+1e-8)return null;
+ const g=geom(item);
+ const wallPosition={top:room.y,right:room.right,bottom:room.bottom,left:room.x}[side];
+ const x=horizontal?clamp(g.cx-item.w/2,room.x,room.right-item.w):wallPosition-item.h/2;
+ const y=horizontal?wallPosition-item.h/2:clamp(g.cy-item.w/2,room.y,room.bottom-item.w);
+ return {...item,roomId:room.id,wallSide:side,rot:horizontal?0:90,x:round(x),y:round(y)};
+}
+
+function placeItem(item,rooms,{roomId=null,wallSide=null}={}){
+ const candidates=roomId?rooms.filter(room=>room.id===roomId):rooms;
+ const g=geom(item);
+ let best=null,distance=Infinity;
+ for(const room of candidates){
+  const placements=fixtureTypes.has(item.type)
+   ?(wallSide?[wallSide]:wallSides).map(side=>fitFixture(item,room,side))
+   :[fitFurniture(item,room)];
+  for(const placed of placements){
+   if(!placed)continue;
+   const p=geom(placed),d=(g.cx-p.cx)**2+(g.cy-p.cy)**2;
+   if(d<distance-1e-8||(Math.abs(d-distance)<1e-8&&placed.roomId===item.roomId&&placed.wallSide===item.wallSide)){
+    best=placed;distance=d;
+   }
+  }
+ }
+ return best;
+}
+
+function placementProblem(item,rooms){
+ if(item.type!=='furniture'&&!fixtureTypes.has(item.type))return '';
+ const room=rooms.find(r=>r.id===item.roomId);
+ if(!room)return 'Choose a room to place this item.';
+ const expected=item.type==='furniture'?fitFurniture(item,room):wallSides.includes(item.wallSide)?fitFixture(item,room,item.wallSide):null;
+ return expected&&Math.abs(expected.x-item.x)<.00011&&Math.abs(expected.y-item.y)<.00011&&expected.rot===item.rot
+  ?'':'This item needs a valid room or wall placement.';
+}
+
+function layoutWithoutZones(objects){
+ return validObjects(objects)?objects.filter(item=>item.type!=='zone'):null;
+}
+
+function checkpointsWithoutZones(checkpoints){
+ return Array.isArray(checkpoints)?checkpoints.filter(c=>c&&validObjects(c.objects)).map(c=>({...c,objects:layoutWithoutZones(c.objects)})):[];
+}
+
+function normalizeLayout(objects){
+ const rooms=roomRects(objects);
+ let adjusted=0,removed=0;
+ const cleaned=[];
+ for(const item of objects){
+  if(item.type==='zone'){removed++;continue}
+  if(item.type!=='furniture'&&!fixtureTypes.has(item.type)){cleaned.push(item);continue}
+  const previous=rooms.find(room=>room.id===item.roomId);
+  const preferred=previous?placeItem(item,[previous],{wallSide:wallSides.includes(item.wallSide)?item.wallSide:null}):null;
+  const placed=preferred||placeItem(item,rooms);
+  if(placed&&(Math.abs(item.x-placed.x)>.00011||Math.abs(item.y-placed.y)>.00011||geom(item).w!==geom(placed).w))adjusted++;
+  cleaned.push(placed||{...item,roomId:null,wallSide:null});
+ }
+ return {objects:cleaned,adjusted,removed};
+}
+
+let placementMigration='';
+function noteMigration(result){
+ const parts=[];
+ if(result.removed)parts.push(result.removed+' zone outline(s) removed');
+ if(result.adjusted)parts.push(result.adjusted+' item(s) fitted to rooms or walls');
+ placementMigration=parts.length?parts.join(' · ')+'. Check positions before sharing.':'';
+}
+
+function loadPlacement(objects){
+ const result=normalizeLayout(objects);
+ noteMigration(result);
+ return result.objects;
+}
+
+function applyLayoutEdits(source,edits,{allowWallChange=false,rigid=false}={}){
+ const rooms=roomRects(source);
+ const nextRooms=roomRects(source.map(o=>edits.get(o.id)||o));
+ const changed=new Map();
+ for(const original of source){
+  const parent=rooms.find(room=>room.id===original.roomId);
+  const parentEdit=parent&&edits.has(parent.id);
+  const proposal=edits.get(original.id);
+  if(!proposal&&!parentEdit)continue;
+  let item=proposal||{...original};
+  if(parentEdit&&!proposal){
+   const nextParent=nextRooms.find(room=>room.id===parent.id);
+   item.x+=nextParent.x-parent.x;
+   item.y+=nextParent.y-parent.y;
+  }
+  if(item.type==='furniture'||fixtureTypes.has(item.type)){
+   const movingWall=fixtureTypes.has(item.type)&&allowWallChange&&!parentEdit;
+   const placed=placeItem(item,nextRooms,{roomId:movingWall?null:item.roomId,wallSide:movingWall?null:item.wallSide});
+   if(!placed)return {error:item.name+' does not fit in that room or on that wall.'};
+   if(rigid&&proposal&&(Math.abs(item.x-placed.x)>.00011||Math.abs(item.y-placed.y)>.00011))return {error:'A room or wall stops this group.'};
+   item=placed;
+  }
+  if(JSON.stringify(item)!==JSON.stringify(original))changed.set(item.id,item);
+ }
+ return {objects:source.map(o=>changed.get(o.id)||o),changed};
+}
+
+function moveSelection(source,ids,dx,dy,{drag=false}={}){
+ const moving=new Set(ids),rooms=roomRects(source);
+ let minX=-Infinity,maxX=Infinity,minY=-Infinity,maxY=Infinity;
+ for(const item of source){
+  if(!moving.has(item.id)||moving.has(item.roomId))continue;
+  const room=rooms.find(r=>r.id===item.roomId);
+  if(!room)continue;
+  const g=geom(item);
+  if(item.type==='furniture'){
+   minX=Math.max(minX,room.x-g.x);maxX=Math.min(maxX,room.right-g.right);
+   minY=Math.max(minY,room.y-g.y);maxY=Math.min(maxY,room.bottom-g.bottom);
+  }else if(fixtureTypes.has(item.type)&&(!drag||moving.size>1)){
+   const horizontal=item.wallSide==='top'||item.wallSide==='bottom';
+   minX=Math.max(minX,horizontal?room.x-g.x:0);maxX=Math.min(maxX,horizontal?room.right-g.right:0);
+   minY=Math.max(minY,horizontal?0:room.y-g.y);maxY=Math.min(maxY,horizontal?0:room.bottom-g.bottom);
+  }
+ }
+ if(minX>maxX+.00011||minY>maxY+.00011)return {error:'A room or wall stops this selection.'};
+ const shiftX=clamp(dx,minX,maxX),shiftY=clamp(dy,minY,maxY);
+ const edits=new Map(source.filter(o=>moving.has(o.id)).map(o=>[o.id,{...o,x:round(o.x+shiftX),y:round(o.y+shiftY)}]));
+ return applyLayoutEdits(source,edits,{allowWallChange:drag&&moving.size===1,rigid:moving.size>1});
+}
+
+function commitEdits(edits,options){
+ const result=applyLayoutEdits(state.objects,edits,options);
+ if(result.error){msg(result.error);refreshControls();return false}
+ state.objects=result.objects;
+ render();save();return true;
+}
+
 function lookup(id){return state.objects.find(o=>o.id===id)}
 function expandGroup(ids){let all=new Set(ids),groups=new Set(state.objects.filter(o=>all.has(o.id)&&o.groupId).map(o=>o.groupId));for(const o of state.objects)if(groups.has(o.groupId)&&o.groupId)all.add(o.id);return [...all]}
 function idsUnlocked(){return expandGroup(state.selected).filter(id=>!lookup(id)?.locked)}
 function bounds(arr){const g=arr.map(geom);return {x:Math.min(...g.map(t=>t.x)),y:Math.min(...g.map(t=>t.y)),right:Math.max(...g.map(t=>t.right)),bottom:Math.max(...g.map(t=>t.bottom))}}
-function toCanvas(e){let r=$('board').getBoundingClientRect();return {x:(e.clientX-r.left)/(S*state.zoom),y:(e.clientY-r.top)/(S*state.zoom)}}
+noteMigration(initialLayout);
+function toCanvas(e){let r=$('board').getBoundingClientRect();return {x:(e.clientX-r.left)/(S*state.zoom)+boardOrigin.x,y:(e.clientY-r.top)/(S*state.zoom)+boardOrigin.y}}
 function closestSnap(value,others,threshold){let best=null,dist=threshold;for(const c of others){let d=Math.abs(value-c);if(d<dist){dist=d;best=c}}return best}
-function snappedMove(positions,dx,dy,ids){const moving=positions.map(p=>({ ...lookup(p.id),x:p.x+dx,y:p.y+dy })),b=bounds(moving),skip=new Set(ids),targets=state.objects.filter(o=>!skip.has(o.id));
+function snappedMove(positions,dx,dy,ids,objects=state.objects){const byId=new Map(objects.map(o=>[o.id,o])),moving=positions.map(p=>({...byId.get(p.id),x:p.x+dx,y:p.y+dy})),b=bounds(moving),skip=new Set(ids),targets=objects.filter(o=>!skip.has(o.id));
 let mx=0,my=0;
 if(state.magnet&&targets.length){const threshold=10/(S*state.zoom),gx=[],gy=[];for(const t of targets){let g=geom(t);gx.push(g.x,g.right,g.cx);gy.push(g.y,g.bottom,g.cy)}
 const xOptions=[b.x,(b.x+b.right)/2,b.right],yOptions=[b.y,(b.y+b.bottom)/2,b.bottom];let bestX={delta:0,dist:threshold},bestY={delta:0,dist:threshold};for(const x of xOptions){const near=closestSnap(x,gx,threshold);if(near!==null&&Math.abs(near-x)<bestX.dist)bestX={delta:near-x,dist:Math.abs(near-x)}}for(const y of yOptions){const near=closestSnap(y,gy,threshold);if(near!==null&&Math.abs(near-y)<bestY.dist)bestY={delta:near-y,dist:Math.abs(near-y)}}mx=bestX.delta;my=bestY.delta}
@@ -141,6 +297,8 @@ function showFurnitureTooltip(e){
  const g=geom(o);
  furnitureTooltip.firstElementChild.textContent=o.name;
  const details=[round(g.w*100)+' × '+round(g.h*100)+' cm on plan','X '+round(g.x)+' m, Y '+round(g.y)+' m',o.rot+'°'];
+ const room=lookup(o.roomId);
+ if(room)details.push(room.name);
  if(o.locked)details.push('Locked');
  if(o.groupId)details.push('Grouped');
  furnitureTooltip.lastElementChild.textContent=details.join(' · ');
@@ -157,22 +315,67 @@ $('board').addEventListener('pointerdown',hideFurnitureTooltip,true);
 window.addEventListener('scroll',hideFurnitureTooltip,true);
 window.addEventListener('resize',hideFurnitureTooltip);
 window.addEventListener('blur',hideFurnitureTooltip);
-function render(){if(rendering)return;rendering=true;hideFurnitureTooltip();const board=$('board');board.replaceChildren();for(const o of state.objects){const g=geom(o),el=document.createElement('div');el.className='obj '+o.type+(o.locked?' locked':'')+(state.selected.includes(o.id)?' selected':'');el.dataset.id=o.id;if(o.type==='plug')el.classList.add(plugStatus(o)==='new'?'plug-new':'plug-built-in');Object.assign(el.style,{left:g.x*S+'px',top:g.y*S+'px',width:Math.max(10,g.w*S)+'px',height:Math.max(10,g.h*S)+'px'});
+function paintGeometry(element,item){
+ const g=geom(item);
+ Object.assign(element.style,{left:(g.x-boardOrigin.x)*S+'px',top:(g.y-boardOrigin.y)*S+'px',width:g.w*S+'px',height:g.h*S+'px'});
+}
+function render(){if(rendering)return;rendering=true;hideFurnitureTooltip();updateZoom();const board=$('board'),rooms=roomRects(state.objects);board.replaceChildren();for(const o of state.objects){const g=geom(o),el=document.createElement('div');el.className='obj '+o.type+(o.locked?' locked':'')+(state.selected.includes(o.id)?' selected':'');el.dataset.id=o.id;if(placementProblem(o,rooms))el.classList.add('unplaced');if(o.type==='plug')el.classList.add(plugStatus(o)==='new'?'plug-new':'plug-built-in');paintGeometry(el,o);
 const show=state.labels==='short'||(state.labels==='rooms'&&o.type==='room')||(state.labels==='noRooms'&&o.type!=='room');
 if(show&&o.type!=='plug'&&g.w*S>48&&g.h*S>20){let t=document.createElement('span');t.className='name';t.textContent=o.name;el.append(t)}
-if(o.type!=='furniture')el.title=o.name+(o.type==='plug'?' · '+plugStatusLabel(o):'')+' · '+round(o.w*100)+' × '+round(o.h*100)+' cm'+(o.locked?' · LOCKED':'')+(o.groupId?' · Grouped':'');
-el.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();if(e.shiftKey||state.multi){toggleSelection(o.id);return}if(!state.selected.includes(o.id))setSelection([o.id]);const ids=idsUnlocked();if(o.locked||!ids.length){msg('This item is locked. Unlock it to move.');return}const p=toCanvas(e);pointer={kind:'drag',id:o.id,pointerId:e.pointerId,start:p,positions:ids.map(id=>({id,x:lookup(id).x,y:lookup(id).y})),ids};el.setPointerCapture(e.pointerId)});
-el.addEventListener('pointermove',e=>{if(!pointer||pointer.kind!=='drag'||pointer.pointerId!==e.pointerId)return;const p=toCanvas(e);const d=snappedMove(pointer.positions,p.x-pointer.start.x,p.y-pointer.start.y,pointer.ids);for(const pos of pointer.positions){const obj=lookup(pos.id);obj.x=round(pos.x+d.dx);obj.y=round(pos.y+d.dy);const node=board.querySelector('[data-id="'+CSS.escape(pos.id)+'"]');if(node){node.style.left=(obj.x*S)+'px';node.style.top=(obj.y*S)+'px'}}});
-const release=e=>{if(pointer?.kind==='drag'&&pointer.pointerId===e.pointerId){pointer=null;refreshControls();save()}};el.addEventListener('pointerup',release);el.addEventListener('pointercancel',release);board.append(el)}
-updateZoom();paintSelection();refreshControls();rendering=false}
+if(o.type!=='furniture')el.title=o.name+(o.roomId?' · '+(rooms.find(room=>room.id===o.roomId)?.name||''):'')+(o.wallSide?' · '+titleCase(o.wallSide)+' wall':'')+(o.type==='plug'?' · '+plugStatusLabel(o):'')+' · '+round(o.w*100)+' × '+round(o.h*100)+' cm'+(o.locked?' · LOCKED':'')+(o.groupId?' · Grouped':'');
+el.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();$('viewport').focus({preventScroll:true});if(e.shiftKey||state.multi){toggleSelection(o.id);return}if(!state.selected.includes(o.id))setSelection([o.id]);const ids=idsUnlocked();if(o.locked||!ids.length){msg('This item is locked. Unlock it to move.');return}const p=toCanvas(e);pointer={kind:'drag',pointerId:e.pointerId,start:p,source:state.objects,positions:ids.map(id=>({id,x:lookup(id).x,y:lookup(id).y})),ids};el.setPointerCapture(e.pointerId)});
+el.addEventListener('pointermove',e=>{
+ if(pointer?.kind!=='drag'||pointer.pointerId!==e.pointerId)return;
+ const p=toCanvas(e),rawX=p.x-pointer.start.x,rawY=p.y-pointer.start.y;
+ if(!pointer.moved&&Math.hypot(rawX,rawY)*S*state.zoom<2)return;
+ pointer.moved=true;
+ const d=snappedMove(pointer.positions,rawX,rawY,pointer.ids,pointer.source);
+ const result=moveSelection(pointer.source,pointer.ids,d.dx,d.dy,{drag:true});
+ if(result.error){msg(result.error);return}
+ const previous=state.objects;
+ state.objects=result.objects;
+ for(let i=0;i<previous.length;i++){
+  const obj=state.objects[i];
+  if(obj===previous[i])continue;
+  const node=board.querySelector('[data-id="'+CSS.escape(obj.id)+'"]');
+  if(node)paintGeometry(node,obj);
+ }
+});
+function release(e){
+ if(pointer?.kind!=='drag'||pointer.pointerId!==e.pointerId)return;
+ const drag=pointer;
+ pointer=null;
+ if(e.type==='pointercancel')state.objects=drag.source;
+ if(drag.moved){render();save()}
+}
+el.addEventListener('pointerup',release);el.addEventListener('pointercancel',release);
+board.append(el)}
+paintSelection();refreshControls();rendering=false}
 function refreshControls(){const sel=state.selected.map(lookup).filter(Boolean),single=sel.length===1?sel[0]:null,editable=single&&!single.locked;$('selectionSummary').textContent=sel.length?sel.length===1?single.name:sel.length+' objects selected':'No selection';$('multiBtn').textContent='Multi-select: '+(state.multi?'On':'Off');$('multiBtn').classList.toggle('active',state.multi);
 for(const [field,k,transform] of [['name','name',v=>v],['width','w',v=>round(v*100)],['depth','h',v=>round(v*100)],['x','x',v=>v],['y','y',v=>v]]){const input=$(field);input.disabled=!editable;input.value=single?transform(single[k]):''}
 const isPlug=single?.type==='plug';
+const rooms=roomRects(state.objects),needsRoom=single&&(single.type==='furniture'||fixtureTypes.has(single.type));
+const isFixture=single&&fixtureTypes.has(single.type);
+$('placementWrap').classList.toggle('hide',!needsRoom);
+$('wallWrap').classList.toggle('hide',!isFixture);
+if(needsRoom){
+ const roomPicker=$('itemRoom');
+ roomPicker.replaceChildren(new Option('Choose a room',''));
+ roomPicker.options[0].disabled=true;
+ for(const room of rooms)roomPicker.add(new Option(room.name,room.id));
+ roomPicker.value=single.roomId||'';
+ roomPicker.disabled=!editable||!rooms.length;
+ $('itemWall').value=single.wallSide||'top';
+ $('itemWall').disabled=!editable||!single.roomId;
+}
+const unplaced=state.objects.filter(o=>placementProblem(o,rooms)).length;
+$('placementNotice').textContent=[placementMigration,unplaced?unplaced+' item(s) need a room or wall. Select an outlined item to place it.':''].filter(Boolean).join(' ');
+$('placementNoticeWrap').hidden=!(placementMigration||unplaced);
 $('plugStatusWrap').classList.toggle('hide',!isPlug);
 if(isPlug)$('plugStatus').value=plugStatus(single);
 $('plugStatus').disabled=!isPlug||!editable;
-$('tableWrap').classList.toggle('hide',single?.id!=='table');if(single?.id==='table')$('tableMode').value=single.mode||'open';$('tableMode').disabled=!editable;
-$('lockedNotice').textContent=single?.locked?'🔒 Locked: unlock before editing this item.':'';
+$('tableWrap').classList.toggle('hide',single?.type!=='furniture'||!single.mode);if(single?.type==='furniture'&&single.mode)$('tableMode').value=single.mode||'open';$('tableMode').disabled=!editable;
+$('lockedNotice').textContent=single?[single.locked?'Locked: unlock before editing this item.':'',placementProblem(single,rooms)].filter(Boolean).join(' '):'';
 $('lockBtn').disabled=!sel.some(o=>!o.locked);$('unlockBtn').disabled=!sel.some(o=>o.locked);$('duplicateBtn').disabled=!sel.some(o=>!o.locked);$('deleteBtn').disabled=!sel.some(o=>!o.locked);
 $('groupBtn').disabled=sel.length<2;$('ungroupBtn').disabled=!sel.some(o=>o.groupId);
 let list=$('itemList');list.replaceChildren();for(const o of state.objects){let l=document.createElement('label'),check=document.createElement('input');check.type='checkbox';check.checked=state.selected.includes(o.id);check.addEventListener('change',()=>{let next=new Set(state.selected);if(check.checked)next.add(o.id);else next.delete(o.id);setSelection([...next])});let txt=document.createElement('span');txt.textContent=(o.locked?'🔒 ':'')+o.name+(o.groupId?' [group]':'');txt.className='list-name';l.append(check,txt);
@@ -185,25 +388,129 @@ if(o.type==='plug'){
  l.append(status);
 }
 list.append(l)}}
-function updateZoom(){let zoom=state.zoom,board=$('board');board.style.width=BW+'px';board.style.height=BH+'px';board.style.transform=`scale(${zoom})`;$('scaled').style.width=BW*zoom+'px';$('scaled').style.height=BH*zoom+'px';$('zoom').value=String(Math.round(zoom*100/5)*5);$('zoomValue').textContent=Math.round(zoom*100)+'%'}
-function changeZoom(v){hideFurnitureTooltip();state.zoom=Math.max(.25,Math.min(2.5,v));updateZoom();save()}
-function applyDelta(dx,dy){const ids=idsUnlocked();if(!ids.length){msg('Select unlocked items to move.');return}const ps=ids.map(id=>({id,x:lookup(id).x,y:lookup(id).y}));const d=snappedMove(ps,dx,dy,ids);for(const p of ps){let o=lookup(p.id);o.x=round(p.x+d.dx);o.y=round(p.y+d.dy)}render();save()}
-function addObj(type,name,w,h,count=1){if(!name||!Number.isFinite(w)||!Number.isFinite(h)||w<.05||h<.05||w>20||h>20||count<1||count>100)throw Error('Enter a name and valid dimensions (5–2000 cm) and quantity (1–100).');let ids=[];for(let i=0;i<count;i++){let obj={id:uid(),type,name:count>1?name+' '+(i+1):name,w,h,x:round(3.3+(i%6)*(Math.max(.6,w)+.2)),y:round(3.1+Math.floor(i/6)*(Math.max(.6,h)+.2)),rot:0,groupId:null,locked:false};if(type==='plug')obj.plugStatus='new';state.objects.push(obj);ids.push(obj.id)}setSelection(ids);render();save();return ids}
-$('board').addEventListener('pointerdown',e=>{if(e.target!==$('board')||e.button!==0)return;const p=toCanvas(e);if(!e.shiftKey&&!state.multi)setSelection([]);marquee=document.createElement('div');marquee.className='marquee';$('board').append(marquee);pointer={kind:'box',pointerId:e.pointerId,start:p,append:e.shiftKey||state.multi,original:[...state.selected]};$('board').setPointerCapture(e.pointerId)});
-$('board').addEventListener('pointermove',e=>{if(pointer?.kind!=='box'||pointer.pointerId!==e.pointerId)return;const p=toCanvas(e),a=pointer.start,x=Math.min(a.x,p.x),y=Math.min(a.y,p.y),w=Math.abs(p.x-a.x),h=Math.abs(p.y-a.y);Object.assign(marquee.style,{left:x*S+'px',top:y*S+'px',width:w*S+'px',height:h*S+'px'});const ids=state.objects.filter(o=>{let g=geom(o);return g.x<x+w&&g.right>x&&g.y<y+h&&g.bottom>y}).map(o=>o.id);setSelection(pointer.append?[...pointer.original,...ids]:ids)});
+function updateZoom(){let zoom=state.zoom,board=$('board');const plan=state.objects.length?bounds(state.objects):{x:0,y:0,right:0,bottom:0};boardOrigin={x:Math.min(0,plan.x-1),y:Math.min(0,plan.y-1)};const width=Math.max(BW,(plan.right-boardOrigin.x)*S+60),height=Math.max(BH,(plan.bottom-boardOrigin.y)*S+60);board.style.width=width+'px';board.style.height=height+'px';board.style.transform=`scale(${zoom})`;$('scaled').style.width=width*zoom+'px';$('scaled').style.height=height*zoom+'px';$('zoom').value=String(Math.round(zoom*100/5)*5);$('zoomValue').textContent=Math.round(zoom*100)+'%'}
+function changeZoom(v){hideFurnitureTooltip();state.zoom=clamp(v,.1,2.5);updateZoom();save()}
+function applyDelta(dx,dy){
+ const ids=idsUnlocked();
+ if(!ids.length){msg('Select unlocked items to move.');return}
+ const positions=ids.map(id=>lookup(id));
+ const d=snappedMove(positions,dx,dy,ids);
+ const result=moveSelection(state.objects,ids,d.dx,d.dy);
+ if(result.error){msg(result.error);return}
+ if(!result.changed.size){msg('The room or wall stops this movement.');return}
+ state.objects=result.objects;
+ render();save();
+}
+
+function viewportCenter(){
+ const el=$('viewport'),board=$('board').getBoundingClientRect(),view=el.getBoundingClientRect();
+ return {x:(view.left+el.clientWidth/2-board.left)/(S*state.zoom)+boardOrigin.x,y:(view.top+el.clientHeight/2-board.top)/(S*state.zoom)+boardOrigin.y};
+}
+
+function revealItem(item){
+ const view=$('viewport'),g=geom(item),rect=view.getBoundingClientRect(),board=$('board').getBoundingClientRect();
+ const x=board.left+(g.cx-boardOrigin.x)*S*state.zoom,y=board.top+(g.cy-boardOrigin.y)*S*state.zoom;
+ if(x<rect.left||x>rect.right||y<rect.top||y>rect.bottom)view.scrollBy(x-(rect.left+view.clientWidth/2),y-(rect.top+view.clientHeight/2));
+}
+
+function addObj(type,name,w,h,count=1,status='new'){
+ if(!name||!Number.isFinite(w)||!Number.isFinite(h)||w<.05||h<.05||w>20||h>20||!Number.isInteger(count)||count<1||count>100)throw Error('Enter a name and valid dimensions (5–2000 cm) and quantity (1–100).');
+ if(state.objects.length+count>=5000)throw Error('This layout has reached its item limit.');
+ const selected=state.selected.length===1?lookup(state.selected[0]):null;
+ const rooms=roomRects(state.objects),roomId=selected?.type==='room'?selected.id:selected?.roomId;
+ const target=rooms.find(room=>room.id===roomId);
+ const start=target?{x:target.cx,y:target.cy}:viewportCenter();
+ const added=[];
+ for(let i=0;i<count;i++){
+  let obj={id:uid(),type,name:count>1?name+' '+(i+1):name,w,h,x:round(start.x-w/2+(i%6)*(w+.2)),y:round(start.y-h/2+Math.floor(i/6)*(h+.2)),rot:0,groupId:null,locked:false};
+  if(type==='plug')obj.plugStatus=status;
+  if(type==='furniture'||fixtureTypes.has(type)){
+   obj=placeItem(obj,rooms,{roomId:target?.id});
+   if(!obj)throw Error(rooms.length?'This item does not fit in the chosen room.':'Add a room before placing this item.');
+  }else{obj.x=Math.max(0,obj.x);obj.y=Math.max(0,obj.y)}
+  added.push(obj);
+ }
+ state.objects.push(...added);
+ const ids=added.map(o=>o.id);
+ setSelection(ids);render();revealItem(added[0]);save();return ids;
+}
+$('board').addEventListener('pointerdown',e=>{if(e.target!==$('board')||e.button!==0)return;$('viewport').focus({preventScroll:true});const p=toCanvas(e);if(!e.shiftKey&&!state.multi)setSelection([]);marquee=document.createElement('div');marquee.className='marquee';$('board').append(marquee);pointer={kind:'box',pointerId:e.pointerId,start:p,append:e.shiftKey||state.multi,original:[...state.selected]};$('board').setPointerCapture(e.pointerId)});
+$('board').addEventListener('pointermove',e=>{if(pointer?.kind!=='box'||pointer.pointerId!==e.pointerId)return;const p=toCanvas(e),a=pointer.start,x=Math.min(a.x,p.x),y=Math.min(a.y,p.y),w=Math.abs(p.x-a.x),h=Math.abs(p.y-a.y);Object.assign(marquee.style,{left:(x-boardOrigin.x)*S+'px',top:(y-boardOrigin.y)*S+'px',width:w*S+'px',height:h*S+'px'});const ids=state.objects.filter(o=>{let g=geom(o);return g.x<x+w&&g.right>x&&g.y<y+h&&g.bottom>y}).map(o=>o.id);setSelection(pointer.append?[...pointer.original,...ids]:ids)});
 function finishBox(e){if(pointer?.kind==='box'&&pointer.pointerId===e.pointerId){marquee?.remove();marquee=null;pointer=null;refreshControls()}}
 $('board').addEventListener('pointerup',finishBox);$('board').addEventListener('pointercancel',finishBox);
-$('zoomOut').onclick=()=>changeZoom(state.zoom-.1);$('zoomIn').onclick=()=>changeZoom(state.zoom+.1);$('zoom').oninput=e=>changeZoom(Number(e.target.value)/100);$('fitBtn').onclick=()=>{const el=$('viewport');changeZoom(Math.min(1,(el.clientWidth-35)/BW,(el.clientHeight-35)/BH));el.scrollTo(0,0)};
+$('zoomOut').onclick=()=>changeZoom(state.zoom-.1);$('zoomIn').onclick=()=>changeZoom(state.zoom+.1);$('zoom').oninput=e=>changeZoom(Number(e.target.value)/100);
+$('fitBtn').onclick=()=>{
+ const el=$('viewport');
+ const plan=state.objects.length?bounds(state.objects):{x:0,y:0,right:BW/S,bottom:BH/S};
+ const zoom=Math.min(2.5,(el.clientWidth-36)/((plan.right-plan.x)*S),(el.clientHeight-36)/((plan.bottom-plan.y)*S));
+ changeZoom(zoom);
+  const board=$('board').getBoundingClientRect(),view=el.getBoundingClientRect();
+ const x=board.left+((plan.x+plan.right)/2-boardOrigin.x)*S*state.zoom-view.left-el.clientWidth/2;
+ const y=board.top+((plan.y+plan.bottom)/2-boardOrigin.y)*S*state.zoom-view.top-el.clientHeight/2;
+ el.scrollBy(x,y);
+};
 $('gridSnap').checked=state.grid;$('gridSnap').onchange=e=>{state.grid=e.target.checked;save()};$('gridSize').value=String(state.gridSize);$('gridSize').onchange=e=>{state.gridSize=Number(e.target.value);save()};$('magnet').checked=state.magnet;$('magnet').onchange=e=>{state.magnet=e.target.checked;save()};$('labels').value=state.labels;$('labels').onchange=e=>{state.labels=e.target.value;render();save()};
 $('selectAllBtn').onclick=()=>setSelection(state.objects.map(o=>o.id));$('selectUnlocked').onclick=()=>setSelection(state.objects.filter(o=>!o.locked).map(o=>o.id));$('clearBtn').onclick=()=>setSelection([]);$('multiBtn').onclick=()=>{state.multi=!state.multi;refreshControls()};
 $('groupBtn').onclick=()=>{const id='g'+uid();for(const o of state.objects)if(state.selected.includes(o.id))o.groupId=id;render();save();msg('Grouped '+state.selected.length+' objects. Moving one selects the group.')};$('ungroupBtn').onclick=()=>{for(const o of state.objects)if(state.selected.includes(o.id))o.groupId=null;render();save()};
 $('lockBtn').onclick=()=>{for(const o of state.objects)if(state.selected.includes(o.id))o.locked=true;render();save()};$('unlockBtn').onclick=()=>{for(const o of state.objects)if(state.selected.includes(o.id))o.locked=false;render();save()};
-rootAdd();function rootAdd(){document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{let defs={room:['Room',3,3],door:['Door',.9,.12],window:['Window',1.2,.12],plug:['Plug',.22,.22],furniture:['Furniture',1.2,.8],zone:['Zone',3,2]};let [name,w,h]=defs[b.dataset.add];addObj(b.dataset.add,name,w,h)})}
+const newItemDefinitions={room:['Room',3,3],door:['Door',.9,.12],window:['Window',1.2,.12],plug:['Plug',.22,.22],furniture:['Furniture',1.2,.8]};
+document.querySelectorAll('[data-add]').forEach(button=>button.onclick=()=>{
+ const type=button.dataset.add,[name,w,h]=newItemDefinitions[type];
+ try{addObj(type,name,w,h,1,button.dataset.plugStatus);msg('')}catch(error){msg(error.message)}
+});
 document.querySelectorAll('[data-move]').forEach(b=>b.onclick=()=>{const [dx,dy]=b.dataset.move.split(',').map(Number);let v=Number($('moveStep').value);applyDelta(dx*v,dy*v)});
-function rotate(deg){let ids=idsUnlocked();if(!ids.length)return;for(const id of ids){let o=lookup(id),g=geom(o),cx=g.cx,cy=g.cy;o.rot=(o.rot+deg+360)%360;let updated=geom(o);o.x=round(cx-updated.w/2);o.y=round(cy-updated.h/2)}render();save()}
+function rotate(deg){
+ const edits=new Map();
+ for(const id of idsUnlocked()){
+  const o=lookup(id);
+  if(fixtureTypes.has(o.type))continue;
+  const g=geom(o),item={...o,rot:(o.rot+deg+360)%360},next=geom(item);
+  item.x=round(g.cx-next.w/2);item.y=round(g.cy-next.h/2);
+  edits.set(id,item);
+ }
+ if(edits.size)commitEdits(edits);else msg('Doors, windows and plugs turn with their wall.');
+}
 $('cw').onclick=()=>rotate(90);$('ccw').onclick=()=>rotate(-90);
-document.querySelectorAll('[data-align]').forEach(b=>b.onclick=()=>{let ids=idsUnlocked();if(ids.length<2){msg('Select at least two unlocked items.');return}const all=state.selected.map(lookup).filter(Boolean),bs=bounds(all);const mode=b.dataset.align;for(let id of ids){let o=lookup(id),g=geom(o);if(mode==='left')o.x=bs.x;if(mode==='centerX')o.x=(bs.x+bs.right-g.w)/2;if(mode==='right')o.x=bs.right-g.w;if(mode==='top')o.y=bs.y;if(mode==='centerY')o.y=(bs.y+bs.bottom-g.h)/2;if(mode==='bottom')o.y=bs.bottom-g.h;o.x=round(o.x);o.y=round(o.y)}render();save()});
-for(const [id,key,div] of [['name','name',1],['width','w',100],['depth','h',100],['x','x',1],['y','y',1]])$(id).addEventListener('change',e=>{if(state.selected.length!==1)return;let o=lookup(state.selected[0]);if(!o||o.locked)return;let v=key==='name'?e.target.value.trim():Number(e.target.value)/div;if(key==='name'&&!v)return;if(key!=='name'&&(!Number.isFinite(v)||(div===100&&(v<.05||v>20))))return;o[key]=typeof v==='number'?round(v):v;render();save()});
+document.querySelectorAll('[data-align]').forEach(button=>button.onclick=()=>{
+ const ids=idsUnlocked();
+ if(ids.length<2){msg('Select at least two unlocked items.');return}
+ const b=bounds(state.selected.map(lookup)),edits=new Map();
+ for(const id of ids){
+  const o=lookup(id),g=geom(o),item={...o};
+  const mode=button.dataset.align;
+  if(mode==='left')item.x=b.x;
+  if(mode==='centerX')item.x=(b.x+b.right-g.w)/2;
+  if(mode==='right')item.x=b.right-g.w;
+  if(mode==='top')item.y=b.y;
+  if(mode==='centerY')item.y=(b.y+b.bottom-g.h)/2;
+  if(mode==='bottom')item.y=b.bottom-g.h;
+  item.x=round(item.x);item.y=round(item.y);edits.set(id,item);
+ }
+ commitEdits(edits);
+});
+function editableSelection(){
+ const item=state.selected.length===1?lookup(state.selected[0]):null;
+ return item&&!item.locked?item:null;
+}
+for(const [id,key,div] of [['name','name',1],['width','w',100],['depth','h',100],['x','x',1],['y','y',1]])$(id).onchange=e=>{
+ const item=editableSelection();
+ if(!item)return;
+ const text=e.target.value.trim(),value=key==='name'?text:Number(text)/div;
+ if(!text||(key!=='name'&&(!Number.isFinite(value)||(div===100&&(value<.05||value>20))))){refreshControls();return}
+ commitEdits(new Map([[item.id,{...item,[key]:typeof value==='number'?round(value):value}]]));
+};
+$('itemRoom').onchange=e=>{
+ const item=editableSelection(),roomId=e.target.value;
+ if(!item||!roomId)return;
+ const room=roomRects(state.objects).find(room=>room.id===roomId);
+ if(!room)return;
+ const g=geom(item);
+ if(commitEdits(new Map([[item.id,{...item,roomId,wallSide:null,x:room.cx-g.w/2,y:room.cy-g.h/2}]])))revealItem(lookup(item.id));
+};
+$('itemWall').onchange=e=>{
+ const item=editableSelection(),wallSide=e.target.value;
+ if(item&&wallSides.includes(wallSide))commitEdits(new Map([[item.id,{...item,wallSide}]]));
+};
 $('plugStatus').onchange=e=>{
  if(state.selected.length!==1)return;
  const o=lookup(state.selected[0]);
@@ -211,23 +518,89 @@ $('plugStatus').onchange=e=>{
  o.plugStatus=e.target.value;
  render();save();
 };
-$('tableMode').onchange=e=>{const o=lookup('table');if(!o||o.locked)return;o.mode=e.target.value;o.w={open:1.52,half:.89,folded:.26}[o.mode];o.h=.8;render();save()};
-$('duplicateBtn').onclick=()=>{const ids=idsUnlocked();if(!ids.length)return;let groupMap=new Map(),newIds=[];for(const id of ids){let o=lookup(id),gid=o.groupId;if(gid&&!groupMap.has(gid))groupMap.set(gid,'g'+uid());let c={...o,id:uid(),name:o.name+' copy',...(o.type==='plug'?{plugStatus:plugStatus(o)}:{}),groupId:gid?groupMap.get(gid):null,x:round(o.x+.25),y:round(o.y+.25)};state.objects.push(c);newIds.push(c.id)}setSelection(newIds);render();save()};
-$('deleteBtn').onclick=()=>{const ids=new Set(idsUnlocked());if(!ids.size)return;if(!confirm('Delete '+ids.size+' unlocked selected item(s)? Locked items will remain.'))return;state.objects=state.objects.filter(o=>!ids.has(o.id));setSelection(state.selected.filter(id=>!ids.has(id)));render();save()};
+$('tableMode').onchange=e=>{
+ const o=editableSelection();
+ if(!o||!o.mode)return;
+ const mode=e.target.value,w={open:1.52,half:.89,folded:.26}[mode];
+ if(w)commitEdits(new Map([[o.id,{...o,mode,w,h:.8}]]));
+};
+const clipboardPrefix='Furniture Planner items v1\n';
+const copyableTypes=new Set(['room','furniture',...fixtureTypes]);
+
+function clipboardItems(items){
+ return items.filter(item=>copyableTypes.has(item.type)).map(item=>({
+  id:item.id,type:item.type,name:item.name,x:item.x,y:item.y,w:item.w,h:item.h,rot:item.rot,
+  roomId:typeof item.roomId==='string'?item.roomId:null,wallSide:wallSides.includes(item.wallSide)?item.wallSide:null,
+  groupId:typeof item.groupId==='string'?item.groupId:null,
+  ...(item.type==='plug'?{plugStatus:plugStatus(item)}:{}),
+  ...(item.type==='furniture'&&['open','half','folded'].includes(item.mode)?{mode:item.mode}:{})
+ }));
+}
+
+function addCopies(items){
+ if(!items.length)return;
+ if(state.objects.length+items.length>=5000){msg('This layout has reached its item limit.');return}
+ const ids=new Map(items.map(item=>[item.id,uid()])),groups=new Map();
+ const copies=items.map(item=>{
+  if(item.groupId&&!groups.has(item.groupId))groups.set(item.groupId,uid());
+  return {...item,id:ids.get(item.id),roomId:ids.get(item.roomId)||item.roomId,groupId:groups.get(item.groupId)||null,
+   name:item.name+' copy',locked:false,x:round(item.x+.25),y:round(item.y+.25)};
+ });
+ const rooms=roomRects([...state.objects,...copies]);
+ for(let i=0;i<copies.length;i++){
+  const item=copies[i];
+  if(item.type==='room')continue;
+  const parent=rooms.find(room=>room.id===item.roomId);
+  const placed=placeItem(item,rooms,{roomId:parent?.id,wallSide:parent?item.wallSide:null});
+  if(!placed){msg('Cannot paste '+items[i].name+'. Add a room or choose a larger room.');return}
+  copies[i]=placed;
+ }
+ state.objects.push(...copies);
+ setSelection(copies.map(o=>o.id));render();revealItem(copies[0]);save();
+ msg('Added '+copies.length+' cop'+(copies.length===1?'y.':'ies.'));
+}
+
+function isTextEditor(target){
+ return target instanceof Element&&!!target.closest('input, textarea, select, [contenteditable]:not([contenteditable=false])');
+}
+
+document.addEventListener('copy',e=>{
+ if(isTextEditor(e.target)||!e.clipboardData||(document.activeElement!==$('viewport')&&window.getSelection()?.toString())||pointer)return;
+ const items=clipboardItems(state.selected.map(lookup).filter(Boolean));
+ if(!items.length)return;
+ e.clipboardData.setData('text/plain',clipboardPrefix+JSON.stringify(items));
+ e.preventDefault();
+ msg('Copied '+items.length+' item(s). Press Ctrl/Cmd+V on the plan to paste.');
+});
+
+document.addEventListener('paste',e=>{
+ if(isTextEditor(e.target)||pointer)return;
+ const text=e.clipboardData?.getData('text/plain');
+ if(!text?.startsWith(clipboardPrefix))return;
+ e.preventDefault();
+ let items;
+ try{items=JSON.parse(text.slice(clipboardPrefix.length))}catch{msg('The copied planner items could not be read.');return}
+ if(!validObjects(items)){msg('The copied planner items are invalid.');return}
+ addCopies(clipboardItems(items));
+});
+
+$('duplicateBtn').onclick=()=>addCopies(clipboardItems(idsUnlocked().map(lookup)));
+
+$('deleteBtn').onclick=()=>{const ids=new Set(idsUnlocked());if(!ids.size)return;const dependent=state.objects.find(o=>ids.has(o.roomId)&&!ids.has(o.id));if(dependent){msg('Move or remove '+dependent.name+' before deleting its room.');return}if(!confirm('Delete '+ids.size+' unlocked selected item(s)? Locked items will remain.'))return;state.objects=state.objects.filter(o=>!ids.has(o.id));setSelection(state.selected.filter(id=>!ids.has(id)));render();save()};
 $('addCustomBtn').onclick=()=>{try{let name=$('newName').value.trim(),w=Number($('newW').value)/100,h=Number($('newD').value)/100,q=Number($('newQ').value);addObj('furniture',name,w,h,q);msg('Added '+q+' item(s).')}catch(e){msg(e.message)}};
 $('batchBtn').onclick=()=>{let rows=$('batchText').value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean),items=[];try{for(let line of rows){const p=line.split(',').map(s=>s.trim());if(p.length<3||p.length>4)throw Error('Use Name, width, depth, quantity per line.');let name=p[0],w=Number(p[1])/100,h=Number(p[2])/100,q=p[3]===''||p[3]===undefined?1:Number(p[3]);if(!name||![w,h,q].every(Number.isFinite)||w<.05||h<.05||w>20||h>20||!Number.isInteger(q)||q<1||q>100)throw Error('Invalid batch row: '+line);items.push({name,w,h,q})}if(items.reduce((s,a)=>s+a.q,0)>200)throw Error('Maximum 200 pieces per batch.');let ids=[];for(const a of items)ids.push(...addObj('furniture',a.name,a.w,a.h,a.q));setSelection(ids);render();save();msg('Added '+ids.length+' furniture pieces.')}catch(e){msg(e.message)}};
 function refreshCheckpoints(){let list=$('checkpoints'),prior=list.value;list.replaceChildren();for(const c of state.checkpoints){let opt=document.createElement('option');opt.value=c.id;opt.textContent=c.name+' · '+new Date(c.date).toLocaleDateString();list.append(opt)}if(state.checkpoints.some(c=>c.id===prior))list.value=prior}
 $('checkpointBtn').onclick=()=>{let name=prompt('Checkpoint name (e.g. Sofa layout A):');if(!name?.trim())return;let c={id:uid(),name:name.trim(),date:new Date().toISOString(),objects:clone(state.objects)};state.checkpoints.push(c);refreshCheckpoints();$('checkpoints').value=c.id;save();msg('Checkpoint saved: '+name)};
-$('restoreCheckpoint').onclick=()=>{let c=state.checkpoints.find(c=>c.id===$('checkpoints').value);if(!c||!confirm('Restore '+c.name+'?'))return;state.objects=clone(c.objects).map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null}));setSelection([]);render();save();msg('Restored '+c.name)};
+$('restoreCheckpoint').onclick=()=>{let c=state.checkpoints.find(c=>c.id===$('checkpoints').value);if(!c||!confirm('Restore '+c.name+'?'))return;state.objects=loadPlacement(clone(c.objects).map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null})));setSelection([]);render();save();msg('Restored '+c.name)};
 $('deleteCheckpoint').onclick=()=>{state.checkpoints=state.checkpoints.filter(c=>c.id!==$('checkpoints').value);refreshCheckpoints();save()};
-$('setDefault').onclick=()=>{state.defaultLayout=clone(state.objects);save();msg('Current layout saved as default.')};$('restoreDefault').onclick=()=>{if(!state.defaultLayout||!confirm('Restore your saved default layout?'))return;state.objects=clone(state.defaultLayout);setSelection([]);render();save()};
-$('resetBtn').onclick=()=>{if(!confirm('Reset to original rooms and furniture?'))return;state.objects=defaults();setSelection([]);render();save()};$('saveBtn').onclick=()=>{save();msg('Saved on this browser. Copy JSON before leaving a library PC.')};
+$('setDefault').onclick=()=>{state.defaultLayout=clone(state.objects);save();msg('Current layout saved as default.')};$('restoreDefault').onclick=()=>{if(!state.defaultLayout||!confirm('Restore your saved default layout?'))return;state.objects=loadPlacement(clone(state.defaultLayout));setSelection([]);render();save()};
+$('resetBtn').onclick=()=>{if(!confirm('Reset to original rooms and furniture?'))return;state.objects=loadPlacement(defaults());setSelection([]);render();save()};$('saveBtn').onclick=()=>{save();msg('Saved on this browser. Copy JSON before leaving a library PC.')};
 function transfer(){return {version:10,exportedAt:new Date().toISOString(),objects:state.objects,checkpoints:state.checkpoints,defaultLayout:state.defaultLayout,zoom:state.zoom,grid:state.grid,gridSize:state.gridSize,magnet:state.magnet,labels:state.labels}}
 $('generateBtn').onclick=()=>{$('jsonText').value=JSON.stringify(transfer(),null,2);$('jsonText').focus();$('jsonText').select();msg('JSON generated. Press Ctrl+C / Cmd+C to copy.')};
 $('copyBtn').onclick=async()=>{$('generateBtn').click();try{await navigator.clipboard.writeText($('jsonText').value);msg('JSON copied!')}catch(e){msg('JSON selected. Press Ctrl+C / Cmd+C.')}};
 $('pasteBtn').onclick=()=>{$('jsonText').scrollIntoView({behavior:'smooth',block:'center'});$('jsonText').focus();msg('Paste your JSON code, then press Load pasted JSON.')};$('selectTextBtn').onclick=()=>{$('jsonText').focus();$('jsonText').select()};
-$('loadBtn').onclick=()=>{try{let parsed=JSON.parse($('jsonText').value);if(!validObjects(parsed.objects))throw Error('JSON must contain a valid objects array.');if(!confirm('Replace your active layout with this JSON?'))return;state.objects=parsed.objects.map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null}));state.checkpoints=Array.isArray(parsed.checkpoints)?parsed.checkpoints.filter(c=>c&&validObjects(c.objects)):[];state.defaultLayout=validObjects(parsed.defaultLayout)?parsed.defaultLayout:null;state.zoom=Number.isFinite(parsed.zoom)?Math.max(.25,Math.min(2.5,parsed.zoom)):.75;state.grid=typeof parsed.grid==='boolean'?parsed.grid:true;state.magnet=typeof parsed.magnet==='boolean'?parsed.magnet:true;state.gridSize=[.01,.05,.1,.2,.5].includes(parsed.gridSize)?parsed.gridSize:.05;state.labels=labelModes.includes(parsed.labels)?parsed.labels:'short';$('gridSnap').checked=state.grid;$('magnet').checked=state.magnet;$('gridSize').value=state.gridSize;$('labels').value=state.labels;setSelection([]);render();refreshCheckpoints();save();msg('Layout loaded — locks, groups, positions and checkpoints restored.')}catch(e){msg('Import failed: '+e.message)}};
-document.addEventListener('keydown',e=>{let target=e.target;if(['INPUT','TEXTAREA','SELECT'].includes(target.tagName)||target.isContentEditable)return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'){e.preventDefault();setSelection(state.objects.map(o=>o.id));return}if(e.key==='Escape'){hideFurnitureTooltip();setSelection([]);return}if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();$('deleteBtn').click();return}const dirs={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};if(dirs[e.key]){e.preventDefault();const [dx,dy]=dirs[e.key],s=Number($('moveStep').value);applyDelta(dx*s,dy*s)}});
+$('loadBtn').onclick=()=>{try{let parsed=JSON.parse($('jsonText').value);if(!validObjects(parsed.objects))throw Error('JSON must contain a valid objects array.');if(!confirm('Replace your active layout with this JSON?'))return;state.objects=loadPlacement(parsed.objects.map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null})));state.checkpoints=checkpointsWithoutZones(parsed.checkpoints);state.defaultLayout=layoutWithoutZones(parsed.defaultLayout);state.zoom=Number.isFinite(parsed.zoom)?clamp(parsed.zoom,.1,2.5):.75;state.grid=typeof parsed.grid==='boolean'?parsed.grid:true;state.magnet=typeof parsed.magnet==='boolean'?parsed.magnet:true;state.gridSize=[.01,.05,.1,.2,.5].includes(parsed.gridSize)?parsed.gridSize:.05;state.labels=labelModes.includes(parsed.labels)?parsed.labels:'short';$('gridSnap').checked=state.grid;$('magnet').checked=state.magnet;$('gridSize').value=state.gridSize;$('labels').value=state.labels;setSelection([]);render();refreshCheckpoints();save();msg('Layout loaded — locks, groups, positions and checkpoints restored.')}catch(e){msg('Import failed: '+e.message)}};
+document.addEventListener('keydown',e=>{let target=e.target;if(isTextEditor(target)||pointer)return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'){e.preventDefault();setSelection(state.objects.map(o=>o.id));return}if(e.key==='Escape'){hideFurnitureTooltip();setSelection([]);return}if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();$('deleteBtn').click();return}const dirs={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};if(dirs[e.key]){e.preventDefault();const [dx,dy]=dirs[e.key],s=Number($('moveStep').value);applyDelta(dx*s,dy*s)}});
 
 // Optional account-based cloud sync. Requires Supabase project configuration and RLS SQL.
 let cloud=null,cloudUser=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false;
@@ -252,7 +625,7 @@ async function cloudLoad(ask=true){
  if(!data){cloudReady=true;cloudDirty=true;await flushCloud();return cloudStatus('First layout uploaded to cloud ✓')}
  if(!validObjects(data.layout?.objects))throw Error('Cloud layout is invalid');
  if(ask&&!confirm('Load cloud save from '+new Date(data.updated_at).toLocaleString()+'? This replaces the current local layout.')){cloudReady=false;cloudStatus('Cloud load cancelled. Choose Load cloud layout or Save to cloud now.');return}
- let p=data.layout;historySuspended=true;state.objects=p.objects.map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null}));state.checkpoints=Array.isArray(p.checkpoints)?p.checkpoints:[];state.defaultLayout=validObjects(p.defaultLayout)?p.defaultLayout:null;state.zoom=Number.isFinite(p.zoom)?p.zoom:state.zoom;state.grid=!!p.grid;state.magnet=!!p.magnet;state.gridSize=p.gridSize||.05;state.labels=labelModes.includes(p.labels)?p.labels:'short';$('gridSnap').checked=state.grid;$('gridSize').value=String(state.gridSize);$('magnet').checked=state.magnet;$('labels').value=state.labels;undoStack=[];redoStack=[];lastHistory=JSON.stringify(state.objects);setSelection([]);render();refreshCheckpoints();save();historySuspended=false;cloudReady=true;cloudDirty=false;cloudStatus('✓ Cloud loaded — autosync enabled');
+ let p=data.layout;historySuspended=true;state.objects=loadPlacement(p.objects.map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null})));state.checkpoints=checkpointsWithoutZones(p.checkpoints);state.defaultLayout=layoutWithoutZones(p.defaultLayout);state.zoom=Number.isFinite(p.zoom)?clamp(p.zoom,.1,2.5):state.zoom;state.grid=!!p.grid;state.magnet=!!p.magnet;state.gridSize=p.gridSize||.05;state.labels=labelModes.includes(p.labels)?p.labels:'short';$('gridSnap').checked=state.grid;$('gridSize').value=String(state.gridSize);$('magnet').checked=state.magnet;$('labels').value=state.labels;undoStack=[];redoStack=[];lastHistory=JSON.stringify(state.objects);setSelection([]);render();refreshCheckpoints();save();historySuspended=false;cloudReady=true;cloudDirty=false;cloudStatus('✓ Cloud loaded — autosync enabled');
  }catch(e){historySuspended=false;cloudReady=false;cloudStatus('⚠ Cloud load failed: '+e.message)}
 }
 function refreshCloudAuth(){const signed=!!cloudUser;$('cloudLogin').style.display=signed?'none':'';$('cloudLoadBtn').disabled=!signed;$('cloudSaveBtn').disabled=!signed;$('cloudSignOutBtn').disabled=!signed;if(signed)cloudStatus('Signed in: '+cloudUser.email+' — '+(cloudReady?'sync enabled':'choose cloud or local version'))}
@@ -270,8 +643,179 @@ $('cloudSignInBtn').onclick=async()=>{if(!cloud)return cloudStatus('Configure cl
 $('cloudLoadBtn').onclick=()=>cloudLoad(true);
 $('cloudSaveBtn').onclick=async()=>{if(!cloudUser)return; if(!cloudReady&&!confirm('Overwrite the cloud copy with this browser layout?'))return;cloudReady=true;cloudDirty=true;await flushCloud()};
 $('cloudSignOutBtn').onclick=async()=>{clearTimeout(cloudTimer);if(cloudDirty)await flushCloud();cloudReady=false;await cloud?.auth.signOut();cloudUser=null;refreshCloudAuth();cloudStatus('Signed out. On a public PC, close this tab when finished.')};
+const reportStyles={
+ room:{fill:'#e8eff5',line:'#384d61',name:'Room',prefix:'R'},
+ furniture:{fill:'#b7cbe4',line:'#526f99',name:'Furniture',prefix:'F'},
+ door:{fill:'#d3a472',line:'#76481d',name:'Door',prefix:'D'},
+ window:{fill:'#9adbf2',line:'#17648b',name:'Window',prefix:'W'},
+ builtIn:{fill:'#f6cd71',line:'#8c5a00',name:'Built-in plug',prefix:'P',shape:'circle'},
+ new:{fill:'#b6ede2',line:'#006b5e',name:'New plug',prefix:'P'}
+};
+const roomNumber=new Intl.NumberFormat(undefined,{maximumFractionDigits:3,useGrouping:false});
+const metres=value=>roomNumber.format(Math.abs(value)<.0005?0:value);
+const centimetres=value=>roomNumber.format(value*100);
+
+function reportRecords(objects){
+ const counts={},rooms=roomRects(objects);
+ return [...objects].sort((a,b)=>Number(b.type==='room')-Number(a.type==='room')).map(item=>{
+  const style=reportStyles[item.type==='plug'?plugStatus(item):item.type]||reportStyles.furniture;
+  const ref=style.prefix+(counts[style.prefix]=(counts[style.prefix]||0)+1);
+  const g=geom(item),room=rooms.find(r=>r.id===item.roomId);
+  const needsPlacement=!!placementProblem(item,rooms);
+  let location='Plan origin',local='—',plan=metres(g.x)+', '+metres(g.y);
+  if(needsPlacement){location='Unplaced · verify on site'}
+  else if(room&&fixtureTypes.has(item.type)){
+   const horizontal=item.wallSide==='top'||item.wallSide==='bottom';
+   const along=horizontal?g.cx-room.x:g.cy-room.y;
+   location=room.name+' · '+titleCase(item.wallSide)+' wall';
+   local=metres(along)+' m from '+(horizontal?'left':'top')+' corner';
+   plan=metres(g.cx)+', '+metres(g.cy);
+  }else if(room){
+   location=room.name;
+   local=metres(g.x-room.x)+', '+metres(g.y-room.y)+' m';
+  }
+  const size=item.type==='plug'?'Plan marker':centimetres(fixtureTypes.has(item.type)?item.w:g.w)+' × '+centimetres(fixtureTypes.has(item.type)?item.h:g.h);
+  return {item,style,ref,g,location,local,plan,size,needsPlacement};
+ });
+}
+
+function reportText(ctx,text,x,y,{size=20,weight=400,color='#1d3045',width=Infinity}={}){
+ ctx.font=weight+' '+size+'px system-ui, sans-serif';
+ ctx.fillStyle=color;
+ let label=String(text);
+ if(ctx.measureText(label).width>width){
+  let end=label.length;
+  while(end>0&&ctx.measureText(label.slice(0,end)+'…').width>width)end--;
+  label=label.slice(0,end)+'…';
+ }
+ ctx.fillText(label,x,y);
+}
+
+function reportShape(ctx,style,x,y,w,h){
+ ctx.beginPath();
+ if(style.shape==='circle')ctx.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,2*Math.PI);
+ else ctx.rect(x,y,w,h);
+ ctx.fillStyle=style.fill;ctx.fill();ctx.strokeStyle=style.line;ctx.stroke();
+}
+
+function drawReportPlan(ctx,records,pageRecords,frame){
+ const {x,y,w,h}=frame;
+ ctx.fillStyle='#f4f7fa';ctx.fillRect(x,y,w,h);
+ if(!records.length){reportText(ctx,'The layout is empty.',x+24,y+44);return}
+ const placed=records.filter(record=>!record.needsPlacement);
+ const shapes=placed.length?placed:records;
+ const limits=bounds(shapes.map(record=>record.item));
+ const scale=Math.min((w-140)/Math.max(.1,limits.right-limits.x),(h-130)/Math.max(.1,limits.bottom-limits.y));
+ const originX=x+(w-(limits.right-limits.x)*scale)/2-limits.x*scale;
+ const originY=y+(h-(limits.bottom-limits.y)*scale)/2-limits.y*scale-12;
+ for(const record of [...shapes].sort((a,b)=>Number(fixtureTypes.has(a.item.type))-Number(fixtureTypes.has(b.item.type)))){
+  const {g,style,item}=record;
+  ctx.lineWidth=item.type==='room'?4:2;
+  const width=Math.max(1,g.w*scale),height=Math.max(1,g.h*scale);
+  reportShape(ctx,style,originX+g.x*scale,originY+g.y*scale,width,height);
+ }
+ const tags=[];
+ const offsets=[[12,-28],[12,10],[-54,-28],[-54,10],[26,-46],[-65,25],[4,-56],[4,35],[44,-16],[-88,-16]];
+ for(const record of pageRecords){
+  if(record.needsPlacement&&placed.length)continue;
+  const {item,g,style,ref}=record;
+  const anchorX=originX+(item.type==='room'?g.x:g.cx)*scale;
+  const anchorY=originY+(item.type==='room'?g.y:g.cy)*scale;
+  const width=Math.max(40,ref.length*11+15),height=26;
+  const candidates=offsets.map(([dx,dy])=>({x:clamp(anchorX+dx,x+8,x+w-width-8),y:clamp(anchorY+dy,y+8,y+h-height-55)}));
+  const label=candidates.find(p=>!tags.some(t=>p.x<t.x+t.w+3&&p.x+width+3>t.x&&p.y<t.y+t.h+3&&p.y+height+3>t.y))||candidates[0];
+  tags.push({...label,w:width,h:height});
+  ctx.lineWidth=1.5;ctx.strokeStyle=style.line;ctx.beginPath();ctx.moveTo(anchorX,anchorY);ctx.lineTo(label.x+width/2,label.y+height/2);ctx.stroke();
+  ctx.fillStyle='#fff';ctx.fillRect(label.x,label.y,width,height);ctx.strokeRect(label.x,label.y,width,height);
+  reportText(ctx,ref,label.x+8,label.y+19,{size:16,weight:700,color:style.line});
+ }
+ const bar=[5,2,1,.5,.2,.1].find(length=>length*scale<210)||.05;
+ const left=x+22,bottom=y+h-23;
+ ctx.strokeStyle='#1d3045';ctx.lineWidth=3;ctx.beginPath();
+ ctx.moveTo(left,bottom-5);ctx.lineTo(left,bottom);ctx.lineTo(left+bar*scale,bottom);ctx.lineTo(left+bar*scale,bottom-5);ctx.stroke();
+ reportText(ctx,metres(bar)+' m',left,bottom-10,{size:16,weight:600});
+ reportText(ctx,'X → right     Y ↓ down',x+w-209,bottom,{size:16,weight:600});
+}
+
+function contractorReport(records,page,date){
+ const perPage=36,first=page*perPage,rows=records.slice(first,first+perPage),pages=Math.max(1,Math.ceil(records.length/perPage));
+ const width=1600,padding=48,tableY=886,rowHeight=54;
+ const canvas=document.createElement('canvas');
+ canvas.width=width;canvas.height=tableY+47+Math.max(1,rows.length)*rowHeight+120;
+ const ctx=canvas.getContext('2d');
+ ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+ ctx.fillStyle='#152d44';ctx.fillRect(0,0,width,116);
+ reportText(ctx,'Furniture & fixture layout',padding,56,{size:42,weight:700,color:'#fff'});
+ reportText(ctx,'Contractor reference  |  '+date, padding,89,{size:20,color:'#dae8f2'});
+ reportText(ctx,'Page '+(page+1)+' of '+pages,width-181,89,{size:20,color:'#dae8f2'});
+ drawReportPlan(ctx,records,rows,{x:padding,y:140,w:width-padding*2,h:640});
+ let legendX=padding;
+ for(const style of Object.values(reportStyles)){
+  ctx.lineWidth=2;reportShape(ctx,style,legendX,806,20,20);
+  reportText(ctx,style.name,legendX+30,824,{size:19,weight:600});
+  legendX+=ctx.measureText(style.name).width+62;
+ }
+ reportText(ctx,'Placement schedule',padding,868,{size:28,weight:700});
+ const columns=[48,133,437,818,1145,1395];
+ ctx.fillStyle='#e6edf4';ctx.fillRect(padding,tableY,width-padding*2,42);
+ ['Ref','Item / type','Room / wall','Room or wall offset','Plan X, Y (m)','W × D (cm)'].forEach((label,i)=>reportText(ctx,label,columns[i]+10,tableY+27,{size:17,weight:700}));
+ if(!rows.length)reportText(ctx,'No items to list.',padding+10,tableY+73,{size:18});
+ rows.forEach((record,i)=>{
+  const y=tableY+42+i*rowHeight;
+  if(i%2===0){ctx.fillStyle='#f7f9fc';ctx.fillRect(padding,y,width-padding*2,rowHeight)}
+  ctx.fillStyle='#dce5ee';ctx.fillRect(padding,y+rowHeight-1,width-padding*2,1);
+  reportText(ctx,record.ref,columns[0]+10,y+33,{size:19,weight:700,color:record.style.line});
+  reportText(ctx,record.item.name,columns[1]+10,y+23,{size:18,weight:600,width:282});
+  reportText(ctx,record.style.name,columns[1]+10,y+43,{size:15,color:'#496075',width:282});
+  reportText(ctx,record.location,columns[2]+10,y+33,{size:18,width:361,color:record.needsPlacement?'#913d18':'#1d3045'});
+  reportText(ctx,record.local,columns[3]+10,y+33,{size:18,width:307});
+  reportText(ctx,record.plan,columns[4]+10,y+33,{size:18,width:230});
+  reportText(ctx,record.size,columns[5]+10,y+33,{size:18,width:105});
+ });
+ const noteY=canvas.height-75;
+ reportText(ctx,'Plan origin (0,0) is the planner grid origin. Room X/Y offsets start at the upper-left corner of the room.',padding,noteY,{size:18});
+ reportText(ctx,'Wall offsets and plan X/Y for fixtures locate the center of the opening or plug. Sizes are plan dimensions.',padding,noteY+26,{size:18});
+ reportText(ctx,'Verify wall assignments, dimensions and clearances on site before installation.',padding,noteY+52,{size:18,weight:700});
+ return canvas;
+}
+
+function downloadReportPage(records,page,date,stamp){
+ let canvas;
+ try{canvas=contractorReport(records,page,date)}catch(error){msg('Could not build the PNG report. '+error.message);return}
+ canvas.toBlob(blob=>{
+  if(!blob){msg('Could not encode the PNG report.');return}
+  const url=URL.createObjectURL(blob),link=document.createElement('a');
+  link.href=url;link.download='furniture-layout-'+stamp+(records.length>36?'-page-'+(page+1):'')+'.png';
+  document.body.append(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),30000);
+  msg('PNG report downloaded.');
+ },'image/png');
+}
+
+$('reportBtn').onclick=()=>{
+ const records=reportRecords(state.objects),now=new Date();
+ const date=now.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}),stamp=now.toISOString().slice(0,10);
+ if(records.length<=36){downloadReportPage(records,0,date,stamp);return}
+ const controls=$('reportPages');
+ controls.replaceChildren();
+ for(let page=0;page<Math.ceil(records.length/36);page++){
+  const button=document.createElement('button');
+  button.type='button';button.textContent='Download page '+(page+1);
+  button.onclick=()=>downloadReportPage(records,page,date,stamp);controls.append(button);
+ }
+ $('reportDialog').showModal();
+};
+
 startCloud();
 
-window.addEventListener('pagehide',save);refreshCheckpoints();render();save();updateHistoryButtons();
+window.addEventListener('pagehide',save);
+refreshCheckpoints();render();
+if(!prev&&!legacy)$('fitBtn').click();
+else{
+ const firstRoom=state.objects.find(o=>o.type==='room');
+ if(firstRoom)revealItem(firstRoom);
+ save();
+}
+updateHistoryButtons();
 })();
 </script></body></html>
