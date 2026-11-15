@@ -47,8 +47,10 @@ dialog::backdrop{background:#152d4470}
  .mobile-toolbar{grid-template-columns:repeat(5,minmax(0,1fr));border-bottom:1px solid #dce3ed}
  .mobile-toolbar button,.mobile-actions button,.mobile-sheet button{touch-action:manipulation;min-height:44px;padding:7px 4px;font-size:13px;line-height:1.15}
  .mobile-toolbar button[aria-expanded="true"],.mobile-toolbar button[aria-pressed="true"],.mobile-actions button[aria-pressed="true"]{background:#dce9ff;border-color:#2458ba;color:#173d85}
- .workspace{height:57vh;height:57dvh;min-height:230px;max-height:620px;touch-action:none}
+ .workspace{height:57vh;height:57dvh;min-height:230px;max-height:620px;touch-action:none;overflow-anchor:none}
  .scaled{overflow:clip}
+ .scaled.pinch-preview{overflow:visible}
+ .pinch-preview>.board{will-change:transform}
  .mobile-selection{display:flex;justify-content:space-between;align-items:start;gap:8px;min-height:34px;padding:7px 9px 0;background:#fff;color:#384d66;font-size:12px}
  .mobile-selection strong{overflow-wrap:anywhere}.mobile-selection span{text-align:right;max-width:62%}
  .mobile-actions{grid-template-columns:repeat(4,minmax(0,1fr));padding-bottom:max(8px,env(safe-area-inset-bottom));border-bottom:1px solid #dce3ed}
@@ -1207,6 +1209,55 @@ function mobilePinch(){
   distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)};
 }
 
+function startMobilePinch(){
+ const pinch=mobilePinch(),surface=$('scaled'),board=$('board');
+ const wrapper=surface.getBoundingClientRect(),viewport=mobileViewport.getBoundingClientRect();
+ const spacing=getComputedStyle(surface);
+ const {scrollLeft,scrollTop,clientWidth,clientHeight}=mobileViewport;
+ mobileGesture={
+  kind:'pinch',zoom:state.zoom,startDistance:Math.max(1,pinch.distance),sample:pinch,
+  anchorX:(pinch.clientX-wrapper.left)/state.zoom,anchorY:(pinch.clientY-wrapper.top)/state.zoom,
+  originX:wrapper.left+scrollLeft,originY:wrapper.top+scrollTop,scrollLeft,scrollTop,
+  width:board.offsetWidth,height:board.offsetHeight,clientWidth,clientHeight,
+  horizontalMargin:wrapper.left-viewport.left+scrollLeft+(parseFloat(spacing.marginRight)||0),
+  verticalMargin:wrapper.top-viewport.top+scrollTop+(parseFloat(spacing.marginBottom)||0),
+  frame:0,finished:false,pointers:new Set(mobileTouches.keys())
+ };
+ surface.classList.add('pinch-preview');
+}
+
+function mobilePinchView(gesture){
+ const point=gesture.sample,zoom=clamp(gesture.zoom*point.distance/gesture.startDistance,.1,2.5);
+ return {zoom,
+  left:clamp(gesture.originX+gesture.anchorX*zoom-point.clientX,0,gesture.width*zoom+gesture.horizontalMargin-gesture.clientWidth),
+  top:clamp(gesture.originY+gesture.anchorY*zoom-point.clientY,0,gesture.height*zoom+gesture.verticalMargin-gesture.clientHeight)
+ };
+}
+
+function queueMobilePinch(gesture){
+ gesture.sample=mobilePinch();
+ if(gesture.frame)return;
+ gesture.frame=requestAnimationFrame(()=>{
+  gesture.frame=0;
+  const view=mobilePinchView(gesture);
+  // Keep the scroll surface fixed so the browser can't clamp or catch up between zoom frames.
+  $('board').style.transform=`translate3d(${gesture.scrollLeft-view.left}px,${gesture.scrollTop-view.top}px,0) scale(${view.zoom})`;
+  mobileFeedback(Math.round(view.zoom*100)+'%');
+ });
+}
+
+function finishMobilePinch(gesture,cancelled=false){
+ if(gesture.finished)return;
+ gesture.finished=true;
+ if(gesture.frame)cancelAnimationFrame(gesture.frame);
+ $('scaled').classList.remove('pinch-preview');
+ const view=mobilePinchView(gesture);
+ if(!cancelled)state.zoom=view.zoom;
+ updateZoom();
+ if(!cancelled){mobileViewport.scrollTo(view.left,view.top);save()}
+ mobileFeedback('');
+}
+
 function clearMobileGuide(){$('board').querySelector('.mobile-wall-guide')?.remove()}
 
 function showMobileWall(item){
@@ -1232,11 +1283,10 @@ function beginMobileTouch(event){
  const point=mobilePoint(event);
  mobileTouches.set(event.pointerId,point);
  mobileViewport.setPointerCapture(event.pointerId);
- if(mobileTouches.size===2&&mobileGesture?.kind!=='pinch'){
+ if(mobileTouches.size===2&&(mobileGesture?.kind!=='pinch'||mobileGesture.finished)){
   if(mobileGesture?.kind==='move'&&mobileGesture.moved){state.objects=mobileGesture.source;render()}
   if(mobileMoveArmed)setMobileMove(false);
-  const pinch=mobilePinch();
-  mobileGesture={kind:'pinch',anchor:toCanvas(pinch),startDistance:Math.max(1,pinch.distance),zoom:state.zoom};
+  startMobilePinch();
   return;
  }
  if(mobileTouches.size!==1)return;
@@ -1251,14 +1301,7 @@ function updateMobileTouch(event){
  const point=mobilePoint(event),gesture=mobileGesture;
  mobileTouches.set(event.pointerId,point);
  if(gesture.kind==='pinch'){
-  if(mobileTouches.size!==2)return;
-  const pinch=mobilePinch();
-  state.zoom=clamp(gesture.zoom*pinch.distance/gesture.startDistance,.1,2.5);
-  updateZoom();
-  const rect=$('board').getBoundingClientRect(),anchor=gesture.anchor;
-  mobileViewport.scrollBy(rect.left+(anchor.x-boardOrigin.x)*S*state.zoom-pinch.clientX,
-   rect.top+(anchor.y-boardOrigin.y)*S*state.zoom-pinch.clientY);
-  mobileFeedback(Math.round(state.zoom*100)+'%');
+  if(!gesture.finished&&mobileTouches.size===2)queueMobilePinch(gesture);
   return;
  }
  const dx=point.clientX-gesture.point.clientX,dy=point.clientY-gesture.point.clientY;
@@ -1282,10 +1325,15 @@ function endMobileTouch(event){
  if(!mobileTouches.has(event.pointerId))return;
  if(event.type!=='lostpointercapture')captureMobileTouch(event);
  mobileTouches.delete(event.pointerId);
- if(mobileTouches.size||!mobileGesture)return;
  const gesture=mobileGesture,cancelled=event.type!=='pointerup';
+ if(!gesture)return;
+ if(gesture.kind==='pinch'){
+  if(gesture.pointers.has(event.pointerId))finishMobilePinch(gesture,cancelled);
+  if(!mobileTouches.size)mobileGesture=null;
+  return;
+ }
+ if(mobileTouches.size)return;
  mobileGesture=null;
- if(gesture.kind==='pinch'){save();mobileFeedback('');return}
  if(!gesture.moved){if(!cancelled&&gesture.kind==='pan')mobileTap(gesture.point);return}
  if(gesture.kind==='move'){
   if(cancelled)state.objects=gesture.source;
@@ -1306,6 +1354,7 @@ mobileViewport.addEventListener('lostpointercapture',endMobileTouch,true);
 mobileMode.addEventListener('change',()=>{
  if(!mobileMode.matches){
   if(mobileGesture?.kind==='move')state.objects=mobileGesture.source;
+  if(mobileGesture?.kind==='pinch')finishMobilePinch(mobileGesture,true);
   mobileTouches.clear();mobileGesture=null;closeMobileSheet();setMobileTools(null);setMobileMove(false);
  }
  render();
