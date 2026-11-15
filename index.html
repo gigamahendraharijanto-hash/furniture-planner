@@ -14,7 +14,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .item-group summary input{vertical-align:middle;margin:0 5px 0 3px}.item-group summary span{font-weight:400;color:#61738a}
 .item-group-members{margin-inline-start:14px;border-inline-start:1px solid #d9e2ed;padding-inline-start:5px}
 .item-list{max-height:220px}
+.obj.plug{overflow:visible;z-index:16;color:#8c5a00}
+.obj.plug-new{color:#921e27}
 .obj.plug.locked::after{display:none}
+.obj.plug[data-wall-side]::before{content:"";position:absolute;background:currentColor;pointer-events:none}
+.obj.plug[data-wall-side="left"]::before,.obj.plug[data-wall-side="right"]::before{width:var(--plug-gap);height:2px;top:calc(50% - 1px)}
+.obj.plug[data-wall-side="top"]::before,.obj.plug[data-wall-side="bottom"]::before{height:var(--plug-gap);width:2px;left:calc(50% - 1px)}
+.obj.plug[data-wall-side="left"]::before{right:calc(100% + 1px)}
+.obj.plug[data-wall-side="right"]::before{left:calc(100% + 1px)}
+.obj.plug[data-wall-side="top"]::before{bottom:calc(100% + 1px)}
+.obj.plug[data-wall-side="bottom"]::before{top:calc(100% + 1px)}
 .obj.room.selected{z-index:1}
 .obj.unplaced{outline:2px dashed #a34215;outline-offset:2px}
 #placementNotice{color:#913d18}
@@ -72,6 +81,7 @@ const $=id=>document.getElementById(id),S=50,BW=1500,BH=1100,KEY='furniture-plan
 const clone=x=>JSON.parse(JSON.stringify(x)),round=n=>Math.round(n*10000)/10000,uid=()=>Math.random().toString(36).slice(2,11)+Date.now().toString(36);
 const fixtureTypes=new Set(['door','window','plug']);
 const wallSides=['top','right','bottom','left'];
+const wallInward={top:{x:0,y:1},right:{x:-1,y:0},bottom:{x:0,y:-1},left:{x:1,y:0}};
 const clamp=(value,min,max)=>Math.max(min,Math.min(Math.max(min,max),value));
 const titleCase=value=>value.charAt(0).toUpperCase()+value.slice(1);
 function defaults(){return [
@@ -337,7 +347,18 @@ window.addEventListener('resize',hideFurnitureTooltip);
 window.addEventListener('blur',hideFurnitureTooltip);
 function paintGeometry(element,item){
  const g=geom(item);
- Object.assign(element.style,{left:(g.x-boardOrigin.x)*S+'px',top:(g.y-boardOrigin.y)*S+'px',width:g.w*S+'px',height:g.h*S+'px'});
+ let {x,y,w,h}=g;
+ if(item.type==='plug'){
+  const wall=item.roomId&&wallSides.includes(item.wallSide)?wallInward[item.wallSide]:null;
+  const diameter=clamp(Math.min(w,h),.16,.28),gap=.10;
+  const offset=wall?diameter/2+gap:0;
+  x=g.cx-diameter/2+(wall?.x||0)*offset;
+  y=g.cy-diameter/2+(wall?.y||0)*offset;
+  w=h=diameter;
+  if(wall)element.dataset.wallSide=item.wallSide;else delete element.dataset.wallSide;
+  element.style.setProperty('--plug-gap',gap*S+1+'px');
+ }
+ Object.assign(element.style,{left:(x-boardOrigin.x)*S+'px',top:(y-boardOrigin.y)*S+'px',width:w*S+'px',height:h*S+'px'});
 }
 function render(){if(rendering)return;rendering=true;hideFurnitureTooltip();updateZoom();const board=$('board'),rooms=roomRects(state.objects);board.replaceChildren();for(const o of state.objects){const g=geom(o),el=document.createElement('div');el.className='obj '+o.type+(o.locked?' locked':'')+(state.selected.includes(o.id)?' selected':'');el.dataset.id=o.id;if(placementProblem(o,rooms))el.classList.add('unplaced');if(o.type==='plug')el.classList.add(plugStatus(o)==='new'?'plug-new':'plug-built-in');paintGeometry(el,o);
 const show=state.labels==='short'||(state.labels==='rooms'&&o.type==='room')||(state.labels==='noRooms'&&o.type!=='room');
@@ -755,7 +776,7 @@ const reportStyles={
 const groupReportStyle={line:'#354c68',name:'Group'};
 const reportNumber=new Intl.NumberFormat(undefined,{maximumFractionDigits:2,useGrouping:false});
 const formattedNumber=value=>reportNumber.format(value);
-const reportColumns=[48,116,399,787,1080,1352,1552];
+const reportColumns=[48,116,389,756,975,1081,1352,1552];
 
 function reportModel(objects){
  const rooms=roomRects(objects),roomNames=new Map(rooms.map(room=>[room.id,room.name]));
@@ -767,9 +788,9 @@ function reportModel(objects){
   const box=geom(item),unplaced=!!placementProblem(item,rooms);
   const roomSize=item.type==='room'?formattedNumber(box.w)+' × '+formattedNumber(box.h)+' m · '+formattedNumber(box.w*box.h)+' m²':'';
   const room=roomNames.get(item.roomId);
-  const location=unplaced?'Unplaced':room?[room,item.wallSide&&titleCase(item.wallSide)+' wall'].filter(Boolean).join(' · '):'';
+  const wall=room&&item.wallSide&&!unplaced?titleCase(item.wallSide):'';
   const size=item.type==='furniture'?formattedNumber(box.w*100)+' × '+formattedNumber(box.h*100):'';
-  return [{item,style,box,roomSize,room,location,size,unplaced}];
+  return [{item,style,box,roomSize,room:unplaced?'Unplaced':room,wall,size,unplaced}];
  });
  const byId=new Map(shapes.map(shape=>[shape.item.id,shape])),entries=[],seenGroups=new Set();
  const groupIndexes=new Map([...groups.keys()].map((id,index)=>[id,index]));
@@ -781,8 +802,8 @@ function reportModel(objects){
    seenGroups.add(item.groupId);
    const members=groups.get(item.groupId),name=groupName(item.groupId,members,groupIndexes.get(item.groupId));
    const memberShapes=members.map(member=>byId.get(member.id)).filter(Boolean);
-   const groupRooms=new Set(memberShapes.map(member=>member.room||(member.item.type==='room'?member.item.name:null)).filter(Boolean));
-   const location=groupRooms.size>1?'Multiple rooms':([...groupRooms][0]||'');
+   const groupRooms=new Set(memberShapes.map(member=>!member.unplaced&&(member.room||(member.item.type==='room'?member.item.name:null))).filter(Boolean));
+   const room=groupRooms.size>1?'Multiple rooms':([...groupRooms][0]||'');
    const unplacedCount=memberShapes.filter(member=>member.unplaced).length;
    const memberLabels=memberShapes.map(member=>member.item.name+(member.roomSize?' ('+member.roomSize+')':member.item.type==='plug'?' ('+member.style.name+')':''));
    const visible=memberShapes.filter(member=>member.style.prefix&&!member.unplaced);
@@ -791,7 +812,7 @@ function reportModel(objects){
     entries.push({
      key:item.groupId,name,style:groupReportStyle,tag:name,anchor,
      includes:memberLabels.slice(i,i+8).join(', '),
-     location:[location,unplacedCount?unplacedCount+' unplaced':''].filter(Boolean).join(' · '),
+     room:[room,unplacedCount?unplacedCount+' unplaced':''].filter(Boolean).join(' · '),
      continuation:i>0
     });
    }
@@ -838,7 +859,7 @@ function reportPages(model){
  let usedHeight=0;
  for(const entry of model.entries){
   const label=entry.name+(entry.continuation?' (continued)':'');
-  const values=[entry.ref,label,entry.includes,entry.location,entry.roomSize,entry.size];
+  const values=[entry.ref,label,entry.includes,entry.room,entry.wall,entry.roomSize,entry.size];
   const columns=values.map((value,index)=>wrapReportText(ctx,value,reportColumns[index+1]-reportColumns[index]-20,index<2?650:400,index===2?20:3));
   const showType=entry.name!==entry.style.name;
   const maxLines=Math.max(...columns.map((column,index)=>column.length+(index===1&&showType?1:0)));
@@ -867,25 +888,28 @@ function drawReportPlan(ctx,shapes,rows,frame){
  const originX=x+(w-(limits.right-limits.x)*scale)/2-limits.x*scale;
  const originY=y+(h-(limits.bottom-limits.y)*scale)/2-limits.y*scale-5;
  const layer={room:0,furniture:1,door:2,window:2};
- const plugs=[];
+ const plugs=new Map();
  for(const shape of [...placed].sort((a,b)=>(layer[a.item.type]??3)-(layer[b.item.type]??3))){
   const {box,style,item}=shape;
   const px=originX+box.x*scale,py=originY+box.y*scale;
   const width=Math.max(1,box.w*scale),height=Math.max(1,box.h*scale);
   if(item.type==='plug'){
    const size=Math.max(13,Math.min(24,Math.min(width,height)));
-   plugs.push({style,size,cx:px+width/2,cy:py+height/2});
+   const wall=wallInward[item.wallSide],ax=px+width/2,ay=py+height/2;
+   const offset=size/2+9;
+   plugs.set(item.id,{style,size,ax,ay,cx:ax+wall.x*offset,cy:ay+wall.y*offset});
    continue;
   }
   ctx.lineWidth=item.type==='room'?4:2;reportShape(ctx,style,px,py,width,height);
  }
- const tags=plugs.map(({cx,cy,size})=>({x:cx-size/2-3,y:cy-size/2-3,w:size+6,h:size+6})),labelled=new Set();
+ const tags=[...plugs.values()].map(({cx,cy,size})=>({x:cx-size/2-3,y:cy-size/2-3,w:size+6,h:size+6})),labelled=new Set();
  for(const {entry} of rows){
   const anchor=entry.anchor;
   if(!anchor||labelled.has(entry.key))continue;
   labelled.add(entry.key);
   const room=anchor.item.type==='room',box=anchor.box;
-  const ax=originX+(room?box.x:box.cx)*scale,ay=originY+(room?box.y:box.cy)*scale;
+  const plug=plugs.get(anchor.item.id);
+  const ax=plug?.cx??originX+(room?box.x:box.cx)*scale,ay=plug?.cy??originY+(room?box.y:box.cy)*scale;
   ctx.font='650 17px system-ui, sans-serif';
   const width=Math.max(35,Math.min(255,ctx.measureText(entry.tag).width+18)),height=27;
   const offsets=[[13,-30],[13,12],[-width-13,-30],[-width-13,12],[23,-50],[23,32],[-width/2,-57],[-width/2,41]];
@@ -896,7 +920,11 @@ function drawReportPlan(ctx,shapes,rows,frame){
   ctx.fillStyle='#fff';ctx.fillRect(position.x,position.y,width,height);ctx.strokeRect(position.x,position.y,width,height);
   reportText(ctx,entry.tag,position.x+9,position.y+19,{size:17,weight:650,color:entry.style.line,maxWidth:width-17});
  }
- for(const {style,size,cx,cy} of plugs){
+ for(const {style,ax,ay,cx,cy} of plugs.values()){
+  ctx.strokeStyle=style.line;ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(cx,cy);ctx.stroke();
+ }
+ for(const {style,size,cx,cy} of plugs.values()){
   ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx,cy,size/2+3,0,2*Math.PI);ctx.fill();
   ctx.lineWidth=2;reportShape(ctx,style,cx-size/2,cy-size/2,size,size);
  }
@@ -927,7 +955,7 @@ function contractorReport(model,pages,page,date){
   legendX+=ctx.measureText(style.name).width+57;
  }
  ctx.fillStyle='#e6edf4';ctx.fillRect(padding,tableY,width-padding*2,tableHeader);
- ['Ref','Item / group','Includes','Room / wall','Room size','Item W × D (cm)'].forEach((label,i)=>reportText(ctx,label,reportColumns[i]+10,tableY+26,{size:17,weight:700}));
+ ['Ref','Item / group','Includes','Room','Wall','Room size','Item W × D (cm)'].forEach((label,i)=>reportText(ctx,label,reportColumns[i]+10,tableY+26,{size:17,weight:700}));
  let y=tableY+tableHeader;
  if(!rows.length)reportText(ctx,'No rooms, furniture or plugs to list.',padding+10,y+29,{size:18});
  rows.forEach(({entry,columns,showType,height},row)=>{
@@ -936,7 +964,7 @@ function contractorReport(model,pages,page,date){
   columns.forEach((lines,index)=>{
    const x=reportColumns[index]+10,maxWidth=reportColumns[index+1]-reportColumns[index]-20;
    lines.forEach((line,lineIndex)=>reportText(ctx,line,x,y+26+lineIndex*23,{
-    size:18,weight:index<2?650:400,color:index===0?entry.style.line:index===3&&entry.location.includes('unplaced')?'#913d18':'#1d3045',maxWidth
+    size:18,weight:index<2?650:400,color:index===0?entry.style.line:index===3&&entry.room?.toLowerCase().includes('unplaced')?'#913d18':'#1d3045',maxWidth
    }));
    if(index===1&&showType)reportText(ctx,entry.style.name,x,y+25+lines.length*23,{size:15,color:'#496075',maxWidth});
   });
