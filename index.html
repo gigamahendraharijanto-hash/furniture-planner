@@ -8,8 +8,22 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .tools label{display:inline-flex;align-items:center;gap:5px;margin:0}
 .viewTools{background:#f8fafc}.viewTools input[type="checkbox"]{width:auto;margin:0;accent-color:#2458ba}
 .obj.plug,.plug-marker{background:#f6cd71;border-color:#8c5a00;border-radius:50%}
-.obj.plug-new,.plug-marker.plug-new{background:#b6ede2;border-color:#006b5e;border-radius:2px}
+.obj.plug-new,.plug-marker.plug-new{background:#e53039;border-color:#921e27;border-radius:50%}
+.item-group{border-block-end:1px solid #e2e9f2}.item-group:last-child{border:0}
+.item-group summary{padding:5px;cursor:pointer;color:#31465f;font-size:12px;font-weight:650}
+.item-group summary input{vertical-align:middle;margin:0 5px 0 3px}.item-group summary span{font-weight:400;color:#61738a}
+.item-group-members{margin-inline-start:14px;border-inline-start:1px solid #d9e2ed;padding-inline-start:5px}
+.item-list{max-height:220px}
+.obj.plug{overflow:visible;z-index:16;color:#8c5a00}
+.obj.plug-new{color:#921e27}
 .obj.plug.locked::after{display:none}
+.obj.plug[data-wall-side]::before{content:"";position:absolute;background:currentColor;pointer-events:none}
+.obj.plug[data-wall-side="left"]::before,.obj.plug[data-wall-side="right"]::before{width:var(--plug-gap);height:2px;top:calc(50% - 1px)}
+.obj.plug[data-wall-side="top"]::before,.obj.plug[data-wall-side="bottom"]::before{height:var(--plug-gap);width:2px;left:calc(50% - 1px)}
+.obj.plug[data-wall-side="left"]::before{right:calc(100% + 1px)}
+.obj.plug[data-wall-side="right"]::before{left:calc(100% + 1px)}
+.obj.plug[data-wall-side="top"]::before{bottom:calc(100% + 1px)}
+.obj.plug[data-wall-side="bottom"]::before{top:calc(100% + 1px)}
 .obj.room.selected{z-index:1}
 .obj.unplaced{outline:2px dashed #a34215;outline-offset:2px}
 #placementNotice{color:#913d18}
@@ -39,7 +53,7 @@ dialog::backdrop{background:#152d4470}
 <span class="info tleft">Hover for details. Use Ctrl/Cmd+C and Ctrl/Cmd+V to copy and paste selected items.</span></div>
 <div class="tools" id="placementNoticeWrap" hidden><span id="placementNotice" class="info"></span></div><div id="furnitureTooltip" class="furniture-tooltip" role="tooltip" hidden><strong></strong><div></div></div>
 </main><aside class="panel side">
-<div class="section stack"><h2>Selection & precise movement</h2><div class="row"><span id="selectionSummary" class="badge">No selection</span><button id="selectUnlocked">Select unlocked</button></div><div class="item-list" id="itemList"></div>
+<div class="section stack"><h2>Selection & precise movement</h2><div class="row"><span id="selectionSummary" class="badge">No selection</span><button id="selectUnlocked">Select unlocked</button></div><div id="groupNameWrap" class="hide"><label for="groupName">Group name</label><input id="groupName" maxlength="64"></div><div class="item-list" id="itemList" aria-label="Plan items"></div>
 <div class="fields"><div><label>Move by</label><select id="moveStep"><option value=".01">1 cm</option><option value=".05">5 cm</option><option value=".1" selected>10 cm</option><option value=".5">50 cm</option></select></div><div><label>Rotate</label><div class="row"><button id="ccw">↶ 90°</button><button id="cw">90° ↷</button></div></div></div>
 <div class="dpad"><span></span><button data-move="0,-1">↑</button><span></span><button data-move="-1,0">←</button><span class="middle">MOVE</span><button data-move="1,0">→</button><span></span><button data-move="0,1">↓</button><span></span></div>
 <div class="row"><button id="duplicateBtn">Duplicate</button><button id="deleteBtn">Delete unlocked</button></div>
@@ -57,7 +71,7 @@ dialog::backdrop{background:#152d4470}
 <div class="section stack"><h2>Transfer JSON between devices</h2><textarea id="jsonText" class="json" placeholder="Click Generate JSON, or paste a JSON save here"></textarea><div class="row"><button id="generateBtn">Generate JSON</button><button id="selectTextBtn">Select text</button><button id="loadBtn" class="primary">Load pasted JSON</button></div></div>
 <div id="message" class="msg"></div>
 </aside></div>
-<dialog id="reportDialog" aria-labelledby="reportTitle"><h2 id="reportTitle">Download report pages</h2><p class="muted">Each PNG includes the floor plan and its portion of the placement schedule.</p><div id="reportPages" class="row"></div><form method="dialog" class="space"><button>Close</button></form></dialog>
+<dialog id="reportDialog" aria-labelledby="reportTitle"><h2 id="reportTitle">Download report pages</h2><p class="muted">Each PNG includes the floor plan and its portion of the legend.</p><div id="reportPages" class="row"></div><form method="dialog" class="space"><button>Close</button></form></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 (()=>{'use strict';
@@ -67,6 +81,7 @@ const $=id=>document.getElementById(id),S=50,BW=1500,BH=1100,KEY='furniture-plan
 const clone=x=>JSON.parse(JSON.stringify(x)),round=n=>Math.round(n*10000)/10000,uid=()=>Math.random().toString(36).slice(2,11)+Date.now().toString(36);
 const fixtureTypes=new Set(['door','window','plug']);
 const wallSides=['top','right','bottom','left'];
+const wallInward={top:{x:0,y:1},right:{x:-1,y:0},bottom:{x:0,y:-1},left:{x:1,y:0}};
 const clamp=(value,min,max)=>Math.max(min,Math.min(Math.max(min,max),value));
 const titleCase=value=>value.charAt(0).toUpperCase()+value.slice(1);
 function defaults(){return [
@@ -272,6 +287,21 @@ function commitEdits(edits,options){
 }
 
 function lookup(id){return state.objects.find(o=>o.id===id)}
+function collectGroups(objects){
+ const groups=new Map();
+ for(const item of objects){
+  if(!item.groupId)continue;
+  if(!groups.has(item.groupId))groups.set(item.groupId,[]);
+  groups.get(item.groupId).push(item);
+ }
+ return groups;
+}
+
+function groupName(groupId,members,index){
+ const named=members.find(item=>typeof item.groupName==='string'&&item.groupName.trim());
+ return named?named.groupName.trim().slice(0,64):groupId==='dining-group'?'Dining set':'Group '+(index+1);
+}
+
 function expandGroup(ids){let all=new Set(ids),groups=new Set(state.objects.filter(o=>all.has(o.id)&&o.groupId).map(o=>o.groupId));for(const o of state.objects)if(groups.has(o.groupId)&&o.groupId)all.add(o.id);return [...all]}
 function idsUnlocked(){return expandGroup(state.selected).filter(id=>!lookup(id)?.locked)}
 function bounds(arr){const g=arr.map(geom);return {x:Math.min(...g.map(t=>t.x)),y:Math.min(...g.map(t=>t.y)),right:Math.max(...g.map(t=>t.right)),bottom:Math.max(...g.map(t=>t.bottom))}}
@@ -300,7 +330,7 @@ function showFurnitureTooltip(e){
  const room=lookup(o.roomId);
  if(room)details.push(room.name);
  if(o.locked)details.push('Locked');
- if(o.groupId)details.push('Grouped');
+ if(o.groupId){const groups=collectGroups(state.objects);details.push(groupName(o.groupId,groups.get(o.groupId),[...groups.keys()].indexOf(o.groupId)))}
  furnitureTooltip.lastElementChild.textContent=details.join(' · ');
  furnitureTooltip.hidden=false;
  const {offsetWidth:w,offsetHeight:h}=furnitureTooltip;
@@ -317,7 +347,18 @@ window.addEventListener('resize',hideFurnitureTooltip);
 window.addEventListener('blur',hideFurnitureTooltip);
 function paintGeometry(element,item){
  const g=geom(item);
- Object.assign(element.style,{left:(g.x-boardOrigin.x)*S+'px',top:(g.y-boardOrigin.y)*S+'px',width:g.w*S+'px',height:g.h*S+'px'});
+ let {x,y,w,h}=g;
+ if(item.type==='plug'){
+  const wall=item.roomId&&wallSides.includes(item.wallSide)?wallInward[item.wallSide]:null;
+  const diameter=clamp(Math.min(w,h),.16,.28),gap=.10;
+  const offset=wall?diameter/2+gap:0;
+  x=g.cx-diameter/2+(wall?.x||0)*offset;
+  y=g.cy-diameter/2+(wall?.y||0)*offset;
+  w=h=diameter;
+  if(wall)element.dataset.wallSide=item.wallSide;else delete element.dataset.wallSide;
+  element.style.setProperty('--plug-gap',gap*S+1+'px');
+ }
+ Object.assign(element.style,{left:(x-boardOrigin.x)*S+'px',top:(y-boardOrigin.y)*S+'px',width:w*S+'px',height:h*S+'px'});
 }
 function render(){if(rendering)return;rendering=true;hideFurnitureTooltip();updateZoom();const board=$('board'),rooms=roomRects(state.objects);board.replaceChildren();for(const o of state.objects){const g=geom(o),el=document.createElement('div');el.className='obj '+o.type+(o.locked?' locked':'')+(state.selected.includes(o.id)?' selected':'');el.dataset.id=o.id;if(placementProblem(o,rooms))el.classList.add('unplaced');if(o.type==='plug')el.classList.add(plugStatus(o)==='new'?'plug-new':'plug-built-in');paintGeometry(el,o);
 const show=state.labels==='short'||(state.labels==='rooms'&&o.type==='room')||(state.labels==='noRooms'&&o.type!=='room');
@@ -378,16 +419,74 @@ $('tableWrap').classList.toggle('hide',single?.type!=='furniture'||!single.mode)
 $('lockedNotice').textContent=single?[single.locked?'Locked: unlock before editing this item.':'',placementProblem(single,rooms)].filter(Boolean).join(' '):'';
 $('lockBtn').disabled=!sel.some(o=>!o.locked);$('unlockBtn').disabled=!sel.some(o=>o.locked);$('duplicateBtn').disabled=!sel.some(o=>!o.locked);$('deleteBtn').disabled=!sel.some(o=>!o.locked);
 $('groupBtn').disabled=sel.length<2;$('ungroupBtn').disabled=!sel.some(o=>o.groupId);
-let list=$('itemList');list.replaceChildren();for(const o of state.objects){let l=document.createElement('label'),check=document.createElement('input');check.type='checkbox';check.checked=state.selected.includes(o.id);check.addEventListener('change',()=>{let next=new Set(state.selected);if(check.checked)next.add(o.id);else next.delete(o.id);setSelection([...next])});let txt=document.createElement('span');txt.textContent=(o.locked?'🔒 ':'')+o.name+(o.groupId?' [group]':'');txt.className='list-name';l.append(check,txt);
-if(o.type==='plug'){
- const status=document.createElement('span'),marker=document.createElement('i');
- status.className='plug-status';
- marker.className='plug-marker'+(plugStatus(o)==='new'?' plug-new':'');
- marker.setAttribute('aria-hidden','true');
- status.append(marker,plugStatusLabel(o));
- l.append(status);
+renderItemList(sel);
 }
-list.append(l)}}
+
+const expandedGroups=new Set();
+function renderItemList(selected){
+ const list=$('itemList'),groups=collectGroups(state.objects),rendered=new Set();
+ const activeGroup=selected[0]?.groupId;
+ const sameGroup=!!activeGroup&&selected.every(item=>item.groupId===activeGroup);
+ const input=$('groupName');
+ $('groupNameWrap').classList.toggle('hide',!sameGroup);
+ input.value=sameGroup?groupName(activeGroup,groups.get(activeGroup),[...groups.keys()].indexOf(activeGroup)):'';
+ input.dataset.groupId=sameGroup?activeGroup:'';
+ const savedScroll=list.scrollTop,focused=list.contains(document.activeElement)?document.activeElement.dataset.listKey:null;
+ list.replaceChildren();
+ function checkbox(item,key,label){
+  const check=document.createElement('input');
+  check.type='checkbox';
+  check.checked=state.selected.includes(item.id);
+  check.dataset.listKey=key;
+  check.setAttribute('aria-label',label);
+  check.addEventListener('change',()=>toggleSelection(item.id));
+  return check;
+ }
+ function appendMember(item,parent){
+  const row=document.createElement('label'),name=document.createElement('span');
+  const type=item.type==='plug'?plugStatusLabel(item)+' plug':'';
+  name.className='list-name';
+  name.textContent=(item.locked?'🔒 ':'')+item.name;
+  row.append(checkbox(item,item.id,[item.name,type].filter(Boolean).join(', ')),name);
+  if(type){
+   const badge=document.createElement('span'),marker=document.createElement('i');
+   badge.className='plug-status';
+   marker.className='plug-marker'+(plugStatus(item)==='new'?' plug-new':'');
+   marker.setAttribute('aria-hidden','true');
+   badge.append(marker,plugStatusLabel(item));row.append(badge);
+  }
+  parent.append(row);
+ }
+ const groupIndexes=new Map([...groups.keys()].map((id,index)=>[id,index]));
+ for(const item of state.objects){
+  const id=item.groupId;
+  if(!id){appendMember(item,list);continue}
+  if(rendered.has(id))continue;
+  rendered.add(id);
+  const members=groups.get(id),name=groupName(id,members,groupIndexes.get(id));
+  const layer=document.createElement('details'),heading=document.createElement('summary'),count=document.createElement('span');
+  const children=document.createElement('div');
+  layer.className='item-group';layer.open=expandedGroups.has(id);
+  layer.addEventListener('toggle',()=>{if(layer.open)expandedGroups.add(id);else expandedGroups.delete(id)});
+  heading.dataset.listKey='layer-'+id;
+  count.textContent=' · '+members.length+' items';
+  heading.append(checkbox(item,'group-'+id,'Select '+name),name,count);
+  children.className='item-group-members';
+  for(const member of members)appendMember(member,children);
+  layer.append(heading,children);list.append(layer);
+ }
+ list.scrollTop=savedScroll;
+ if(focused)list.querySelector('[data-list-key="'+CSS.escape(focused)+'"]')?.focus({preventScroll:true});
+}
+
+$('groupName').onchange=e=>{
+ const id=e.target.dataset.groupId,name=e.target.value.trim();
+ if(!id||!name){refreshControls();return}
+ for(const item of state.objects)if(item.groupId===id)item.groupName=name;
+ render();save();
+};
+$('groupName').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.target.blur()}});
+
 function updateZoom(){let zoom=state.zoom,board=$('board');const plan=state.objects.length?bounds(state.objects):{x:0,y:0,right:0,bottom:0};boardOrigin={x:Math.min(0,plan.x-1),y:Math.min(0,plan.y-1)};const width=Math.max(BW,(plan.right-boardOrigin.x)*S+60),height=Math.max(BH,(plan.bottom-boardOrigin.y)*S+60);board.style.width=width+'px';board.style.height=height+'px';board.style.transform=`scale(${zoom})`;$('scaled').style.width=width*zoom+'px';$('scaled').style.height=height*zoom+'px';$('zoom').value=String(Math.round(zoom*100/5)*5);$('zoomValue').textContent=Math.round(zoom*100)+'%'}
 function changeZoom(v){hideFurnitureTooltip();state.zoom=clamp(v,.1,2.5);updateZoom();save()}
 function applyDelta(dx,dy){
@@ -451,8 +550,28 @@ $('fitBtn').onclick=()=>{
 };
 $('gridSnap').checked=state.grid;$('gridSnap').onchange=e=>{state.grid=e.target.checked;save()};$('gridSize').value=String(state.gridSize);$('gridSize').onchange=e=>{state.gridSize=Number(e.target.value);save()};$('magnet').checked=state.magnet;$('magnet').onchange=e=>{state.magnet=e.target.checked;save()};$('labels').value=state.labels;$('labels').onchange=e=>{state.labels=e.target.value;render();save()};
 $('selectAllBtn').onclick=()=>setSelection(state.objects.map(o=>o.id));$('selectUnlocked').onclick=()=>setSelection(state.objects.filter(o=>!o.locked).map(o=>o.id));$('clearBtn').onclick=()=>setSelection([]);$('multiBtn').onclick=()=>{state.multi=!state.multi;refreshControls()};
-$('groupBtn').onclick=()=>{const id='g'+uid();for(const o of state.objects)if(state.selected.includes(o.id))o.groupId=id;render();save();msg('Grouped '+state.selected.length+' objects. Moving one selects the group.')};$('ungroupBtn').onclick=()=>{for(const o of state.objects)if(state.selected.includes(o.id))o.groupId=null;render();save()};
-$('lockBtn').onclick=()=>{for(const o of state.objects)if(state.selected.includes(o.id))o.locked=true;render();save()};$('unlockBtn').onclick=()=>{for(const o of state.objects)if(state.selected.includes(o.id))o.locked=false;render();save()};
+$('groupBtn').onclick=()=>{
+ const groups=collectGroups(state.objects),names=new Set([...groups].map(([id,members],index)=>groupName(id,members,index)));
+ const selected=new Set(state.selected);
+ let index=1;
+ while(names.has('Group '+index))index++;
+ const id='g'+uid();
+ for(const item of state.objects){
+  if(!selected.has(item.id))continue;
+  item.groupId=id;item.groupName='Group '+index;
+ }
+ expandedGroups.add(id);
+ render();save();
+ $('groupName').focus();$('groupName').select();
+};
+$('ungroupBtn').onclick=()=>{
+ for(const item of state.objects){
+  if(!state.selected.includes(item.id))continue;
+  item.groupId=null;delete item.groupName;
+ }
+ render();save();
+};
+
 const newItemDefinitions={room:['Room',3,3],door:['Door',.9,.12],window:['Window',1.2,.12],plug:['Plug',.22,.22],furniture:['Furniture',1.2,.8]};
 document.querySelectorAll('[data-add]').forEach(button=>button.onclick=()=>{
  const type=button.dataset.add,[name,w,h]=newItemDefinitions[type];
@@ -528,10 +647,13 @@ const clipboardPrefix='Furniture Planner items v1\n';
 const copyableTypes=new Set(['room','furniture',...fixtureTypes]);
 
 function clipboardItems(items){
+ const groups=collectGroups(items);
+ const names=new Map([...groups].map(([id,members],index)=>[id,groupName(id,members,index)]));
  return items.filter(item=>copyableTypes.has(item.type)).map(item=>({
   id:item.id,type:item.type,name:item.name,x:item.x,y:item.y,w:item.w,h:item.h,rot:item.rot,
   roomId:typeof item.roomId==='string'?item.roomId:null,wallSide:wallSides.includes(item.wallSide)?item.wallSide:null,
   groupId:typeof item.groupId==='string'?item.groupId:null,
+  ...(item.groupId?{groupName:names.get(item.groupId)}:{}),
   ...(item.type==='plug'?{plugStatus:plugStatus(item)}:{}),
   ...(item.type==='furniture'&&['open','half','folded'].includes(item.mode)?{mode:item.mode}:{})
  }));
@@ -646,49 +768,107 @@ $('cloudSignOutBtn').onclick=async()=>{clearTimeout(cloudTimer);if(cloudDirty)aw
 const reportStyles={
  room:{fill:'#e8eff5',line:'#384d61',name:'Room',prefix:'R'},
  furniture:{fill:'#b7cbe4',line:'#526f99',name:'Furniture',prefix:'F'},
- door:{fill:'#d3a472',line:'#76481d',name:'Door',prefix:'D'},
- window:{fill:'#9adbf2',line:'#17648b',name:'Window',prefix:'W'},
+ door:{fill:'#d3a472',line:'#76481d',name:'Door'},
+ window:{fill:'#9adbf2',line:'#17648b',name:'Window'},
  builtIn:{fill:'#f6cd71',line:'#8c5a00',name:'Built-in plug',prefix:'P',shape:'circle'},
- new:{fill:'#b6ede2',line:'#006b5e',name:'New plug',prefix:'P'}
+ new:{fill:'#e53039',line:'#921e27',name:'New plug',prefix:'P',shape:'circle'},
 };
-const roomNumber=new Intl.NumberFormat(undefined,{maximumFractionDigits:3,useGrouping:false});
-const metres=value=>roomNumber.format(Math.abs(value)<.0005?0:value);
-const centimetres=value=>roomNumber.format(value*100);
+const groupReportStyle={line:'#354c68',name:'Group'};
+const reportNumber=new Intl.NumberFormat(undefined,{maximumFractionDigits:2,useGrouping:false});
+const formattedNumber=value=>reportNumber.format(value);
+const reportColumns=[48,116,389,756,975,1081,1352,1552];
 
-function reportRecords(objects){
- const counts={},rooms=roomRects(objects);
- return [...objects].sort((a,b)=>Number(b.type==='room')-Number(a.type==='room')).map(item=>{
-  const style=reportStyles[item.type==='plug'?plugStatus(item):item.type]||reportStyles.furniture;
-  const ref=style.prefix+(counts[style.prefix]=(counts[style.prefix]||0)+1);
-  const g=geom(item),room=rooms.find(r=>r.id===item.roomId);
-  const needsPlacement=!!placementProblem(item,rooms);
-  let location='Plan origin',local='—',plan=metres(g.x)+', '+metres(g.y);
-  if(needsPlacement){location='Unplaced · verify on site'}
-  else if(room&&fixtureTypes.has(item.type)){
-   const horizontal=item.wallSide==='top'||item.wallSide==='bottom';
-   const along=horizontal?g.cx-room.x:g.cy-room.y;
-   location=room.name+' · '+titleCase(item.wallSide)+' wall';
-   local=metres(along)+' m from '+(horizontal?'left':'top')+' corner';
-   plan=metres(g.cx)+', '+metres(g.cy);
-  }else if(room){
-   location=room.name;
-   local=metres(g.x-room.x)+', '+metres(g.y-room.y)+' m';
-  }
-  const size=item.type==='plug'?'Plan marker':centimetres(fixtureTypes.has(item.type)?item.w:g.w)+' × '+centimetres(fixtureTypes.has(item.type)?item.h:g.h);
-  return {item,style,ref,g,location,local,plan,size,needsPlacement};
+function reportModel(objects){
+ const rooms=roomRects(objects),roomNames=new Map(rooms.map(room=>[room.id,room.name]));
+ const groups=collectGroups(objects),counts={};
+ const ordered=[...objects].sort((a,b)=>Number(b.type==='room')-Number(a.type==='room'));
+ const shapes=ordered.flatMap(item=>{
+  if(!copyableTypes.has(item.type))return [];
+  const style=reportStyles[item.type==='plug'?plugStatus(item):item.type];
+  const box=geom(item),unplaced=!!placementProblem(item,rooms);
+  const roomSize=item.type==='room'?formattedNumber(box.w)+' × '+formattedNumber(box.h)+' m · '+formattedNumber(box.w*box.h)+' m²':'';
+  const room=roomNames.get(item.roomId);
+  const wall=room&&item.wallSide&&!unplaced?titleCase(item.wallSide):'';
+  const size=item.type==='furniture'?formattedNumber(box.w*100)+' × '+formattedNumber(box.h*100):'';
+  return [{item,style,box,roomSize,room:unplaced?'Unplaced':room,wall,size,unplaced}];
  });
+ const byId=new Map(shapes.map(shape=>[shape.item.id,shape])),entries=[],seenGroups=new Set();
+ const groupIndexes=new Map([...groups.keys()].map((id,index)=>[id,index]));
+ for(const shape of shapes){
+  const {item,style}=shape;
+  if(!style.prefix)continue;
+  if(item.groupId){
+   if(seenGroups.has(item.groupId))continue;
+   seenGroups.add(item.groupId);
+   const members=groups.get(item.groupId),name=groupName(item.groupId,members,groupIndexes.get(item.groupId));
+   const memberShapes=members.map(member=>byId.get(member.id)).filter(Boolean);
+   const groupRooms=new Set(memberShapes.map(member=>!member.unplaced&&(member.room||(member.item.type==='room'?member.item.name:null))).filter(Boolean));
+   const room=groupRooms.size>1?'Multiple rooms':([...groupRooms][0]||'');
+   const unplacedCount=memberShapes.filter(member=>member.unplaced).length;
+   const memberLabels=memberShapes.map(member=>member.item.name+(member.roomSize?' ('+member.roomSize+')':member.item.type==='plug'?' ('+member.style.name+')':''));
+   const visible=memberShapes.filter(member=>member.style.prefix&&!member.unplaced);
+   const anchor=visible.find(member=>member.item.type==='furniture')||visible[0];
+   for(let i=0;i<memberLabels.length;i+=8){
+    entries.push({
+     key:item.groupId,name,style:groupReportStyle,tag:name,anchor,
+     includes:memberLabels.slice(i,i+8).join(', '),
+     room:[room,unplacedCount?unplacedCount+' unplaced':''].filter(Boolean).join(' · '),
+     continuation:i>0
+    });
+   }
+  }else{
+   const ref=style.prefix+(counts[style.prefix]=(counts[style.prefix]||0)+1);
+   const name=item.type==='plug'&&item.name.toLowerCase()==='plug'?style.name:item.name;
+   entries.push({...shape,key:item.id,ref,name,tag:ref,anchor:shape.unplaced?null:shape});
+  }
+ }
+ return {shapes,entries};
 }
 
-function reportText(ctx,text,x,y,{size=20,weight=400,color='#1d3045',width=Infinity}={}){
+function reportText(ctx,value,x,y,{size=20,weight=400,color='#1d3045',maxWidth=Infinity}={}){
  ctx.font=weight+' '+size+'px system-ui, sans-serif';
  ctx.fillStyle=color;
- let label=String(text);
- if(ctx.measureText(label).width>width){
-  let end=label.length;
-  while(end>0&&ctx.measureText(label.slice(0,end)+'…').width>width)end--;
-  label=label.slice(0,end)+'…';
+ let label=String(value);
+ while(label.length&&ctx.measureText(label).width>maxWidth){
+  label=label.endsWith('…')?label.slice(0,-2)+'…':label.slice(0,-1)+'…';
+  if(label==='…')break;
  }
  ctx.fillText(label,x,y);
+}
+
+function wrapReportText(ctx,text,maxWidth,weight=400,maxLines=3){
+ ctx.font=weight+' 18px system-ui, sans-serif';
+ let line='';
+ const lines=[];
+ for(const word of String(text||'').trim().split(/\s+/)){
+  if(!word)continue;
+  const candidate=line?line+' '+word:word;
+  if(line&&ctx.measureText(candidate).width>maxWidth){lines.push(line);line=word}
+  else line=candidate;
+ }
+ if(line)lines.push(line);
+ if(lines.length>maxLines){
+  lines.length=maxLines;
+  lines[maxLines-1]+='…';
+ }
+ return lines;
+}
+
+function reportPages(model){
+ const ctx=document.createElement('canvas').getContext('2d'),pages=[[]];
+ let usedHeight=0;
+ for(const entry of model.entries){
+  const label=entry.name+(entry.continuation?' (continued)':'');
+  const values=[entry.ref,label,entry.includes,entry.room,entry.wall,entry.roomSize,entry.size];
+  const columns=values.map((value,index)=>wrapReportText(ctx,value,reportColumns[index+1]-reportColumns[index]-20,index<2?650:400,index===2?20:3));
+  const showType=entry.name!==entry.style.name;
+  const maxLines=Math.max(...columns.map((column,index)=>column.length+(index===1&&showType?1:0)));
+  const height=Math.max(45,maxLines*23+18);
+  if(usedHeight&&usedHeight+height>1640){pages.push([]);usedHeight=0}
+  pages.at(-1).push({entry,columns,showType,height});
+  usedHeight+=height;
+ }
+ return pages;
 }
 
 function reportShape(ctx,style,x,y,w,h){
@@ -698,94 +878,108 @@ function reportShape(ctx,style,x,y,w,h){
  ctx.fillStyle=style.fill;ctx.fill();ctx.strokeStyle=style.line;ctx.stroke();
 }
 
-function drawReportPlan(ctx,records,pageRecords,frame){
+function drawReportPlan(ctx,shapes,rows,frame){
  const {x,y,w,h}=frame;
  ctx.fillStyle='#f4f7fa';ctx.fillRect(x,y,w,h);
- if(!records.length){reportText(ctx,'The layout is empty.',x+24,y+44);return}
- const placed=records.filter(record=>!record.needsPlacement);
- const shapes=placed.length?placed:records;
- const limits=bounds(shapes.map(record=>record.item));
- const scale=Math.min((w-140)/Math.max(.1,limits.right-limits.x),(h-130)/Math.max(.1,limits.bottom-limits.y));
+ const placed=shapes.filter(shape=>!shape.unplaced);
+ if(!placed.length){reportText(ctx,'No items placed on the plan.',x+24,y+44);return}
+ const limits=bounds(placed.map(shape=>shape.item));
+ const scale=Math.min((w-160)/Math.max(.1,limits.right-limits.x),(h-110)/Math.max(.1,limits.bottom-limits.y));
  const originX=x+(w-(limits.right-limits.x)*scale)/2-limits.x*scale;
- const originY=y+(h-(limits.bottom-limits.y)*scale)/2-limits.y*scale-12;
- for(const record of [...shapes].sort((a,b)=>Number(fixtureTypes.has(a.item.type))-Number(fixtureTypes.has(b.item.type)))){
-  const {g,style,item}=record;
-  ctx.lineWidth=item.type==='room'?4:2;
-  const width=Math.max(1,g.w*scale),height=Math.max(1,g.h*scale);
-  reportShape(ctx,style,originX+g.x*scale,originY+g.y*scale,width,height);
+ const originY=y+(h-(limits.bottom-limits.y)*scale)/2-limits.y*scale-5;
+ const layer={room:0,furniture:1,door:2,window:2};
+ const plugs=new Map();
+ for(const shape of [...placed].sort((a,b)=>(layer[a.item.type]??3)-(layer[b.item.type]??3))){
+  const {box,style,item}=shape;
+  const px=originX+box.x*scale,py=originY+box.y*scale;
+  const width=Math.max(1,box.w*scale),height=Math.max(1,box.h*scale);
+  if(item.type==='plug'){
+   const size=Math.max(13,Math.min(24,Math.min(width,height)));
+   const wall=wallInward[item.wallSide],ax=px+width/2,ay=py+height/2;
+   const offset=size/2+9;
+   plugs.set(item.id,{style,size,ax,ay,cx:ax+wall.x*offset,cy:ay+wall.y*offset});
+   continue;
+  }
+  ctx.lineWidth=item.type==='room'?4:2;reportShape(ctx,style,px,py,width,height);
  }
- const tags=[];
- const offsets=[[12,-28],[12,10],[-54,-28],[-54,10],[26,-46],[-65,25],[4,-56],[4,35],[44,-16],[-88,-16]];
- for(const record of pageRecords){
-  if(record.needsPlacement&&placed.length)continue;
-  const {item,g,style,ref}=record;
-  const anchorX=originX+(item.type==='room'?g.x:g.cx)*scale;
-  const anchorY=originY+(item.type==='room'?g.y:g.cy)*scale;
-  const width=Math.max(40,ref.length*11+15),height=26;
-  const candidates=offsets.map(([dx,dy])=>({x:clamp(anchorX+dx,x+8,x+w-width-8),y:clamp(anchorY+dy,y+8,y+h-height-55)}));
-  const label=candidates.find(p=>!tags.some(t=>p.x<t.x+t.w+3&&p.x+width+3>t.x&&p.y<t.y+t.h+3&&p.y+height+3>t.y))||candidates[0];
-  tags.push({...label,w:width,h:height});
-  ctx.lineWidth=1.5;ctx.strokeStyle=style.line;ctx.beginPath();ctx.moveTo(anchorX,anchorY);ctx.lineTo(label.x+width/2,label.y+height/2);ctx.stroke();
-  ctx.fillStyle='#fff';ctx.fillRect(label.x,label.y,width,height);ctx.strokeRect(label.x,label.y,width,height);
-  reportText(ctx,ref,label.x+8,label.y+19,{size:16,weight:700,color:style.line});
+ const tags=[...plugs.values()].map(({cx,cy,size})=>({x:cx-size/2-3,y:cy-size/2-3,w:size+6,h:size+6})),labelled=new Set();
+ for(const {entry} of rows){
+  const anchor=entry.anchor;
+  if(!anchor||labelled.has(entry.key))continue;
+  labelled.add(entry.key);
+  const room=anchor.item.type==='room',box=anchor.box;
+  const plug=plugs.get(anchor.item.id);
+  const ax=plug?.cx??originX+(room?box.x:box.cx)*scale,ay=plug?.cy??originY+(room?box.y:box.cy)*scale;
+  ctx.font='650 17px system-ui, sans-serif';
+  const width=Math.max(35,Math.min(255,ctx.measureText(entry.tag).width+18)),height=27;
+  const offsets=[[13,-30],[13,12],[-width-13,-30],[-width-13,12],[23,-50],[23,32],[-width/2,-57],[-width/2,41]];
+  const candidates=offsets.map(([dx,dy])=>({x:clamp(ax+dx,x+7,x+w-width-7),y:clamp(ay+dy,y+7,y+h-height-42)}));
+  const position=candidates.find(p=>!tags.some(t=>p.x<t.x+t.w+3&&p.x+width+3>t.x&&p.y<t.y+t.h+3&&p.y+height+3>t.y))||candidates[0];
+  tags.push({...position,w:width,h:height});
+  ctx.lineWidth=1.5;ctx.strokeStyle=entry.style.line;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(position.x+width/2,position.y+height/2);ctx.stroke();
+  ctx.fillStyle='#fff';ctx.fillRect(position.x,position.y,width,height);ctx.strokeRect(position.x,position.y,width,height);
+  reportText(ctx,entry.tag,position.x+9,position.y+19,{size:17,weight:650,color:entry.style.line,maxWidth:width-17});
+ }
+ for(const {style,ax,ay,cx,cy} of plugs.values()){
+  ctx.strokeStyle=style.line;ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(cx,cy);ctx.stroke();
+ }
+ for(const {style,size,cx,cy} of plugs.values()){
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx,cy,size/2+3,0,2*Math.PI);ctx.fill();
+  ctx.lineWidth=2;reportShape(ctx,style,cx-size/2,cy-size/2,size,size);
  }
  const bar=[5,2,1,.5,.2,.1].find(length=>length*scale<210)||.05;
  const left=x+22,bottom=y+h-23;
  ctx.strokeStyle='#1d3045';ctx.lineWidth=3;ctx.beginPath();
  ctx.moveTo(left,bottom-5);ctx.lineTo(left,bottom);ctx.lineTo(left+bar*scale,bottom);ctx.lineTo(left+bar*scale,bottom-5);ctx.stroke();
- reportText(ctx,metres(bar)+' m',left,bottom-10,{size:16,weight:600});
- reportText(ctx,'X → right     Y ↓ down',x+w-209,bottom,{size:16,weight:600});
+ reportText(ctx,formattedNumber(bar)+' m',left,bottom-10,{size:16,weight:600});
 }
 
-function contractorReport(records,page,date){
- const perPage=36,first=page*perPage,rows=records.slice(first,first+perPage),pages=Math.max(1,Math.ceil(records.length/perPage));
- const width=1600,padding=48,tableY=886,rowHeight=54;
+function contractorReport(model,pages,page,date){
+ const rows=pages[page],width=1600,padding=48,tableY=881,tableHeader=40;
  const canvas=document.createElement('canvas');
- canvas.width=width;canvas.height=tableY+47+Math.max(1,rows.length)*rowHeight+120;
+ canvas.width=width;
+ canvas.height=tableY+tableHeader+Math.max(45,rows.reduce((sum,row)=>sum+row.height,0))+36;
  const ctx=canvas.getContext('2d');
- ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+ ctx.fillStyle='#fff';ctx.fillRect(0,0,width,canvas.height);
  ctx.fillStyle='#152d44';ctx.fillRect(0,0,width,116);
  reportText(ctx,'Furniture & fixture layout',padding,56,{size:42,weight:700,color:'#fff'});
- reportText(ctx,'Contractor reference  |  '+date, padding,89,{size:20,color:'#dae8f2'});
- reportText(ctx,'Page '+(page+1)+' of '+pages,width-181,89,{size:20,color:'#dae8f2'});
- drawReportPlan(ctx,records,rows,{x:padding,y:140,w:width-padding*2,h:640});
+ reportText(ctx,'Contractor reference  |  '+date,padding,89,{size:20,color:'#dae8f2'});
+ if(pages.length>1)reportText(ctx,'Page '+(page+1)+' of '+pages.length,width-181,89,{size:20,color:'#dae8f2'});
+ drawReportPlan(ctx,model.shapes,rows,{x:padding,y:140,w:width-padding*2,h:640});
+ reportText(ctx,'Legend',padding,821,{size:28,weight:700});
  let legendX=padding;
  for(const style of Object.values(reportStyles)){
-  ctx.lineWidth=2;reportShape(ctx,style,legendX,806,20,20);
-  reportText(ctx,style.name,legendX+30,824,{size:19,weight:600});
-  legendX+=ctx.measureText(style.name).width+62;
+  ctx.lineWidth=2;reportShape(ctx,style,legendX,838,18,18);
+  reportText(ctx,style.name,legendX+28,853,{size:18,weight:600});
+  legendX+=ctx.measureText(style.name).width+57;
  }
- reportText(ctx,'Placement schedule',padding,868,{size:28,weight:700});
- const columns=[48,133,437,818,1145,1395];
- ctx.fillStyle='#e6edf4';ctx.fillRect(padding,tableY,width-padding*2,42);
- ['Ref','Item / type','Room / wall','Room or wall offset','Plan X, Y (m)','W × D (cm)'].forEach((label,i)=>reportText(ctx,label,columns[i]+10,tableY+27,{size:17,weight:700}));
- if(!rows.length)reportText(ctx,'No items to list.',padding+10,tableY+73,{size:18});
- rows.forEach((record,i)=>{
-  const y=tableY+42+i*rowHeight;
-  if(i%2===0){ctx.fillStyle='#f7f9fc';ctx.fillRect(padding,y,width-padding*2,rowHeight)}
-  ctx.fillStyle='#dce5ee';ctx.fillRect(padding,y+rowHeight-1,width-padding*2,1);
-  reportText(ctx,record.ref,columns[0]+10,y+33,{size:19,weight:700,color:record.style.line});
-  reportText(ctx,record.item.name,columns[1]+10,y+23,{size:18,weight:600,width:282});
-  reportText(ctx,record.style.name,columns[1]+10,y+43,{size:15,color:'#496075',width:282});
-  reportText(ctx,record.location,columns[2]+10,y+33,{size:18,width:361,color:record.needsPlacement?'#913d18':'#1d3045'});
-  reportText(ctx,record.local,columns[3]+10,y+33,{size:18,width:307});
-  reportText(ctx,record.plan,columns[4]+10,y+33,{size:18,width:230});
-  reportText(ctx,record.size,columns[5]+10,y+33,{size:18,width:105});
+ ctx.fillStyle='#e6edf4';ctx.fillRect(padding,tableY,width-padding*2,tableHeader);
+ ['Ref','Item / group','Includes','Room','Wall','Room size','Item W × D (cm)'].forEach((label,i)=>reportText(ctx,label,reportColumns[i]+10,tableY+26,{size:17,weight:700}));
+ let y=tableY+tableHeader;
+ if(!rows.length)reportText(ctx,'No rooms, furniture or plugs to list.',padding+10,y+29,{size:18});
+ rows.forEach(({entry,columns,showType,height},row)=>{
+  if(row%2===0){ctx.fillStyle='#f7f9fc';ctx.fillRect(padding,y,width-padding*2,height)}
+  ctx.fillStyle='#dce5ee';ctx.fillRect(padding,y+height-1,width-padding*2,1);
+  columns.forEach((lines,index)=>{
+   const x=reportColumns[index]+10,maxWidth=reportColumns[index+1]-reportColumns[index]-20;
+   lines.forEach((line,lineIndex)=>reportText(ctx,line,x,y+26+lineIndex*23,{
+    size:18,weight:index<2?650:400,color:index===0?entry.style.line:index===3&&entry.room?.toLowerCase().includes('unplaced')?'#913d18':'#1d3045',maxWidth
+   }));
+   if(index===1&&showType)reportText(ctx,entry.style.name,x,y+25+lines.length*23,{size:15,color:'#496075',maxWidth});
+  });
+  y+=height;
  });
- const noteY=canvas.height-75;
- reportText(ctx,'Plan origin (0,0) is the planner grid origin. Room X/Y offsets start at the upper-left corner of the room.',padding,noteY,{size:18});
- reportText(ctx,'Wall offsets and plan X/Y for fixtures locate the center of the opening or plug. Sizes are plan dimensions.',padding,noteY+26,{size:18});
- reportText(ctx,'Verify wall assignments, dimensions and clearances on site before installation.',padding,noteY+52,{size:18,weight:700});
  return canvas;
 }
 
-function downloadReportPage(records,page,date,stamp){
+function downloadReportPage(model,pages,page,date,stamp){
  let canvas;
- try{canvas=contractorReport(records,page,date)}catch(error){msg('Could not build the PNG report. '+error.message);return}
+ try{canvas=contractorReport(model,pages,page,date)}catch(error){msg('Could not build the PNG report. '+error.message);return}
  canvas.toBlob(blob=>{
   if(!blob){msg('Could not encode the PNG report.');return}
   const url=URL.createObjectURL(blob),link=document.createElement('a');
-  link.href=url;link.download='furniture-layout-'+stamp+(records.length>36?'-page-'+(page+1):'')+'.png';
+  link.href=url;link.download='furniture-layout-'+stamp+(pages.length>1?'-page-'+(page+1):'')+'.png';
   document.body.append(link);link.click();link.remove();
   setTimeout(()=>URL.revokeObjectURL(url),30000);
   msg('PNG report downloaded.');
@@ -793,16 +987,16 @@ function downloadReportPage(records,page,date,stamp){
 }
 
 $('reportBtn').onclick=()=>{
- const records=reportRecords(state.objects),now=new Date();
+ const model=reportModel(state.objects),pages=reportPages(model),now=new Date();
  const date=now.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}),stamp=now.toISOString().slice(0,10);
- if(records.length<=36){downloadReportPage(records,0,date,stamp);return}
+ if(pages.length===1){downloadReportPage(model,pages,0,date,stamp);return}
  const controls=$('reportPages');
  controls.replaceChildren();
- for(let page=0;page<Math.ceil(records.length/36);page++){
+ pages.forEach((_,page)=>{
   const button=document.createElement('button');
   button.type='button';button.textContent='Download page '+(page+1);
-  button.onclick=()=>downloadReportPage(records,page,date,stamp);controls.append(button);
- }
+  button.onclick=()=>downloadReportPage(model,pages,page,date,stamp);controls.append(button);
+ });
  $('reportDialog').showModal();
 };
 
