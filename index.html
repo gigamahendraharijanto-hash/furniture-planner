@@ -71,7 +71,7 @@ dialog::backdrop{background:#152d4470}
 <div class="section stack"><h2>Transfer JSON between devices</h2><textarea id="jsonText" class="json" placeholder="Click Generate JSON, or paste a JSON save here"></textarea><div class="row"><button id="generateBtn">Generate JSON</button><button id="selectTextBtn">Select text</button><button id="loadBtn" class="primary">Load pasted JSON</button></div></div>
 <div id="message" class="msg"></div>
 </aside></div>
-<dialog id="reportDialog" aria-labelledby="reportTitle"><h2 id="reportTitle">Download report pages</h2><p class="muted">Each PNG includes the floor plan and its portion of the legend.</p><div id="reportPages" class="row"></div><form method="dialog" class="space"><button>Close</button></form></dialog>
+<dialog id="reportDialog" aria-labelledby="reportTitle"><h2 id="reportTitle">Download report pages</h2><p class="muted">Download the report with its item legend, or download the enlarged floor plan on its own.</p><div id="reportPages" class="row"></div><form method="dialog" class="space"><button>Close</button></form></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 (()=>{'use strict';
@@ -878,7 +878,7 @@ function reportShape(ctx,style,x,y,w,h){
  ctx.fillStyle=style.fill;ctx.fill();ctx.strokeStyle=style.line;ctx.stroke();
 }
 
-function drawReportPlan(ctx,shapes,rows,frame){
+function drawReportPlan(ctx,shapes,entries,frame){
  const {x,y,w,h}=frame;
  ctx.fillStyle='#f4f7fa';ctx.fillRect(x,y,w,h);
  const placed=shapes.filter(shape=>!shape.unplaced);
@@ -903,7 +903,7 @@ function drawReportPlan(ctx,shapes,rows,frame){
   ctx.lineWidth=item.type==='room'?4:2;reportShape(ctx,style,px,py,width,height);
  }
  const tags=[...plugs.values()].map(({cx,cy,size})=>({x:cx-size/2-3,y:cy-size/2-3,w:size+6,h:size+6})),labelled=new Set();
- for(const {entry} of rows){
+ for(const entry of entries){
   const anchor=entry.anchor;
   if(!anchor||labelled.has(entry.key))continue;
   labelled.add(entry.key);
@@ -935,6 +935,34 @@ function drawReportPlan(ctx,shapes,rows,frame){
  reportText(ctx,formattedNumber(bar)+' m',left,bottom-10,{size:16,weight:600});
 }
 
+function drawReportSymbols(ctx,x,y){
+ for(const style of Object.values(reportStyles)){
+  ctx.lineWidth=2;reportShape(ctx,style,x,y,18,18);
+  reportText(ctx,style.name,x+28,y+15,{size:18,weight:600});
+  x+=ctx.measureText(style.name).width+57;
+ }
+}
+
+function fullPlanReport(model,date){
+ const placed=model.shapes.filter(shape=>!shape.unplaced);
+ const limits=placed.length?bounds(placed.map(shape=>shape.item)):{x:0,y:0,right:16,bottom:9};
+ const aspect=clamp((limits.right-limits.x)/Math.max(.1,limits.bottom-limits.y),.55,1.85);
+ const width=aspect>=1?1600:Math.max(860,Math.round(1440*aspect)),
+  planHeight=aspect>=1?Math.round(1600/aspect):1440;
+ const scale=1.5,padding=28,header=108,height=header+planHeight+72;
+ const canvas=document.createElement('canvas');
+ canvas.width=Math.round(width*scale);canvas.height=Math.round(height*scale);
+ const ctx=canvas.getContext('2d');
+ ctx.scale(scale,scale);
+ ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
+ ctx.fillStyle='#152d44';ctx.fillRect(0,0,width,header);
+ reportText(ctx,'Floor plan reference',padding,54,{size:38,weight:700,color:'#fff'});
+ reportText(ctx,date,padding,84,{size:19,color:'#dae8f2'});
+ drawReportPlan(ctx,model.shapes,model.entries,{x:padding,y:header+18,w:width-2*padding,h:planHeight});
+ drawReportSymbols(ctx,padding,header+planHeight+39);
+ return canvas;
+}
+
 function contractorReport(model,pages,page,date){
  const rows=pages[page],width=1600,padding=48,tableY=881,tableHeader=40;
  const canvas=document.createElement('canvas');
@@ -946,14 +974,9 @@ function contractorReport(model,pages,page,date){
  reportText(ctx,'Furniture & fixture layout',padding,56,{size:42,weight:700,color:'#fff'});
  reportText(ctx,'Contractor reference  |  '+date,padding,89,{size:20,color:'#dae8f2'});
  if(pages.length>1)reportText(ctx,'Page '+(page+1)+' of '+pages.length,width-181,89,{size:20,color:'#dae8f2'});
- drawReportPlan(ctx,model.shapes,rows,{x:padding,y:140,w:width-padding*2,h:640});
+ drawReportPlan(ctx,model.shapes,rows.map(row=>row.entry),{x:padding,y:140,w:width-padding*2,h:640});
  reportText(ctx,'Legend',padding,821,{size:28,weight:700});
- let legendX=padding;
- for(const style of Object.values(reportStyles)){
-  ctx.lineWidth=2;reportShape(ctx,style,legendX,838,18,18);
-  reportText(ctx,style.name,legendX+28,853,{size:18,weight:600});
-  legendX+=ctx.measureText(style.name).width+57;
- }
+ drawReportSymbols(ctx,padding,838);
  ctx.fillStyle='#e6edf4';ctx.fillRect(padding,tableY,width-padding*2,tableHeader);
  ['Ref','Item / group','Includes','Room','Wall','Room size','Item W × D (cm)'].forEach((label,i)=>reportText(ctx,label,reportColumns[i]+10,tableY+26,{size:17,weight:700}));
  let y=tableY+tableHeader;
@@ -973,13 +996,13 @@ function contractorReport(model,pages,page,date){
  return canvas;
 }
 
-function downloadReportPage(model,pages,page,date,stamp){
+function downloadReportImage(build,filename){
  let canvas;
- try{canvas=contractorReport(model,pages,page,date)}catch(error){msg('Could not build the PNG report. '+error.message);return}
+ try{canvas=build()}catch(error){msg('Could not build the PNG report. '+error.message);return}
  canvas.toBlob(blob=>{
   if(!blob){msg('Could not encode the PNG report.');return}
   const url=URL.createObjectURL(blob),link=document.createElement('a');
-  link.href=url;link.download='furniture-layout-'+stamp+(pages.length>1?'-page-'+(page+1):'')+'.png';
+  link.href=url;link.download=filename;
   document.body.append(link);link.click();link.remove();
   setTimeout(()=>URL.revokeObjectURL(url),30000);
   msg('PNG report downloaded.');
@@ -989,14 +1012,20 @@ function downloadReportPage(model,pages,page,date,stamp){
 $('reportBtn').onclick=()=>{
  const model=reportModel(state.objects),pages=reportPages(model),now=new Date();
  const date=now.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}),stamp=now.toISOString().slice(0,10);
- if(pages.length===1){downloadReportPage(model,pages,0,date,stamp);return}
- const controls=$('reportPages');
+ const controls=$('reportPages'),filename='furniture-layout-'+stamp;
  controls.replaceChildren();
- pages.forEach((_,page)=>{
+ function addDownload(label,suffix,build){
   const button=document.createElement('button');
-  button.type='button';button.textContent='Download page '+(page+1);
-  button.onclick=()=>downloadReportPage(model,pages,page,date,stamp);controls.append(button);
+  button.type='button';button.textContent=label;
+  button.onclick=()=>downloadReportImage(build,filename+suffix+'.png');
+  controls.append(button);
+ }
+ pages.forEach((_,page)=>{
+  const multiple=pages.length>1;
+  addDownload(multiple?'Download report page '+(page+1):'Download report with legend',
+   multiple?'-page-'+(page+1):'',()=>contractorReport(model,pages,page,date));
  });
+ addDownload('Download full-screen plan','-full-plan',()=>fullPlanReport(model,date));
  $('reportDialog').showModal();
 };
 
