@@ -37,29 +37,64 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .furniture-tooltip strong{display:block;font-size:13px}.furniture-tooltip div{color:#e1eaf7;font-size:12px;margin-top:3px}
 dialog{max-width:min(580px,90vw);max-height:80vh;overflow:auto;border:1px solid #c9d4e3;border-radius:12px;padding:18px;color:#223047}
 dialog::backdrop{background:#152d4470}
+.mobile-only{display:none}
+@media(max-width:900px) and (any-pointer:coarse){
+ .mobile-only{display:block}
+ header{padding:10px 12px}.app{padding:0;gap:0}.app>main{border-radius:0}
+ body:not([data-mobile-tools="more"]) #headerActions,body:not([data-mobile-tools="more"]) .side,body:not([data-mobile-tools="more"]) .desktop-planner-tools{display:none}
+ body:not([data-mobile-tools]) #addToolbar{display:none}
+ .mobile-toolbar,.mobile-actions{display:grid;gap:6px;padding:8px;background:#fff}
+ .mobile-toolbar{grid-template-columns:repeat(5,minmax(0,1fr));border-bottom:1px solid #dce3ed}
+ .mobile-toolbar button,.mobile-actions button,.mobile-sheet button{touch-action:manipulation;min-height:44px;padding:7px 4px;font-size:13px;line-height:1.15}
+ .mobile-toolbar button[aria-expanded="true"],.mobile-toolbar button[aria-pressed="true"],.mobile-actions button[aria-pressed="true"]{background:#dce9ff;border-color:#2458ba;color:#173d85}
+ .workspace{height:57vh;height:57dvh;min-height:230px;max-height:620px;touch-action:none}
+ .scaled{overflow:clip}
+ .mobile-selection{display:flex;justify-content:space-between;align-items:start;gap:8px;min-height:34px;padding:7px 9px 0;background:#fff;color:#384d66;font-size:12px}
+ .mobile-selection strong{overflow-wrap:anywhere}.mobile-selection span{text-align:right;max-width:62%}
+ .mobile-actions{grid-template-columns:repeat(4,minmax(0,1fr));padding-bottom:max(8px,env(safe-area-inset-bottom));border-bottom:1px solid #dce3ed}
+ .mobile-sheet{position:fixed;inset:auto 0 0;margin:0 auto;width:100%;max-width:620px;max-height:52vh;max-height:52dvh;z-index:60;border-radius:14px 14px 0 0;padding:0 12px max(12px,env(safe-area-inset-bottom));box-shadow:0 -6px 20px #17283e33}
+ .mobile-sheet-header{position:sticky;top:0;z-index:1;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #dce3ed;margin-bottom:9px}
+ .mobile-sheet-header h2{margin:0}.mobile-sheet-header button{min-width:60px}
+ .mobile-sheet .item-list{max-height:none}.mobile-sheet .item-list label,.mobile-sheet summary{min-height:44px;padding:8px 5px}
+ .mobile-sheet .item-list input{min-width:20px;min-height:20px}.mobile-sheet summary{line-height:26px}
+ .mobile-sheet .section:last-child{padding-bottom:0;margin-bottom:0}
+ .mobile-nudge{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:8px;margin-bottom:12px}
+ .mobile-nudge select{width:auto}.mobile-nudge button{min-width:44px}
+ .mobile-nudge .row{justify-content:flex-end}
+ #mobileSheetStatus{margin:0 0 9px;color:#344e72}
+ .mobile-candidates button{text-align:left;padding-inline:10px}
+ .mobile-wall-guide{position:absolute;z-index:18;background:#1b63dc;box-shadow:0 0 0 2px #ffffffb0;pointer-events:none}
+}
 </style></head>
 <body>
-<header><div><h1>▦ Furniture Planner</h1></div><div class="top"><span id="saveStatus" class="muted">Ready</span><button id="undoBtn" title="Undo (Ctrl/Cmd+Z)">↶ Undo</button><button id="redoBtn" title="Redo (Ctrl/Cmd+Shift+Z)">↷ Redo</button><button id="saveBtn">Save</button><button id="reportBtn" class="primary">Download PNG report</button><button id="checkpointBtn">+ Checkpoint</button><button id="copyBtn">Copy JSON</button><button id="pasteBtn">Paste JSON</button></div></header>
+<header><div><h1>▦ Furniture Planner</h1></div><div class="top" id="headerActions"><span id="saveStatus" class="muted">Ready</span><button id="undoBtn" title="Undo (Ctrl/Cmd+Z)">↶ Undo</button><button id="redoBtn" title="Redo (Ctrl/Cmd+Shift+Z)">↷ Redo</button><button id="saveBtn">Save</button><button id="reportBtn" class="primary">Download PNG report</button><button id="checkpointBtn">+ Checkpoint</button><button id="copyBtn">Copy JSON</button><button id="pasteBtn">Paste JSON</button></div></header>
 <div class="app"><main class="panel">
+<nav class="mobile-only mobile-toolbar" aria-label="Plan tools">
+<button id="mobileFit">Fit</button><button id="mobileAdd" aria-expanded="false" aria-controls="addToolbar">Add</button><button id="mobileItems" aria-haspopup="dialog">Items</button><button id="mobileMulti" aria-pressed="false">Select</button><button id="mobileMore" aria-expanded="false">More</button>
+</nav>
 <div class="tools" id="addToolbar"><strong style="font-size:12px">+ Add elements</strong><button data-add="room">Room</button><button data-add="door">Door</button><button data-add="window">Window</button><button data-add="plug" data-plug-status="builtIn">Built-in plug</button><button data-add="plug" data-plug-status="new">New plug</button><button data-add="furniture">Furniture</button><button id="goCustomBtn">Custom / batch…</button><span id="actionStatus" class="info" role="status"></span><span id="selectionCount" class="badge tleft">0 selected</span></div>
 
-<div class="tools">
+<div class="tools desktop-planner-tools">
  <button id="selectAllBtn">Select all</button><button id="clearBtn">Clear</button><button id="multiBtn">Multi-select: Off</button><button id="groupBtn">Group</button><button id="ungroupBtn">Ungroup</button><button id="lockBtn">🔒 Lock selected</button><button id="unlockBtn">Unlock selected</button>
 </div>
-<div class="tools viewTools"><button id="zoomOut" aria-label="Zoom out">−</button><input id="zoom" aria-label="Zoom" type="range" min="10" max="250" step="5" value="100"><strong id="zoomValue" style="min-width:45px;text-align:center">100%</strong><button id="zoomIn" aria-label="Zoom in">+</button><button id="fitBtn">Fit</button><span class="sep"></span><label style="margin:0"><input id="gridSnap" type="checkbox" checked style="width:auto"> Grid snap</label><select id="gridSize" aria-label="Grid spacing" style="width:auto"><option value=".01">1 cm</option><option value=".05" selected>5 cm</option><option value=".1">10 cm</option><option value=".2">20 cm</option><option value=".5">50 cm</option></select><label style="margin:0"><input id="magnet" type="checkbox" checked style="width:auto"> Magnetic align</label><label for="labels">Labels</label><select id="labels" style="width:auto"><option value="short">All labels</option><option value="rooms">Room names only</option><option value="noRooms">Hide room names</option><option value="none">No labels</option></select></div>
+<div class="tools viewTools desktop-planner-tools"><button id="zoomOut" aria-label="Zoom out">−</button><input id="zoom" aria-label="Zoom" type="range" min="10" max="250" step="5" value="100"><strong id="zoomValue" style="min-width:45px;text-align:center">100%</strong><button id="zoomIn" aria-label="Zoom in">+</button><button id="fitBtn">Fit</button><span class="sep"></span><label style="margin:0"><input id="gridSnap" type="checkbox" checked style="width:auto"> Grid snap</label><select id="gridSize" aria-label="Grid spacing" style="width:auto"><option value=".01">1 cm</option><option value=".05" selected>5 cm</option><option value=".1">10 cm</option><option value=".2">20 cm</option><option value=".5">50 cm</option></select><label style="margin:0"><input id="magnet" type="checkbox" checked style="width:auto"> Magnetic align</label><label for="labels">Labels</label><select id="labels" style="width:auto"><option value="short">All labels</option><option value="rooms">Room names only</option><option value="noRooms">Hide room names</option><option value="none">No labels</option></select></div>
 <div class="workspace" id="viewport" tabindex="0" aria-label="Floor plan"><div class="scaled" id="scaled"><div class="board" id="board"></div></div></div>
 
-<div class="tools"><div class="plug-legend muted" aria-label="Plug indicators"><span><i class="plug-marker" aria-hidden="true"></i>Built-in plug</span><span><i class="plug-marker plug-new" aria-hidden="true"></i>New plug</span></div>
+<div class="mobile-only mobile-selection"><strong id="mobileSelection">No selection</strong><span id="mobileFeedback" role="status">Swipe to pan · Pinch to zoom</span></div>
+<div class="mobile-only mobile-actions" aria-label="Selection actions">
+<button id="mobileMove" aria-pressed="false">Move</button><button id="mobileRotate">Rotate</button><button id="mobileAdjust" aria-haspopup="dialog">Adjust</button><button id="mobileUndo">Undo</button>
+</div>
+<div class="tools desktop-planner-tools"><div class="plug-legend muted" aria-label="Plug indicators"><span><i class="plug-marker" aria-hidden="true"></i>Built-in plug</span><span><i class="plug-marker plug-new" aria-hidden="true"></i>New plug</span></div>
 <span class="info tleft">Hover for details. Use Ctrl/Cmd+C and Ctrl/Cmd+V to copy and paste selected items.</span></div>
 <div class="tools" id="placementNoticeWrap" hidden><span id="placementNotice" class="info"></span></div><div id="furnitureTooltip" class="furniture-tooltip" role="tooltip" hidden><strong></strong><div></div></div>
 </main><aside class="panel side">
-<div class="section stack"><h2>Selection & precise movement</h2><div class="row"><span id="selectionSummary" class="badge">No selection</span><button id="selectUnlocked">Select unlocked</button></div><div id="groupNameWrap" class="hide"><label for="groupName">Group name</label><input id="groupName" maxlength="64"></div><div class="item-list" id="itemList" aria-label="Plan items"></div>
+<div class="section stack"><h2>Selection & precise movement</h2><div class="row"><span id="selectionSummary" class="badge">No selection</span><button id="selectUnlocked">Select unlocked</button></div><div id="layerList" class="stack"><div id="groupNameWrap" class="hide"><label for="groupName">Group name</label><input id="groupName" maxlength="64"></div><div class="item-list" id="itemList" aria-label="Plan items"></div></div>
 <div class="fields"><div><label>Move by</label><select id="moveStep"><option value=".01">1 cm</option><option value=".05">5 cm</option><option value=".1" selected>10 cm</option><option value=".5">50 cm</option></select></div><div><label>Rotate</label><div class="row"><button id="ccw">↶ 90°</button><button id="cw">90° ↷</button></div></div></div>
 <div class="dpad"><span></span><button data-move="0,-1">↑</button><span></span><button data-move="-1,0">←</button><span class="middle">MOVE</span><button data-move="1,0">→</button><span></span><button data-move="0,1">↓</button><span></span></div>
 <div class="row"><button id="duplicateBtn">Duplicate</button><button id="deleteBtn">Delete unlocked</button></div>
 </div>
 <div class="section stack"><h2>Align selected items</h2><div class="row"><button data-align="left">Left</button><button data-align="centerX">Center ↕</button><button data-align="right">Right</button><button data-align="top">Top</button><button data-align="centerY">Middle ↔</button><button data-align="bottom">Bottom</button></div><div class="muted">Aligns multiple selected, unlocked objects. Locked objects stay in place and can serve as alignment references.</div></div>
-<div class="section stack"><h2>Item details</h2><div><label>Name</label><input id="name" placeholder="Select one item"></div><div class="fields"><div><label>Width (cm)</label><input id="width" type="number" min="5" step=".1"></div><div><label>Depth (cm)</label><input id="depth" type="number" min="5" step=".1"></div><div><label>X (metres)</label><input id="x" type="number" step=".01"></div><div><label>Y (metres)</label><input id="y" type="number" step=".01"></div></div><div id="placementWrap" class="hide"><label for="itemRoom">Room</label><select id="itemRoom"></select><div id="wallWrap"><label for="itemWall">Wall</label><select id="itemWall"><option value="top">Top</option><option value="right">Right</option><option value="bottom">Bottom</option><option value="left">Left</option></select></div></div><div id="plugStatusWrap" class="hide"><label for="plugStatus">Plug status</label><select id="plugStatus"><option value="builtIn">Built-in</option><option value="new">New</option></select></div><div id="tableWrap"><label>Table configuration</label><select id="tableMode"><option value="open">Open (152 × 80 cm)</option><option value="half">Half (89 × 80 cm)</option><option value="folded">Folded (26 × 80 cm)</option></select></div><div class="muted" id="lockedNotice"></div><div class="row"><button id="deleteDetailsBtn" style="border-color:#d99393;color:#a52727">🗑 Delete selected item(s)</button><button id="lockDetailsBtn">🔒 Lock</button><button id="unlockDetailsBtn">Unlock</button></div></div>
+<div class="section stack" id="detailsSection"><h2>Item details</h2><div><label>Name</label><input id="name" placeholder="Select one item"></div><div class="fields"><div><label>Width (cm)</label><input id="width" type="number" min="5" step=".1"></div><div><label>Depth (cm)</label><input id="depth" type="number" min="5" step=".1"></div><div><label>X (metres)</label><input id="x" type="number" step=".01"></div><div><label>Y (metres)</label><input id="y" type="number" step=".01"></div></div><div id="placementWrap" class="hide"><label for="itemRoom">Room</label><select id="itemRoom"></select><div id="wallWrap"><label for="itemWall">Wall</label><select id="itemWall"><option value="top">Top</option><option value="right">Right</option><option value="bottom">Bottom</option><option value="left">Left</option></select></div></div><div id="plugStatusWrap" class="hide"><label for="plugStatus">Plug status</label><select id="plugStatus"><option value="builtIn">Built-in</option><option value="new">New</option></select></div><div id="tableWrap"><label>Table configuration</label><select id="tableMode"><option value="open">Open (152 × 80 cm)</option><option value="half">Half (89 × 80 cm)</option><option value="folded">Folded (26 × 80 cm)</option></select></div><div class="muted" id="lockedNotice"></div><div class="row"><button id="deleteDetailsBtn" style="border-color:#d99393;color:#a52727">🗑 Delete selected item(s)</button><button id="lockDetailsBtn">🔒 Lock</button><button id="unlockDetailsBtn">Unlock</button></div></div>
 <div class="section stack" id="customFurnitureSection"><h2>Add furniture by dimensions</h2><div><label>Furniture name</label><input id="newName" placeholder="e.g. Bookshelf"></div><div class="fields"><div><label>Width (cm)</label><input id="newW" type="number" value="120" min="5" step=".1"></div><div><label>Depth (cm)</label><input id="newD" type="number" value="40" min="5" step=".1"></div><div><label>Quantity</label><input id="newQ" type="number" value="1" min="1" max="100" step="1"></div><div style="display:flex;align-items:end"><button id="addCustomBtn" class="primary" style="width:100%">Add furniture</button></div></div>
 <h2 style="margin-top:8px">Batch add furniture</h2><div class="muted">One per line: <code>Name, Width cm, Depth cm, Quantity</code></div><textarea id="batchText" class="batch" placeholder="Bookshelf, 90, 35, 2&#10;Side table, 45, 45, 1"></textarea><button id="batchBtn">Add batch</button></div>
 <div class="section stack" id="cloudSection"><h2>☁ Cloud sync across computers</h2><div class="muted">Configure Supabase once in your GitHub HTML, then sign in with the same email on every device. This is optional; browser autosave works without it.</div>
@@ -71,6 +106,16 @@ dialog::backdrop{background:#152d4470}
 <div class="section stack"><h2>Transfer JSON between devices</h2><textarea id="jsonText" class="json" placeholder="Click Generate JSON, or paste a JSON save here"></textarea><div class="row"><button id="generateBtn">Generate JSON</button><button id="selectTextBtn">Select text</button><button id="loadBtn" class="primary">Load pasted JSON</button></div></div>
 <div id="message" class="msg"></div>
 </aside></div>
+<dialog class="mobile-sheet" id="mobileSheet" aria-labelledby="mobileSheetTitle">
+<div class="mobile-sheet-header"><h2 id="mobileSheetTitle">Items</h2><button id="mobileSheetClose">Done</button></div>
+<p class="info" id="mobileSheetStatus" hidden></p>
+<div class="stack" id="mobileSheetBody"></div>
+</dialog>
+<div id="mobileSheetParking" hidden>
+<div id="mobileLayerActions" class="row"><button id="mobileGroup">Group</button><button id="mobileUngroup">Ungroup</button></div>
+<div id="mobileNudge" class="mobile-nudge"><label for="mobileStep">Nudge <select id="mobileStep"><option value=".01">1 cm</option><option value=".05">5 cm</option><option value=".1">10 cm</option><option value=".5">50 cm</option></select></label><div class="row"><button data-nudge="-1,0" aria-label="Nudge left">←</button><button data-nudge="0,-1" aria-label="Nudge up">↑</button><button data-nudge="0,1" aria-label="Nudge down">↓</button><button data-nudge="1,0" aria-label="Nudge right">→</button></div></div>
+<div id="mobileCandidates" class="stack mobile-candidates"></div>
+</div>
 <dialog id="reportDialog" aria-labelledby="reportTitle"><h2 id="reportTitle">Download report pages</h2><p class="muted">Download the report with its item legend, or download the enlarged floor plan on its own.</p><div id="reportPages" class="row"></div><form method="dialog" class="space"><button>Close</button></form></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
@@ -129,14 +174,14 @@ state.defaultLayout=layoutWithoutZones(state.defaultLayout);
 state.zoom=Number.isFinite(state.zoom)?clamp(state.zoom,.1,2.5):1;
 state.selected=[];let pointer=null,marquee=null,rendering=false,boardOrigin={x:0,y:0};
 let undoStack=[],redoStack=[],lastHistory=JSON.stringify(state.objects),historySuspended=false;
-function updateHistoryButtons(){$('undoBtn').disabled=!undoStack.length;$('redoBtn').disabled=!redoStack.length}
+function updateHistoryButtons(){$('undoBtn').disabled=$('mobileUndo').disabled=!undoStack.length;$('redoBtn').disabled=!redoStack.length}
 function undo(){if(!undoStack.length)return;redoStack.push(clone(state.objects));state.objects=undoStack.pop();lastHistory=JSON.stringify(state.objects);setSelection([]);render();save();updateHistoryButtons()}
 function redo(){if(!redoStack.length)return;undoStack.push(clone(state.objects));state.objects=redoStack.pop();lastHistory=JSON.stringify(state.objects);setSelection([]);render();save();updateHistoryButtons()}
 $('undoBtn').onclick=undo;$('redoBtn').onclick=redo;
 $('deleteDetailsBtn').onclick=()=>$('deleteBtn').click();$('lockDetailsBtn').onclick=()=>$('lockBtn').click();$('unlockDetailsBtn').onclick=()=>$('unlockBtn').click();
 $('goCustomBtn').onclick=()=>{$('customFurnitureSection').scrollIntoView({behavior:'smooth',block:'start'});$('newName').focus()};
 
-function msg(s){$('message').textContent=s;$('actionStatus').textContent=s}
+function msg(s){$('message').textContent=s;$('actionStatus').textContent=s;mobileFeedback(s)}
 function save(){
  const signature=JSON.stringify(state.objects);
  if(!historySuspended&&signature!==lastHistory){undoStack.push(JSON.parse(lastHistory));if(undoStack.length>70)undoStack.shift();redoStack=[];lastHistory=signature}
@@ -276,7 +321,8 @@ function moveSelection(source,ids,dx,dy,{drag=false}={}){
  if(minX>maxX+.00011||minY>maxY+.00011)return {error:'A room or wall stops this selection.'};
  const shiftX=clamp(dx,minX,maxX),shiftY=clamp(dy,minY,maxY);
  const edits=new Map(source.filter(o=>moving.has(o.id)).map(o=>[o.id,{...o,x:round(o.x+shiftX),y:round(o.y+shiftY)}]));
- return applyLayoutEdits(source,edits,{allowWallChange:drag&&moving.size===1,rigid:moving.size>1});
+ const result=applyLayoutEdits(source,edits,{allowWallChange:drag&&moving.size===1,rigid:moving.size>1});
+ return {...result,limited:Math.abs(shiftX-dx)>.0001||Math.abs(shiftY-dy)>.0001};
 }
 
 function commitEdits(edits,options){
@@ -360,6 +406,17 @@ function paintGeometry(element,item){
  }
  Object.assign(element.style,{left:(x-boardOrigin.x)*S+'px',top:(y-boardOrigin.y)*S+'px',width:w*S+'px',height:h*S+'px'});
 }
+function paintMovedObjects(result){
+ const board=$('board');
+ const previous=state.objects;
+ state.objects=result.objects;
+ for(let i=0;i<previous.length;i++){
+  const obj=state.objects[i];
+  if(obj===previous[i])continue;
+  const node=board.querySelector('[data-id="'+CSS.escape(obj.id)+'"]');
+  if(node)paintGeometry(node,obj);
+ }
+}
 function render(){if(rendering)return;rendering=true;hideFurnitureTooltip();updateZoom();const board=$('board'),rooms=roomRects(state.objects);board.replaceChildren();for(const o of state.objects){const g=geom(o),el=document.createElement('div');el.className='obj '+o.type+(o.locked?' locked':'')+(state.selected.includes(o.id)?' selected':'');el.dataset.id=o.id;if(placementProblem(o,rooms))el.classList.add('unplaced');if(o.type==='plug')el.classList.add(plugStatus(o)==='new'?'plug-new':'plug-built-in');paintGeometry(el,o);
 const show=state.labels==='short'||(state.labels==='rooms'&&o.type==='room')||(state.labels==='noRooms'&&o.type!=='room');
 if(show&&o.type!=='plug'&&g.w*S>48&&g.h*S>20){let t=document.createElement('span');t.className='name';t.textContent=o.name;el.append(t)}
@@ -373,14 +430,7 @@ el.addEventListener('pointermove',e=>{
  const d=snappedMove(pointer.positions,rawX,rawY,pointer.ids,pointer.source);
  const result=moveSelection(pointer.source,pointer.ids,d.dx,d.dy,{drag:true});
  if(result.error){msg(result.error);return}
- const previous=state.objects;
- state.objects=result.objects;
- for(let i=0;i<previous.length;i++){
-  const obj=state.objects[i];
-  if(obj===previous[i])continue;
-  const node=board.querySelector('[data-id="'+CSS.escape(obj.id)+'"]');
-  if(node)paintGeometry(node,obj);
- }
+ paintMovedObjects(result);
 });
 function release(e){
  if(pointer?.kind!=='drag'||pointer.pointerId!==e.pointerId)return;
@@ -420,6 +470,7 @@ $('lockedNotice').textContent=single?[single.locked?'Locked: unlock before editi
 $('lockBtn').disabled=!sel.some(o=>!o.locked);$('unlockBtn').disabled=!sel.some(o=>o.locked);$('duplicateBtn').disabled=!sel.some(o=>!o.locked);$('deleteBtn').disabled=!sel.some(o=>!o.locked);
 $('groupBtn').disabled=sel.length<2;$('ungroupBtn').disabled=!sel.some(o=>o.groupId);
 renderItemList(sel);
+refreshMobileControls(sel);
 }
 
 const expandedGroups=new Set();
@@ -489,16 +540,17 @@ $('groupName').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefau
 
 function updateZoom(){let zoom=state.zoom,board=$('board');const plan=state.objects.length?bounds(state.objects):{x:0,y:0,right:0,bottom:0};boardOrigin={x:Math.min(0,plan.x-1),y:Math.min(0,plan.y-1)};const width=Math.max(BW,(plan.right-boardOrigin.x)*S+60),height=Math.max(BH,(plan.bottom-boardOrigin.y)*S+60);board.style.width=width+'px';board.style.height=height+'px';board.style.transform=`scale(${zoom})`;$('scaled').style.width=width*zoom+'px';$('scaled').style.height=height*zoom+'px';$('zoom').value=String(Math.round(zoom*100/5)*5);$('zoomValue').textContent=Math.round(zoom*100)+'%'}
 function changeZoom(v){hideFurnitureTooltip();state.zoom=clamp(v,.1,2.5);updateZoom();save()}
-function applyDelta(dx,dy){
+function applyDelta(dx,dy,{exact=false}={}){
  const ids=idsUnlocked();
  if(!ids.length){msg('Select unlocked items to move.');return}
  const positions=ids.map(id=>lookup(id));
- const d=snappedMove(positions,dx,dy,ids);
+ const d=exact?{dx,dy}:snappedMove(positions,dx,dy,ids);
  const result=moveSelection(state.objects,ids,d.dx,d.dy);
  if(result.error){msg(result.error);return}
  if(!result.changed.size){msg('The room or wall stops this movement.');return}
  state.objects=result.objects;
  render();save();
+ if(exact)msg(result.limited?'Moved to the room or wall boundary.':'Nudged '+round(Math.hypot(dx,dy)*100)+' cm.');
 }
 
 function viewportCenter(){
@@ -575,7 +627,11 @@ $('ungroupBtn').onclick=()=>{
 const newItemDefinitions={room:['Room',3,3],door:['Door',.9,.12],window:['Window',1.2,.12],plug:['Plug',.22,.22],furniture:['Furniture',1.2,.8]};
 document.querySelectorAll('[data-add]').forEach(button=>button.onclick=()=>{
  const type=button.dataset.add,[name,w,h]=newItemDefinitions[type];
- try{addObj(type,name,w,h,1,button.dataset.plugStatus);msg('')}catch(error){msg(error.message)}
+ try{
+  addObj(type,name,w,h,1,button.dataset.plugStatus);
+  if(document.body.dataset.mobileTools==='add')setMobileTools(null);
+  msg('');
+ }catch(error){msg(error.message)}
 });
 document.querySelectorAll('[data-move]').forEach(b=>b.onclick=()=>{const [dx,dy]=b.dataset.move.split(',').map(Number);let v=Number($('moveStep').value);applyDelta(dx*v,dy*v)});
 function rotate(deg){
@@ -722,7 +778,7 @@ $('generateBtn').onclick=()=>{$('jsonText').value=JSON.stringify(transfer(),null
 $('copyBtn').onclick=async()=>{$('generateBtn').click();try{await navigator.clipboard.writeText($('jsonText').value);msg('JSON copied!')}catch(e){msg('JSON selected. Press Ctrl+C / Cmd+C.')}};
 $('pasteBtn').onclick=()=>{$('jsonText').scrollIntoView({behavior:'smooth',block:'center'});$('jsonText').focus();msg('Paste your JSON code, then press Load pasted JSON.')};$('selectTextBtn').onclick=()=>{$('jsonText').focus();$('jsonText').select()};
 $('loadBtn').onclick=()=>{try{let parsed=JSON.parse($('jsonText').value);if(!validObjects(parsed.objects))throw Error('JSON must contain a valid objects array.');if(!confirm('Replace your active layout with this JSON?'))return;state.objects=loadPlacement(parsed.objects.map(o=>({...o,locked:!!o.locked,groupId:o.groupId||null})));state.checkpoints=checkpointsWithoutZones(parsed.checkpoints);state.defaultLayout=layoutWithoutZones(parsed.defaultLayout);state.zoom=Number.isFinite(parsed.zoom)?clamp(parsed.zoom,.1,2.5):.75;state.grid=typeof parsed.grid==='boolean'?parsed.grid:true;state.magnet=typeof parsed.magnet==='boolean'?parsed.magnet:true;state.gridSize=[.01,.05,.1,.2,.5].includes(parsed.gridSize)?parsed.gridSize:.05;state.labels=labelModes.includes(parsed.labels)?parsed.labels:'short';$('gridSnap').checked=state.grid;$('magnet').checked=state.magnet;$('gridSize').value=state.gridSize;$('labels').value=state.labels;setSelection([]);render();refreshCheckpoints();save();msg('Layout loaded — locks, groups, positions and checkpoints restored.')}catch(e){msg('Import failed: '+e.message)}};
-document.addEventListener('keydown',e=>{let target=e.target;if(isTextEditor(target)||pointer)return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'){e.preventDefault();setSelection(state.objects.map(o=>o.id));return}if(e.key==='Escape'){hideFurnitureTooltip();setSelection([]);return}if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();$('deleteBtn').click();return}const dirs={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};if(dirs[e.key]){e.preventDefault();const [dx,dy]=dirs[e.key],s=Number($('moveStep').value);applyDelta(dx*s,dy*s)}});
+document.addEventListener('keydown',e=>{let target=e.target;if(mobileSheet.open&&e.key==='Escape'){e.preventDefault();closeMobileSheet({restoreFocus:true});return}if(isTextEditor(target)||pointer||mobileGesture)return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'){e.preventDefault();setSelection(state.objects.map(o=>o.id));return}if(e.key==='Escape'){hideFurnitureTooltip();setSelection([]);return}if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();$('deleteBtn').click();return}const dirs={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};if(dirs[e.key]){e.preventDefault();const [dx,dy]=dirs[e.key],s=Number($('moveStep').value);applyDelta(dx*s,dy*s)}});
 
 // Optional account-based cloud sync. Requires Supabase project configuration and RLS SQL.
 let cloud=null,cloudUser=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false;
@@ -1028,6 +1084,253 @@ $('reportBtn').onclick=()=>{
  addDownload('Download full-screen plan','-full-plan',()=>fullPlanReport(model,date));
  $('reportDialog').showModal();
 };
+
+const mobileMode=window.matchMedia('(max-width:900px) and (any-pointer:coarse)');
+const mobileViewport=$('viewport'),mobileSheet=$('mobileSheet'),mobileTouches=new Map();
+let mobileGesture=null,mobileMoveArmed=false,mobileNodes=[],mobileSheetTrigger=null;
+
+function mobileFeedback(text){
+ const planText=text||(mobileMoveArmed?'Drag to move the selection':'Swipe to pan · Pinch to zoom');
+ if($('mobileFeedback').textContent!==planText)$('mobileFeedback').textContent=planText;
+ if(mobileSheet.open){
+  $('mobileSheetStatus').textContent=text;
+  $('mobileSheetStatus').hidden=!text;
+ }
+}
+
+function setMobileMove(armed){
+ mobileMoveArmed=armed;
+ $('mobileMove').setAttribute('aria-pressed',String(armed));
+ $('mobileMove').textContent=armed?'Cancel move':'Move';
+ mobileFeedback('');
+}
+
+function refreshMobileControls(selection){
+ if(!mobileMode.matches)return;
+ const unlocked=selection.filter(item=>!item.locked);
+ let name='No selection';
+ if(selection.length===1){
+  const item=selection[0],room=lookup(item.roomId);
+  name=[item.name,fixtureTypes.has(item.type)?room?.name:null,item.locked?'Locked':null].filter(Boolean).join(' · ');
+ }else if(selection.length){
+  const groups=collectGroups(state.objects),id=selection[0].groupId;
+  name=id&&selection.every(item=>item.groupId===id)?groupName(id,groups.get(id),[...groups.keys()].indexOf(id)):selection.length+' selected';
+ }
+ $('mobileSelection').textContent=name;
+ $('mobileMove').disabled=!unlocked.length;
+ $('mobileRotate').disabled=!unlocked.some(item=>!fixtureTypes.has(item.type));
+ $('mobileAdjust').disabled=!selection.length;
+ $('mobileMulti').setAttribute('aria-pressed',String(state.multi));
+ $('mobileGroup').disabled=$('groupBtn').disabled;
+ $('mobileUngroup').disabled=$('ungroupBtn').disabled;
+ $('mobileNudge').querySelectorAll('button,select').forEach(control=>control.disabled=!unlocked.length);
+ if(!unlocked.length&&mobileMoveArmed)setMobileMove(false);
+}
+
+function setMobileTools(mode){
+ if(mode)document.body.dataset.mobileTools=mode;else delete document.body.dataset.mobileTools;
+ $('mobileAdd').setAttribute('aria-expanded',String(mode==='add'));
+ $('mobileMore').setAttribute('aria-expanded',String(mode==='more'));
+}
+
+function restoreMobileNodes(){
+ for(const {node,parent,next} of mobileNodes)parent.insertBefore(node,next?.parentNode===parent?next:null);
+ mobileNodes=[];
+}
+
+function closeMobileSheet({restoreFocus=false}={}){
+ if(mobileSheet.open)mobileSheet.close();
+ restoreMobileNodes();
+ if(restoreFocus)mobileSheetTrigger?.focus({preventScroll:true});
+ mobileSheetTrigger=null;
+}
+
+function openMobileSheet(title,nodes,trigger){
+ closeMobileSheet();
+ mobileSheetTrigger=trigger;
+ $('mobileSheetTitle').textContent=title;
+ $('mobileSheetStatus').hidden=true;
+ for(const node of nodes){
+  mobileNodes.push({node,parent:node.parentNode,next:node.nextSibling});
+  $('mobileSheetBody').append(node);
+ }
+ mobileSheet.show();
+ mobileSheet.scrollTop=0;
+}
+
+function mobileHitItems(point){
+ const direct=lookup(point.target.closest?.('.obj')?.dataset.id);
+ const close=[];
+ for(const node of $('board').querySelectorAll('.obj.door,.obj.window,.obj.plug')){
+  const rect=node.getBoundingClientRect();
+  const dx=point.clientX-rect.left-rect.width/2,dy=point.clientY-rect.top-rect.height/2;
+  if(Math.abs(dx)<=Math.max(rect.width/2,22)&&Math.abs(dy)<=Math.max(rect.height/2,22)){
+   close.push({item:lookup(node.dataset.id),distance:dx*dx+dy*dy});
+  }
+ }
+ close.sort((a,b)=>a.distance-b.distance);
+ const choices=close.map(candidate=>candidate.item).filter(Boolean);
+ if(direct?.type==='furniture'&&!choices.includes(direct))choices.unshift(direct);
+ return choices.length?choices:direct?[direct]:[];
+}
+
+function selectMobileItem(item){
+ setMobileMove(false);
+ if(state.multi)toggleSelection(item.id);else setSelection([item.id]);
+}
+
+function mobileTap(point){
+ const items=mobileHitItems(point);
+ if(items.length<=1){
+  if(items.length)selectMobileItem(items[0]);
+  else if(!state.multi){setMobileMove(false);setSelection([])}
+  return;
+ }
+ const candidates=$('mobileCandidates');
+ candidates.replaceChildren();
+ for(const item of items){
+  const button=document.createElement('button'),room=lookup(item.roomId);
+  button.type='button';
+  const name=item.type==='plug'?plugStatusLabel(item)+' plug':item.name;
+  button.textContent=[name,room?.name,item.wallSide?titleCase(item.wallSide)+' wall':null,item.locked?'Locked':null].filter(Boolean).join(' · ');
+  button.onclick=()=>{selectMobileItem(item);closeMobileSheet()};
+  candidates.append(button);
+ }
+ openMobileSheet('Choose an item',[candidates],mobileViewport);
+}
+
+function mobilePoint(event){return {clientX:event.clientX,clientY:event.clientY,target:event.target}}
+
+function mobilePinch(){
+ const [a,b]=mobileTouches.values();
+ return {clientX:(a.clientX+b.clientX)/2,clientY:(a.clientY+b.clientY)/2,
+  distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)};
+}
+
+function clearMobileGuide(){$('board').querySelector('.mobile-wall-guide')?.remove()}
+
+function showMobileWall(item){
+ const room=lookup(item?.roomId);
+ if(!item||!fixtureTypes.has(item.type)||!room||!wallSides.includes(item.wallSide)){clearMobileGuide();return ''}
+ const r=geom(room),horizontal=item.wallSide==='top'||item.wallSide==='bottom';
+ const x=item.wallSide==='right'?r.right:r.x,y=item.wallSide==='bottom'?r.bottom:r.y;
+ let line=$('board').querySelector('.mobile-wall-guide');
+ if(!line){line=document.createElement('div');line.className='mobile-wall-guide';$('board').append(line)}
+ Object.assign(line.style,{left:((x-boardOrigin.x)*S-(horizontal?0:2))+'px',top:((y-boardOrigin.y)*S-(horizontal?2:0))+'px',
+  width:(horizontal?r.w*S:4)+'px',height:(horizontal?4:r.h*S)+'px'});
+ return room.name+' · '+titleCase(item.wallSide)+' wall';
+}
+
+function captureMobileTouch(event){
+ if(!mobileMode.matches||event.pointerType!=='touch')return false;
+ event.stopPropagation();
+ return true;
+}
+
+function beginMobileTouch(event){
+ if(!captureMobileTouch(event))return;
+ const point=mobilePoint(event);
+ mobileTouches.set(event.pointerId,point);
+ mobileViewport.setPointerCapture(event.pointerId);
+ if(mobileTouches.size===2&&mobileGesture?.kind!=='pinch'){
+  if(mobileGesture?.kind==='move'&&mobileGesture.moved){state.objects=mobileGesture.source;render()}
+  if(mobileMoveArmed)setMobileMove(false);
+  const pinch=mobilePinch();
+  mobileGesture={kind:'pinch',anchor:toCanvas(pinch),startDistance:Math.max(1,pinch.distance),zoom:state.zoom};
+  return;
+ }
+ if(mobileTouches.size!==1)return;
+ const ids=mobileMoveArmed?idsUnlocked():[];
+ mobileGesture={kind:ids.length?'move':'pan',point,pointerId:event.pointerId,
+  scrollLeft:mobileViewport.scrollLeft,scrollTop:mobileViewport.scrollTop,
+  start:toCanvas(point),source:state.objects,ids,positions:ids.map(lookup)};
+}
+
+function updateMobileTouch(event){
+ if(!captureMobileTouch(event)||!mobileTouches.has(event.pointerId)||!mobileGesture)return;
+ const point=mobilePoint(event),gesture=mobileGesture;
+ mobileTouches.set(event.pointerId,point);
+ if(gesture.kind==='pinch'){
+  if(mobileTouches.size!==2)return;
+  const pinch=mobilePinch();
+  state.zoom=clamp(gesture.zoom*pinch.distance/gesture.startDistance,.1,2.5);
+  updateZoom();
+  const rect=$('board').getBoundingClientRect(),anchor=gesture.anchor;
+  mobileViewport.scrollBy(rect.left+(anchor.x-boardOrigin.x)*S*state.zoom-pinch.clientX,
+   rect.top+(anchor.y-boardOrigin.y)*S*state.zoom-pinch.clientY);
+  mobileFeedback(Math.round(state.zoom*100)+'%');
+  return;
+ }
+ const dx=point.clientX-gesture.point.clientX,dy=point.clientY-gesture.point.clientY;
+ if(!gesture.moved&&Math.hypot(dx,dy)<8)return;
+ gesture.moved=true;
+ if(gesture.kind==='pan'){
+  mobileViewport.scrollTo(gesture.scrollLeft-dx,gesture.scrollTop-dy);
+  return;
+ }
+ const end=toCanvas(point);
+ const delta=snappedMove(gesture.positions,end.x-gesture.start.x,end.y-gesture.start.y,gesture.ids,gesture.source);
+ const result=moveSelection(gesture.source,gesture.ids,delta.dx,delta.dy,{drag:true});
+ if(result.error){mobileFeedback(result.error);return}
+ paintMovedObjects(result);
+ const wall=showMobileWall(gesture.ids.length===1?lookup(gesture.ids[0]):null);
+ gesture.hint=wall||(result.limited?'Room or wall boundary':'');
+ mobileFeedback(gesture.hint);
+}
+
+function endMobileTouch(event){
+ if(!mobileTouches.has(event.pointerId))return;
+ if(event.type!=='lostpointercapture')captureMobileTouch(event);
+ mobileTouches.delete(event.pointerId);
+ if(mobileTouches.size||!mobileGesture)return;
+ const gesture=mobileGesture,cancelled=event.type!=='pointerup';
+ mobileGesture=null;
+ if(gesture.kind==='pinch'){save();mobileFeedback('');return}
+ if(!gesture.moved){if(!cancelled&&gesture.kind==='pan')mobileTap(gesture.point);return}
+ if(gesture.kind==='move'){
+  if(cancelled)state.objects=gesture.source;
+  setMobileMove(false);render();
+  if(!cancelled){save();mobileFeedback(gesture.hint||'Moved.')}else mobileFeedback('Move cancelled.');
+ }
+}
+
+// The plan handles touch taps itself. Keep them out of the browser's click synthesis.
+mobileViewport.addEventListener('touchstart',event=>{
+ if(mobileMode.matches)event.preventDefault();
+},{passive:false});
+mobileViewport.addEventListener('pointerdown',beginMobileTouch,true);
+mobileViewport.addEventListener('pointermove',updateMobileTouch,true);
+mobileViewport.addEventListener('pointerup',endMobileTouch,true);
+mobileViewport.addEventListener('pointercancel',endMobileTouch,true);
+mobileViewport.addEventListener('lostpointercapture',endMobileTouch,true);
+mobileMode.addEventListener('change',()=>{
+ if(!mobileMode.matches){
+  if(mobileGesture?.kind==='move')state.objects=mobileGesture.source;
+  mobileTouches.clear();mobileGesture=null;closeMobileSheet();setMobileTools(null);setMobileMove(false);
+ }
+ render();
+});
+
+$('mobileFit').onclick=()=>{$('fitBtn').click();mobileFeedback('')};
+$('mobileAdd').onclick=()=>setMobileTools(document.body.dataset.mobileTools==='add'?null:'add');
+$('mobileMore').onclick=()=>setMobileTools(document.body.dataset.mobileTools==='more'?null:'more');
+$('mobileItems').onclick=e=>openMobileSheet('Items',[$('mobileLayerActions'),$('layerList')],e.currentTarget);
+$('mobileMulti').onclick=()=>{$('multiBtn').click();mobileFeedback(state.multi?'Tap items to add or remove them':'')};
+$('mobileMove').onclick=()=>{closeMobileSheet();setMobileMove(!mobileMoveArmed)};
+$('mobileRotate').onclick=()=>{mobileFeedback('');$('cw').click()};
+$('mobileAdjust').onclick=e=>{
+ setMobileMove(false);
+ openMobileSheet('Adjust selection',[$('mobileNudge'),$('detailsSection')],e.currentTarget);
+};
+$('mobileUndo').onclick=()=>{$('undoBtn').click();mobileFeedback('Undone.')};
+$('mobileGroup').onclick=()=>$('groupBtn').click();
+$('mobileUngroup').onclick=()=>$('ungroupBtn').click();
+$('mobileSheetClose').onclick=()=>closeMobileSheet({restoreFocus:true});
+mobileSheet.addEventListener('close',()=>{if(!mobileSheet.open)restoreMobileNodes()});
+$('mobileNudge').querySelectorAll('button').forEach(button=>button.onclick=()=>{
+ const [dx,dy]=button.dataset.nudge.split(',').map(Number),step=Number($('mobileStep').value);
+ applyDelta(dx*step,dy*step,{exact:true});
+});
 
 startCloud();
 
